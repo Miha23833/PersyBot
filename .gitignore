@@ -50,3 +50,4 @@ gradle-app.setting
 *.cfg
 log4j.properties
 /Common/src/main/resources/log4j2.xml
+/.idea/

@@ -1,7 +1,6 @@
 package com.persybot.cache;
 
 public interface Cache<K, V> {
-
     void addObject(V track);
 
     void removeObject(K identifier);

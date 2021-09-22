@@ -12,7 +12,7 @@ public class CacheAggregatorImpl implements CacheAggregator {
 
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    private final ConcurrentHashMap<Class<?>, Cache> cacheContainer;
+    private final ConcurrentHashMap<Class<?>, Cache<?, ?>> cacheContainer;
 
     private CacheAggregatorImpl() {
         cacheContainer = new ConcurrentHashMap<>();
@@ -34,12 +34,12 @@ public class CacheAggregatorImpl implements CacheAggregator {
 
 
     @Override
-    public Cache getCache(Class<?> identifier) {
+    public Cache<?, ?> getCache(Class<?> identifier) {
         return cacheContainer.get(identifier);
     }
 
     @Override
-    public CacheAggregator addCache(Class<?> identifier, Cache cache) {
+    public CacheAggregator addCache(Class<?> identifier, Cache<?, ?> cache) {
         cacheContainer.put(identifier, cache);
         return this;
     }
