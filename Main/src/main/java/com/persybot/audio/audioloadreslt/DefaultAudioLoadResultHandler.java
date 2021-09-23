@@ -8,12 +8,17 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.internal.interactions.ButtonImpl;
 
 import java.util.List;
 
 public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
-    private Cache<String, AudioTrack> cache = AudioCache.getInstance();
+    private final Cache<String, AudioTrack> cache = AudioCache.getInstance();
 
     private final GuildMusicManager musicManager;
     private final TextChannel rspChannel;
@@ -42,7 +47,6 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
 
     @Override
     public void noMatches() {
-        rspChannel.sendMessage("Sorry, didn't find this track.").queue();
 
     }
 

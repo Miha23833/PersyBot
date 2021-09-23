@@ -21,9 +21,6 @@ public class Bot {
     private Bot() throws IOException, LoginException {
         ConfigReader config = new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg");
         String token = config.getProperty("bot.token");
-
-
-
         JDA jda = JDABuilder.createDefault(token)
                 .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator()))
                 .build();
