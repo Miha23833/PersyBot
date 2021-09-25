@@ -1,7 +1,5 @@
 package com.persybot.db.model.impl;
 
-import com.persybot.db.common.OperationResult;
-import com.persybot.db.common.constraint.impl.ValidateConstraintResult;
 import com.persybot.db.model.HbTable;
 import org.hibernate.annotations.Table;
 
@@ -15,11 +13,6 @@ public class DiscordServerSettings implements HbTable {
     @Column(name = "serverId", updatable = false)
     private Long serverId;
 
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="discordServer")
-    private DiscordServer discordServer;
-
     @Column(nullable = false)
     private int volume = 100;
 
@@ -28,21 +21,12 @@ public class DiscordServerSettings implements HbTable {
 
     public DiscordServerSettings(Long serverId, DiscordServer discordServer, int volume, String prefix) {
         this.serverId = serverId;
-        this.discordServer = discordServer;
         this.volume = volume;
         this.prefix = prefix;
     }
 
     public DiscordServerSettings() {
 
-    }
-
-    public DiscordServer getDiscordServer() {
-        return discordServer;
-    }
-
-    public void setDiscordServer(DiscordServer discordServer) {
-        this.discordServer = discordServer;
     }
 
     public int getVolume() {
@@ -59,22 +43,6 @@ public class DiscordServerSettings implements HbTable {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    @Override
-    public OperationResult validate() {
-        OperationResult result = ValidateConstraintResult.getDefaultValid();
-
-        if (volume < 0 || volume > 100) {
-            result.addInvalidCause("Invalid volume value: " + volume);
-        }
-
-        if (prefix == null) {
-            result.addInvalidCause("Prefix cannot be null");
-        } else if (prefix.length() > 2) {
-            result.addInvalidCause("Prefix length cannot be more than 2");
-        }
-        return result;
     }
 
     public Long getServerId() {

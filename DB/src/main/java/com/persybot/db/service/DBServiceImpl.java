@@ -1,6 +1,5 @@
 package com.persybot.db.service;
 
-import com.persybot.db.common.OperationResult;
 import com.persybot.db.model.HbTable;
 import com.persybot.db.worker.impl.DBWorkerImpl;
 import com.persybot.logger.impl.PersyBotLogger;

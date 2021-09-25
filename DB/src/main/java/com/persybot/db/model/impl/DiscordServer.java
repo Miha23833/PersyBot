@@ -16,14 +16,6 @@ public class DiscordServer implements HbTable {
     @Column
     private long languageId;
 
-
-    public void setDiscordServerSettings(DiscordServerSettings discordServerSettings) {
-        this.discordServerSettings = discordServerSettings;
-    }
-
-    @OneToOne(mappedBy="discordServer")
-    private DiscordServerSettings discordServerSettings;
-
     public DiscordServer(long serverId, long languageId) {
         this.serverId = serverId;
         this.languageId = languageId;
@@ -47,9 +39,5 @@ public class DiscordServer implements HbTable {
 
     public void setLanguageId(long languageId) {
         this.languageId = languageId;
-    }
-
-    public DiscordServerSettings getDiscordServerSettings() {
-        return discordServerSettings;
     }
 }
