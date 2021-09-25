@@ -6,12 +6,18 @@ version 'unspecified'
 
 repositories {
     mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation('org.hibernate:hibernate-core:5.5.7.Final')
     implementation('org.postgresql:postgresql:42.2.24.jre7')
+
+    implementation group: 'org.infinispan', name: 'infinispan-hibernate-cache-v53', version: '12.1.7.Final'
 
     compile project(':Common')
 }
