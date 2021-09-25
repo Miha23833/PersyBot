@@ -32,14 +32,17 @@ public class AbstractWorker<T> extends Thread implements Worker {
 
     protected void doWork() {
         if (!tasks.isEmpty()) {
-            RunnableFuture<T> task = tasks.remove();
-            try {
-                isBusy.set(true);
-                task.run();
-            } catch (Exception e) {
-                PersyBotLogger.BOT_LOGGER.error(e);
-            } finally {
-                isBusy.set(false);
+            RunnableFuture<T> task = tasks.poll();
+            if (task != null) {
+                PersyBotLogger.BOT_LOGGER.error(Thread.currentThread().getName() + "Started task.");
+                try {
+                    isBusy.set(true);
+                    task.run();
+                } catch (Exception e) {
+                    PersyBotLogger.BOT_LOGGER.error(e);
+                } finally {
+                    isBusy.set(false);
+                }
             }
         }
     }

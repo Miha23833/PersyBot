@@ -21,15 +21,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DBServiceImpl implements DBService{
-    private static volatile DBServiceImpl INSTANCE;
+public class DBServiceImpl implements DBService {
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
-
+    private static volatile DBServiceImpl INSTANCE;
     protected final int countOfWorkers;
     protected final BlockingQueue<RunnableFuture<HbTable>> tasks;
     protected final List<DBWorkerImpl> workers;
-    protected AtomicBoolean onPause = new AtomicBoolean(true);
     private final SessionFactory sessionFactory;
+    protected AtomicBoolean onPause = new AtomicBoolean(true);
 
     private DBServiceImpl(int countOfWorkers) {
         this.countOfWorkers = countOfWorkers;
@@ -37,7 +36,7 @@ public class DBServiceImpl implements DBService{
         Configuration configuration = new Configuration();
         Properties properties = new Properties();
 
-        loadProperties(properties, "resources/hibernate.cfg.xml");
+        loadProperties(properties, "DB\\src\\main\\resources\\hibernate.cfg.xml");
 
         configuration.addProperties(properties);
         configuration.configure();
@@ -63,112 +62,6 @@ public class DBServiceImpl implements DBService{
     }
 
     @Override
-    public <T extends HbTable> void add(T entity) {
-        Session dbSession = sessionFactory.openSession();
-        Transaction transaction = dbSession.beginTransaction();
-
-        OperationResult constraintCheckResult = entity.validate();
-        if (constraintCheckResult.isValid()) {
-            try {
-                dbSession.save(entity);
-                transaction.commit();
-            } catch (Exception e) {
-                PersyBotLogger.BOT_LOGGER.error(e);
-                transaction.rollback();
-            } finally {
-                if (dbSession.isOpen()) {
-                    dbSession.close();
-                }
-            }
-        }
-        else {
-            PersyBotLogger.BOT_LOGGER.error("Fail to add " + entity.getClass() + ": " + constraintCheckResult.getFailDescription());
-        }
-    }
-
-    @Override
-    public <T extends HbTable> void delete(T entity) {
-        Session dbSession = sessionFactory.openSession();
-        Transaction transaction = dbSession.beginTransaction();
-        try {
-            dbSession.delete(entity);
-            transaction.commit();
-        } catch (Exception e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
-            transaction.rollback();
-        } finally {
-            if (dbSession.isOpen()) {
-                dbSession.close();
-            }
-        }
-    }
-
-    @Override
-    public <T extends HbTable> void update(T entity) {
-        Session dbSession = sessionFactory.openSession();
-        Transaction transaction = dbSession.beginTransaction();
-
-        OperationResult constraintCheckResult = entity.validate();
-        if (constraintCheckResult.isValid()) {
-            try {
-                dbSession.update(entity);
-                transaction.commit();
-            } catch (Exception e) {
-                PersyBotLogger.BOT_LOGGER.error(e);
-                transaction.rollback();
-            } finally {
-                if (dbSession.isOpen()) {
-                    dbSession.close();
-                }
-            }
-        }
-        else {
-            PersyBotLogger.BOT_LOGGER.error("Fail to add " + entity.getClass() + ": " + constraintCheckResult.getFailDescription());
-        }
-    }
-
-    @Override
-    public <T extends HbTable, I extends Serializable> Future<HbTable> get(Class<T> entityType, I identifier) {
-        RunnableFuture<HbTable> task = new FutureTask<>(()-> jobGet(entityType, identifier));
-        tasks.add(task);
-        return task;
-    }
-
-    private void loadProperties(Properties properties, String path) {
-        try (FileInputStream fis = new FileInputStream(new File(path))) {
-            properties.load(fis);
-        } catch (IOException e) {
-            PersyBotLogger.BOT_LOGGER.fatal("Cannot read hibernate properties file:\n", e);
-        }
-    }
-
-    private <T extends HbTable, I extends Serializable> T jobGet(Class<T> entityType, I identifier) {
-        Session dbSession = sessionFactory.openSession();
-        Transaction transaction = dbSession.beginTransaction();
-        T entity = null;
-        try {
-            entity = dbSession.get(entityType, identifier);
-            transaction.commit();
-        } catch (Exception e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
-            transaction.rollback();
-        } finally {
-            if (dbSession.isOpen()) {
-                dbSession.close();
-            }
-        }
-        return entity;
-    }
-
-    private List<DBWorkerImpl> createWorkers() {
-        List<DBWorkerImpl> workers = new ArrayList<>();
-        for (int i = 0; i < countOfWorkers; i++) {
-            workers.add(new DBWorkerImpl(sessionFactory, tasks, onPause));
-        }
-        return workers;
-    }
-
-    @Override
     public void addTask(RunnableFuture<HbTable> task) {
         tasks.add(task);
     }
@@ -182,6 +75,103 @@ public class DBServiceImpl implements DBService{
     @Override
     public void stop() {
         onPause.set(true);
+    }
+
+    @Override
+    public <T extends HbTable> void add(T entity) {
+        addTask(new FutureTask<>(() -> {
+            Session dbSession = sessionFactory.openSession();
+            Transaction transaction = dbSession.beginTransaction();
+                try {
+                    dbSession.save(entity);
+                    transaction.commit();
+                } catch (Exception e) {
+                    PersyBotLogger.BOT_LOGGER.error(e);
+                    transaction.rollback();
+                } finally {
+                    if (dbSession.isOpen()) {
+                        dbSession.close();
+                    }
+                }
+            return null;
+        }));
+    }
+
+    @Override
+    public <T extends HbTable> void delete(T entity) {
+        addTask(new FutureTask<>(() -> {
+            Session dbSession = sessionFactory.openSession();
+            Transaction transaction = dbSession.beginTransaction();
+            try {
+                dbSession.delete(entity);
+                transaction.commit();
+            } catch (Exception e) {
+                PersyBotLogger.BOT_LOGGER.error(e);
+                transaction.rollback();
+            } finally {
+                if (dbSession.isOpen()) {
+                    dbSession.close();
+                }
+            }
+            return null;
+        }));
+    }
+
+    @Override
+    public <T extends HbTable> void update(T entity) {
+        addTask(new FutureTask<>(() -> {
+            Session dbSession = sessionFactory.openSession();
+            Transaction transaction = dbSession.beginTransaction();
+                try {
+                    dbSession.update(entity);
+                    transaction.commit();
+                } catch (Exception e) {
+                    PersyBotLogger.BOT_LOGGER.error(e);
+                } finally {
+                    if (dbSession.isOpen()) {
+                        dbSession.close();
+                    }
+                }
+            return null;
+        }));
+    }
+
+    @Override
+    public <T extends HbTable, I extends Serializable> T get(Class<T> entityType, I identifier) throws ExecutionException, InterruptedException {
+        RunnableFuture<HbTable> task = new FutureTask<>(() -> {
+            Session dbSession = sessionFactory.openSession();
+            Transaction transaction = dbSession.beginTransaction();
+            T entity = null;
+            try {
+                entity = dbSession.get(entityType, identifier);
+                transaction.commit();
+            } catch (Exception e) {
+                PersyBotLogger.BOT_LOGGER.error(e);
+            } finally {
+                if (dbSession.isOpen()) {
+                    dbSession.close();
+                }
+            }
+            return entity;
+        });
+        addTask(task);
+        return entityType.cast(task.get());
+    }
+
+    private void loadProperties(Properties properties, String path) {
+        try (FileInputStream fis = new FileInputStream(new File(path))) {
+            properties.load(fis);
+        } catch (IOException e) {
+            PersyBotLogger.BOT_LOGGER.fatal("Cannot read hibernate properties file:\n", e);
+        }
+    }
+
+    private List<DBWorkerImpl> createWorkers() {
+        List<DBWorkerImpl> workers = new ArrayList<>();
+        for (int i = 0; i < countOfWorkers; i++) {
+            workers.add(new DBWorkerImpl(sessionFactory, tasks, onPause));
+        }
+        return workers;
     }
 
 }
