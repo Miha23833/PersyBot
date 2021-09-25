@@ -38,7 +38,7 @@ public class Bot {
     }
 
     private void initCache() {
-        cacheAggregator = CacheAggregatorImpl.getInstance();
+        cacheAggregator = CacheAggregatorImpl.getINSTANCE();
 
         cacheAggregator.addCache(AudioCache.class, AudioCache.getInstance());
     }

@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CacheAggregatorImpl implements CacheAggregator {
-    private static CacheAggregatorImpl instance;
+    private static CacheAggregatorImpl INSTANCE;
 
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
@@ -18,18 +18,18 @@ public class CacheAggregatorImpl implements CacheAggregator {
         cacheContainer = new ConcurrentHashMap<>();
     }
 
-    public static CacheAggregatorImpl getInstance() {
-        if (instance == null) {
+    public static CacheAggregatorImpl getINSTANCE() {
+        if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
-                if (instance == null) {
-                    instance = new CacheAggregatorImpl();
+                if (INSTANCE == null) {
+                    INSTANCE = new CacheAggregatorImpl();
                 }
             } finally {
                 rwLock.writeLock().unlock();
             }
         }
-        return instance;
+        return INSTANCE;
     }
 
 

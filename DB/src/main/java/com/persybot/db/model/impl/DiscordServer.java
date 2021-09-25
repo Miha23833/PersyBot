@@ -8,7 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(appliesTo = "DiscordServer")
 public class DiscordServer implements HbTable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(updatable = false, nullable = false)
@@ -17,6 +16,22 @@ public class DiscordServer implements HbTable {
     @Column
     private long languageId;
 
+
+    public void setDiscordServerSettings(DiscordServerSettings discordServerSettings) {
+        this.discordServerSettings = discordServerSettings;
+    }
+
+    @OneToOne(mappedBy="discordServer")
+    private DiscordServerSettings discordServerSettings;
+
+    public DiscordServer(long serverId, long languageId) {
+        this.serverId = serverId;
+        this.languageId = languageId;
+    }
+
+    public DiscordServer() {
+
+    }
 
     public long getServerId() {
         return serverId;
@@ -32,5 +47,9 @@ public class DiscordServer implements HbTable {
 
     public void setLanguageId(long languageId) {
         this.languageId = languageId;
+    }
+
+    public DiscordServerSettings getDiscordServerSettings() {
+        return discordServerSettings;
     }
 }

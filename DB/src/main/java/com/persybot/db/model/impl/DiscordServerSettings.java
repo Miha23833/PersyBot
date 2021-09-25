@@ -5,16 +5,20 @@ import com.persybot.db.common.constraint.impl.ValidateConstraintResult;
 import com.persybot.db.model.HbTable;
 import org.hibernate.annotations.Table;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
-@Table(appliesTo = "ServerSettings")
+@Entity
+@Table(appliesTo = "DiscordServerSettings")
 public class DiscordServerSettings implements HbTable {
-    @Column
-    @OneToOne
-    @JoinColumn(name = "discordServerId")
-    private DiscordServer discordServerId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "serverId", updatable = false)
+    private Long serverId;
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="discordServer")
+    private DiscordServer discordServer;
 
     @Column(nullable = false)
     private int volume = 100;
@@ -22,12 +26,23 @@ public class DiscordServerSettings implements HbTable {
     @Column(length = 2)
     private String prefix;
 
-    public DiscordServer getDiscordServerId() {
-        return discordServerId;
+    public DiscordServerSettings(Long serverId, DiscordServer discordServer, int volume, String prefix) {
+        this.serverId = serverId;
+        this.discordServer = discordServer;
+        this.volume = volume;
+        this.prefix = prefix;
     }
 
-    public void setDiscordServerId(DiscordServer discordServerId) {
-        this.discordServerId = discordServerId;
+    public DiscordServerSettings() {
+
+    }
+
+    public DiscordServer getDiscordServer() {
+        return discordServer;
+    }
+
+    public void setDiscordServer(DiscordServer discordServer) {
+        this.discordServer = discordServer;
     }
 
     public int getVolume() {
@@ -60,5 +75,9 @@ public class DiscordServerSettings implements HbTable {
             result.addInvalidCause("Prefix length cannot be more than 2");
         }
         return result;
+    }
+
+    public Long getServerId() {
+        return serverId;
     }
 }

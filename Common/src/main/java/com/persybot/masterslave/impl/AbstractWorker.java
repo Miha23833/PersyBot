@@ -3,30 +3,26 @@ package com.persybot.masterslave.impl;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.masterslave.Worker;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class WorkerImpl implements Worker {
-    private final BlockingQueue<Runnable> tasks;
+public class AbstractWorker<T> extends Thread implements Worker {
 
-    private final AtomicBoolean onPause = new AtomicBoolean(true);
-    private final AtomicBoolean isBusy = new AtomicBoolean(false);
+    protected final BlockingQueue<RunnableFuture<T>> tasks;
 
-    public WorkerImpl(BlockingQueue<Runnable> tasks) {
+    protected final AtomicBoolean isBusy = new AtomicBoolean(false);
+    protected final AtomicBoolean isMasterOnPause;
+
+    public AbstractWorker(BlockingQueue<RunnableFuture<T>> tasks, AtomicBoolean isMasterOnPause) {
+        this.isMasterOnPause = isMasterOnPause;
         this.tasks = tasks;
     }
 
     @Override
-    public void start() {
-        onPause.set(false);
-        while (!onPause.get()) {
+    public void run() {
+        while (!isMasterOnPause.get()) {
             doWork();
         }
-    }
-
-    @Override
-    public void stop() {
-        onPause.set(true);
     }
 
     @Override
@@ -34,9 +30,9 @@ public class WorkerImpl implements Worker {
         return isBusy.get();
     }
 
-    private void doWork() {
+    protected void doWork() {
         if (!tasks.isEmpty()) {
-            Runnable task = tasks.remove();
+            RunnableFuture<T> task = tasks.remove();
             try {
                 isBusy.set(true);
                 task.run();
