@@ -3,7 +3,7 @@ package com.persybot.validation;
 public interface ValidationResult<T> {
     boolean isValid();
 
-    String rejectionReasonText();
+    String rejectText();
 
     void setInvalid(T rejectReason, String rejectReasonText);
 

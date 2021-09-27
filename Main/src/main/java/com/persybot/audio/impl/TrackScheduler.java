@@ -23,8 +23,16 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    public boolean isEmpty() {
+        return queue.isEmpty();
+    }
+
     public void nextTrack() {
-        this.player.startTrack(this.queue.poll(), false);
+        if (queue.isEmpty()) {
+            player.stopTrack();
+        } else {
+            this.player.startTrack(this.queue.poll(), false);
+        }
     }
 
     @Override

@@ -7,8 +7,6 @@ import org.hibernate.annotations.Table;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
@@ -16,20 +14,28 @@ import javax.persistence.Id;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DiscordServerSettings implements HbTable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "serverId", updatable = false)
     private Long serverId;
 
     @Column(nullable = false)
     private int volume = 100;
 
-    @Column(length = 2)
-    private String prefix;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String prefix = "..";
 
-    public DiscordServerSettings(Long serverId, DiscordServer discordServer, int volume, String prefix) {
+    public DiscordServerSettings(Long serverId, int volume, String prefix) {
         this.serverId = serverId;
         this.volume = volume;
         this.prefix = prefix;
+    }
+
+    public DiscordServerSettings(Long serverId, int volume) {
+        this.serverId = serverId;
+        this.volume = volume;
+    }
+
+    public DiscordServerSettings(Long serverId) {
+        this.serverId = serverId;
     }
 
     public DiscordServerSettings() {
