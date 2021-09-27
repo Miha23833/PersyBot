@@ -5,7 +5,7 @@ import com.persybot.validation.ValidationResult;
 
 public class TextCommandValidationResult implements ValidationResult<TEXT_COMMAND_REJECT_REASON> {
 
-    private String rejectionReasonText = "No reject reason";
+    private String rejectionReasonText = null;
     private TEXT_COMMAND_REJECT_REASON rejectReason;
 
     @Override
@@ -14,8 +14,11 @@ public class TextCommandValidationResult implements ValidationResult<TEXT_COMMAN
     }
 
     @Override
-    public String rejectionReasonText() {
-        return rejectionReasonText;
+    public String rejectText() {
+        if (rejectReason == null) {
+            return rejectionReasonText;
+        }
+        return rejectReason.text() + rejectionReasonText;
     }
 
     @Override

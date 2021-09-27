@@ -3,7 +3,9 @@ package com.persybot.enums;
 public enum TEXT_COMMAND_REJECT_REASON {
     NOT_ENOUGH_ARGS("Not enough arguments."),
 
-    OTHER("Not described.");
+    WRONG_VALUE("Wrong argument value."),
+
+    OTHER("Command rejected.");
 
     private String reasonText;
 

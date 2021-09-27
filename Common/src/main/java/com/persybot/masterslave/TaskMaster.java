@@ -1,9 +1,11 @@
 package com.persybot.masterslave;
 
-import java.util.function.Consumer;
+import java.util.concurrent.RunnableFuture;
 
-public interface TaskMaster {
-    void addTask(Runnable task);
+public interface TaskMaster<T> {
+    void addTask(RunnableFuture<T> task);
 
-    void setMaxWorkersAndFill(int maxSlaves);
+    void start();
+
+    void stop();
 }

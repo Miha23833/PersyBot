@@ -1,6 +1,5 @@
 package com.persybot.audio.cache.impl;
 
-import com.persybot.cache.Cache;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
@@ -8,10 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class AudioCache implements Cache<String, AudioTrack> {
+public class AudioCache {
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    private static AudioCache instance;
+    private static AudioCache INSTANCE;
 
     private final ConcurrentHashMap<String, TrackContext> cache;
 
@@ -20,21 +19,20 @@ public class AudioCache implements Cache<String, AudioTrack> {
     }
 
     public static AudioCache getInstance() {
-        if (instance == null) {
+        if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
-                if (instance == null) {
-                    instance = new AudioCache();
+                if (INSTANCE == null) {
+                    INSTANCE = new AudioCache();
                 }
             } finally {
                 rwLock.writeLock().unlock();
             }
         }
-        return instance;
+        return INSTANCE;
     }
 
-    @Override
-    public void addObject(AudioTrack track) {
+    public void addTrack(AudioTrack track) {
         if (track == null) {
             PersyBotLogger.BOT_LOGGER.error("Track is null");
             return;
@@ -48,26 +46,22 @@ public class AudioCache implements Cache<String, AudioTrack> {
         cache.put(ctx.getIdentifier(), ctx);
     }
 
-    @Override
-    public AudioTrack getObject(String identifier) {
+    public AudioTrack getTrack(String identifier) {
         if (exists(identifier)){
             return cache.get(identifier).getTrack();
         }
         return null;
     }
 
-    @Override
     public boolean exists(String identifier) {
         return cache.containsKey(identifier);
     }
 
-    @Override
-    public void removeObject(String identifier) {
+    public void removeTrack(String identifier) {
         cache.remove(identifier);
 
     }
 
-    @Override
     public void removeExpired() {
         final long timeSnapshot = System.currentTimeMillis();
         cache.keys().asIterator().forEachRemaining(identifier -> {
@@ -77,7 +71,6 @@ public class AudioCache implements Cache<String, AudioTrack> {
         });
     }
 
-    @Override
     public void clearCache() {
         cache.clear();
     }
