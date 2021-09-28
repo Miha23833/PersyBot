@@ -1,10 +1,13 @@
 package com.persybot.command.impl.commands;
 
-import com.persybot.audio.impl.PlayerManagerServiceImpl;
+import com.persybot.channel.Channel;
+import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractCommand;
 import com.persybot.command.CommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.message.impl.PlayerMessage;
+import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -25,24 +28,33 @@ public class PlayMusicCommand extends AbstractCommand {
 
     @Override
     public void execute(CommandContext context) {
-        final TextChannel channel = context.getEvent().getChannel();
-        if (context.getArgs().isEmpty()) {
-            channel.sendMessage("Correct usage is  `play <youtube link>`").queue();
+        long channelId = context.getEvent().getGuild().getIdLong();
+
+        final TextChannel rspChannel = context.getEvent().getChannel();
+        if (TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.equals(validateArgs(context.getArgs()).getRejectReason())) {
+            rspChannel.sendMessage("Correct usage is `play <youtube link>`").queue();
             return;
         }
 
-        GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
+        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
+        if (audioManager.getSendingHandler() == null) {
+           audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
+        }
 
-        joinChannel(channel, voiceState, audioManager);
+        GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
+
+        joinChannel(rspChannel, voiceState, audioManager);
 
         String link = String.join(" ", context.getArgs());
 
         if (!isUrl(link)) {
             link = "ytsearch:" + link;
         }
+        channel.getAudioPlayer().loadAndPlay(link, rspChannel);
 
-        PlayerManagerServiceImpl.getInstance().loadAndPlay(channel, link);
+
+        context.getEvent().getChannel().sendMessage(new PlayerMessage("currentTrack", false, false).getMessage()).queue(x -> x.getIdLong());
     }
 
     @Override

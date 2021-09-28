@@ -1,8 +1,11 @@
 package com.persybot.command.impl.commands;
 
-import com.persybot.audio.impl.PlayerManagerServiceImpl;
+import com.persybot.channel.Channel;
+import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractCommand;
 import com.persybot.command.CommandContext;
+import com.persybot.db.model.impl.DiscordServerSettings;
+import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
@@ -41,6 +44,7 @@ public class SetVolumeCommand extends AbstractCommand {
 
     @Override
     public void execute(CommandContext context) {
+        long channelId = context.getEvent().getGuild().getIdLong();
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
@@ -48,7 +52,13 @@ public class SetVolumeCommand extends AbstractCommand {
             return;
         }
 
-        PlayerManagerServiceImpl.getInstance().setVolume(context.getEvent().getGuild(), Integer.parseInt(context.getArgs().get(0)));
+        Channel reqChannel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
+        reqChannel.getAudioPlayer().setVolume(Integer.parseInt(context.getArgs().get(0)));
+
+        DiscordServerSettings serverSettings = reqChannel.getServerSettings();
+        serverSettings.setVolume(Integer.parseInt(context.getArgs().get(0)));
+
+        ServiceAggregatorImpl.getInstance().getService(DBService.class).update(serverSettings);
     }
 
     @Override

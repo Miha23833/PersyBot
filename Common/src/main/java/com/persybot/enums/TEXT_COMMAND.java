@@ -1,14 +1,10 @@
 package com.persybot.enums;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 public enum TEXT_COMMAND {
-    HELP(""),
+//    HELP(""),
 
     // Music
-    JOIN(""),
+//    JOIN(""),
     LEAVE(""),
     PLAY("Plays music. To use write '''<prefix>play <link or name of sound>'''."),
     SKIP(""),
@@ -16,8 +12,10 @@ public enum TEXT_COMMAND {
 
 
     // Channel admin
-    PREFIX(""),
-    VOLUME("");
+//    PREFIX(""),
+    VOLUME(""),
+
+    TEST("");
 
     private final String describeText;
 

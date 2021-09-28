@@ -1,10 +1,11 @@
 package com.persybot.command.impl.commands;
 
-import com.persybot.audio.impl.PlayerManagerServiceImpl;
+import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractCommand;
 import com.persybot.command.CommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -20,13 +21,15 @@ public class SkipSongCommand extends AbstractCommand {
 
     @Override
     public void execute(CommandContext context) {
+        Long channelId = context.getEvent().getGuild().getIdLong();
         GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
 
         if (!isExecutorAndBotAreInSameVoiceChannel(voiceState, audioManager)) {
             context.getEvent().getChannel().sendMessage("You must be in the same channel as me to skip song.").queue();
         }
-        PlayerManagerServiceImpl.getInstance().skip(context.getEvent().getGuild());
+
+        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId).getAudioPlayer().skip();
     }
 
     @Override

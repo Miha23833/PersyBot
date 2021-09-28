@@ -1,11 +1,14 @@
 package com.persybot;
 
 import com.persybot.adapters.DefaultListenerAdapter;
-import com.persybot.audio.PlayerManagerService;
-import com.persybot.audio.impl.PlayerManagerServiceImpl;
+import com.persybot.channel.service.ChannelService;
+import com.persybot.channel.service.impl.ChannelServiceImpl;
+import com.persybot.command.impl.commands.LeaveChannelCommand;
 import com.persybot.command.impl.commands.PlayMusicCommand;
 import com.persybot.command.impl.commands.SetVolumeCommand;
 import com.persybot.command.impl.commands.SkipSongCommand;
+import com.persybot.command.impl.commands.StopPlayingCommand;
+import com.persybot.command.impl.commands.TestCommand;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
 import com.persybot.config.ConfigReader;
@@ -35,7 +38,10 @@ public class Bot {
         return TextCommandServiceImpl.getInstance()
                 .addCommand(TEXT_COMMAND.PLAY, new PlayMusicCommand())
                 .addCommand(TEXT_COMMAND.SKIP, new SkipSongCommand())
-                .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeCommand());
+                .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeCommand())
+                .addCommand(TEXT_COMMAND.TEST, new TestCommand())
+                .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelCommand())
+                .addCommand(TEXT_COMMAND.STOP, new StopPlayingCommand());
     }
 
 
@@ -46,12 +52,8 @@ public class Bot {
     private void populateServices() {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
                 .addService(DBService.class, DBServiceImpl.getInstance(5))
-                .addService(PlayerManagerService.class, PlayerManagerServiceImpl.getInstance())
-                .addService(TextCommandService.class, defaultTextCommandAggregator());
+                .addService(TextCommandService.class, defaultTextCommandAggregator())
+                .addService(ChannelService.class, ChannelServiceImpl.getInstance());
         serviceAggregator.getService(DBService.class).start();
-
     }
-
-    // TODO: change to cache reader for each channel personality
-    public static String DEFAULT_PREFIX = "..";
 }

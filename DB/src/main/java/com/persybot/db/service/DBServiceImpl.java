@@ -136,7 +136,7 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public <T extends HbTable, I extends Serializable> T get(Class<T> entityType, I identifier) throws ExecutionException, InterruptedException, TimeoutException {
+    public <T extends HbTable, I extends Serializable> T get(Class<T> entityType, I identifier) throws InterruptedException, ExecutionException, TimeoutException {
         RunnableFuture<HbTable> task = new FutureTask<>(() -> {
             Session dbSession = sessionFactory.openSession();
             Transaction transaction = dbSession.beginTransaction();
@@ -154,7 +154,7 @@ public class DBServiceImpl implements DBService {
             return entity;
         });
         addTask(task);
-        // TODO: remove timeout
+
         return entityType.cast(task.get(2000, TimeUnit.MILLISECONDS));
     }
 
