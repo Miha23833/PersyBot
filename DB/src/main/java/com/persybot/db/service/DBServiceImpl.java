@@ -15,7 +15,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -136,7 +142,7 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public <T extends HbTable, I extends Serializable> T get(Class<T> entityType, I identifier) throws InterruptedException, ExecutionException, TimeoutException {
+    public <T extends HbTable, Id extends Serializable> T get(Class<T> entityType, Id identifier) throws InterruptedException, ExecutionException, TimeoutException {
         RunnableFuture<HbTable> task = new FutureTask<>(() -> {
             Session dbSession = sessionFactory.openSession();
             Transaction transaction = dbSession.beginTransaction();
@@ -152,6 +158,31 @@ public class DBServiceImpl implements DBService {
                 }
             }
             return entity;
+        });
+        addTask(task);
+
+        return entityType.cast(task.get(2000, TimeUnit.MILLISECONDS));
+    }
+
+    @Override
+    public <T extends HbTable, Id extends Serializable> T getOrInsertIfNotExists(Class<T> entityType, Id identifier, T entity) throws InterruptedException, ExecutionException, TimeoutException {
+        RunnableFuture<HbTable> task = new FutureTask<>(() -> {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            T result;
+            try {
+                result = session.get(entityType, identifier);
+                if (result == null) {
+                    session.save(entity);
+                    result = entity;
+                }
+                transaction.commit();
+            } finally {
+                if (session.isOpen()) {
+                    session.close();
+                }
+            }
+            return result;
         });
         addTask(task);
 

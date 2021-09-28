@@ -6,17 +6,14 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 
 public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
     private final TrackScheduler scheduler;
-    private final TextChannel rspChannel;
 
-    public DefaultAudioLoadResultHandler(TrackScheduler scheduler, TextChannel rspChannel) {
+    public DefaultAudioLoadResultHandler(TrackScheduler scheduler) {
         this.scheduler = scheduler;
-        this.rspChannel = rspChannel;
     }
 
     @Override

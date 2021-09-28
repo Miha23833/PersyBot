@@ -47,4 +47,9 @@ public class CommandContextImpl implements CommandContext {
     public String getCommand() {
         return command;
     }
+
+    @Override
+    public Long getGuildId() {
+        return getGuild().getIdLong();
+    }
 }

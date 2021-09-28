@@ -12,5 +12,6 @@ public interface DBService extends Service, TaskMaster<HbTable> {
     <T extends HbTable> void add(T entity);
     <T extends HbTable> void delete(T entity);
     <T extends HbTable> void update(T entity);
-    <T extends HbTable, I extends Serializable> T get(Class<T> entityType, I identifier) throws ExecutionException, InterruptedException, TimeoutException;
+    <T extends HbTable, Id extends Serializable> T get(Class<T> entityType, Id identifier) throws ExecutionException, InterruptedException, TimeoutException;
+    <T extends HbTable, Id extends Serializable> T getOrInsertIfNotExists(Class<T> entityType, Id identifier, T entity) throws InterruptedException, ExecutionException, TimeoutException;
 }

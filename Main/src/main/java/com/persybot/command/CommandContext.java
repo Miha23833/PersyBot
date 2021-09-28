@@ -13,4 +13,6 @@ public interface CommandContext {
     List<String> getArgs();
 
     String getCommand();
+
+    Long getGuildId();
 }

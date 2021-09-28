@@ -29,7 +29,8 @@ public class SkipSongCommand extends AbstractCommand {
             context.getEvent().getChannel().sendMessage("You must be in the same channel as me to skip song.").queue();
         }
 
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId).getAudioPlayer().skip();
+        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId)
+                .playerAction().skipSong();
     }
 
     @Override
