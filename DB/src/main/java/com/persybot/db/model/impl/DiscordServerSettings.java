@@ -29,11 +29,6 @@ public class DiscordServerSettings implements HbTable {
         this.prefix = prefix;
     }
 
-    public DiscordServerSettings(Long serverId, int volume) {
-        this.serverId = serverId;
-        this.volume = volume;
-    }
-
     public DiscordServerSettings(Long serverId) {
         this.serverId = serverId;
     }

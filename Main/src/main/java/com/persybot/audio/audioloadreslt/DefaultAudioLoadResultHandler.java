@@ -1,7 +1,6 @@
 package com.persybot.audio.audioloadreslt;
 
-import com.persybot.audio.cache.impl.AudioCache;
-import com.persybot.audio.impl.GuildMusicManager;
+import com.persybot.audio.impl.TrackScheduler;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -12,21 +11,17 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.util.List;
 
 public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
-    private final AudioCache cache = AudioCache.getInstance();
-
-    private final GuildMusicManager musicManager;
+    private final TrackScheduler scheduler;
     private final TextChannel rspChannel;
 
-    public DefaultAudioLoadResultHandler(GuildMusicManager musicManager, TextChannel rspChannel) {
-        this.musicManager = musicManager;
+    public DefaultAudioLoadResultHandler(TrackScheduler scheduler, TextChannel rspChannel) {
+        this.scheduler = scheduler;
         this.rspChannel = rspChannel;
     }
 
-
     @Override
     public void trackLoaded(AudioTrack track) {
-        cache.addTrack(track);
-        musicManager.scheduler.queue(track);
+        this.scheduler.queue(track);
     }
 
     @Override
@@ -34,8 +29,7 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
         final List<AudioTrack> tracks = playlist.getTracks();
 
         for (final AudioTrack track: tracks) {
-            cache.addTrack(track);
-            musicManager.scheduler.queue(track);
+            this.scheduler.queue(track);
         }
     }
 
