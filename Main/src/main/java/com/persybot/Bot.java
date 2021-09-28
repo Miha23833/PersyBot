@@ -1,6 +1,7 @@
 package com.persybot;
 
 import com.persybot.adapters.DefaultListenerAdapter;
+import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
 import com.persybot.command.impl.commands.LeaveChannelCommand;
@@ -30,7 +31,7 @@ public class Bot {
         String token = config.getProperty("bot.token");
         populateServices();
         ShardManager jda = DefaultShardManagerBuilder.createDefault(token)
-                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator()))
+                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator()), new ServiceUpdaterAdapter())
                 .build();
     }
 

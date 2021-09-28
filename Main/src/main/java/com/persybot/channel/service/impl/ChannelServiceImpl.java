@@ -1,19 +1,13 @@
 package com.persybot.channel.service.impl;
 
 import com.persybot.channel.Channel;
-import com.persybot.channel.service.ChannelImpl;
 import com.persybot.channel.service.ChannelService;
-import com.persybot.db.model.impl.DiscordServerSettings;
-import com.persybot.db.service.DBService;
-import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -48,25 +42,16 @@ public class ChannelServiceImpl implements ChannelService {
 
     @Override
     public Channel getChannel(Long id) {
-        return channels.computeIfAbsent(id, this::newInstance);
+        return channels.get(id);
     }
 
-    private Channel newInstance(Long id) {
-        return new ChannelImpl(audioPlayerManager, getDSSFromDbOrCreateDefault(id));
+    @Override
+    public void addChannel(Long id, Channel channel) {
+        this.channels.put(id, channel);
     }
 
-    private DiscordServerSettings getDSSFromDbOrCreateDefault(long id) {
-        DiscordServerSettings serverSettings;
-        try {
-            serverSettings = ServiceAggregatorImpl.getInstance().getService(DBService.class).get(DiscordServerSettings.class, id);
-        } catch (InterruptedException | TimeoutException | ExecutionException e) {
-            serverSettings = new DiscordServerSettings(id);
-            ServiceAggregatorImpl.getInstance().getService(DBService.class).add(serverSettings);
-        }
-        if (serverSettings == null) {
-            serverSettings = new DiscordServerSettings(id);
-            ServiceAggregatorImpl.getInstance().getService(DBService.class).add(serverSettings);
-        }
-        return serverSettings;
+    @Override
+    public AudioPlayerManager getAudioPlayerManager() {
+        return this.audioPlayerManager;
     }
 }
