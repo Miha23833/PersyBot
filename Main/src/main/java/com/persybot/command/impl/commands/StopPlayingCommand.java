@@ -22,7 +22,8 @@ public class StopPlayingCommand extends AbstractCommand {
 
     @Override
     public void execute(CommandContext context) {
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuild().getIdLong()).getAudioPlayer().stop();
+        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId())
+                .playerAction().stopMusic();
     }
 
     @Override

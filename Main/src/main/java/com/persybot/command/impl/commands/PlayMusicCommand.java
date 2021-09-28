@@ -15,8 +15,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,30 +26,30 @@ public class PlayMusicCommand extends AbstractCommand {
 
     @Override
     public void execute(CommandContext context) {
-        long channelId = context.getEvent().getGuild().getIdLong();
-
         final TextChannel rspChannel = context.getEvent().getChannel();
         if (TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.equals(validateArgs(context.getArgs()).getRejectReason())) {
             rspChannel.sendMessage("Correct usage is `play <youtube link>`").queue();
             return;
         }
 
-        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
+        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId());
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
         if (audioManager.getSendingHandler() == null) {
            audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
         }
 
         GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
+        if (voiceState == null) {
+            rspChannel.sendMessage("Pleas join to a voice first").queue();
+            return;
+        }
 
-        joinChannel(rspChannel, voiceState, audioManager);
+        ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
+                .getChannel(context.getGuildId())
+                .voiceChannelAction().joinChannel(voiceState.getChannel());
 
         String link = String.join(" ", context.getArgs());
-
-        if (!isUrl(link)) {
-            link = "ytsearch:" + link;
-        }
-        channel.getAudioPlayer().loadAndPlay(link, rspChannel);
+        channel.playerAction().playSong(link);
 
 
         context.getEvent().getChannel().sendMessage(new PlayerMessage("currentTrack", false, false).getMessage()).queue(x -> x.getIdLong());
@@ -82,14 +80,5 @@ public class PlayMusicCommand extends AbstractCommand {
         audioManager.openAudioConnection(memberChannel);
 
         textChannel.sendMessageFormat("Connecting to `\uD83D\uDD0A %s`", Objects.requireNonNull(memberChannel).getName()).queue();
-    }
-
-    private boolean isUrl(String url) {
-        try {
-            new URI(url);
-            return true;
-        } catch (URISyntaxException e) {
-            return false;
-        }
     }
 }

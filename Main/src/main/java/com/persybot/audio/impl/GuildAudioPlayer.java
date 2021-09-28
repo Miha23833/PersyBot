@@ -4,7 +4,6 @@ import com.persybot.audio.audioloadreslt.DefaultAudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 
@@ -12,7 +11,7 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     private final AudioPlayer audioPlayer;
     private final TrackScheduler scheduler;
     private final AudioPlayerSendHandler sendHandler;
-    private AudioPlayerManager musicManager;
+    private final AudioPlayerManager musicManager;
 
     public GuildAudioPlayer(AudioPlayerManager manager) {
         this.musicManager = manager;
@@ -43,8 +42,8 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     }
 
     @Override
-    public void loadAndPlay(String trackUrl, TextChannel rspChannel) {
-        this.musicManager.loadItemOrdered(this, trackUrl, new DefaultAudioLoadResultHandler(scheduler, rspChannel));
+    public void loadAndPlay(String trackUrl) {
+        this.musicManager.loadItemOrdered(this, trackUrl, new DefaultAudioLoadResultHandler(scheduler));
     }
 
     @Override

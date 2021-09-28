@@ -9,6 +9,7 @@ import java.util.List;
 
 public abstract class AbstractCommand implements Command{
     private final int minArgs;
+
     protected AbstractCommand(int minArgs) {
         this.minArgs = minArgs;
     }

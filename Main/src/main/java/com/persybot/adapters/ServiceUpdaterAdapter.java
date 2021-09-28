@@ -1,6 +1,6 @@
 package com.persybot.adapters;
 
-import com.persybot.channel.service.ChannelImpl;
+import com.persybot.channel.impl.ChannelImpl;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.db.model.impl.DiscordServerSettings;
 import com.persybot.db.service.DBService;
@@ -35,6 +35,6 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
             serverSettings = new DiscordServerSettings(serverId);
         }
 
-        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), serverSettings));
+        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), serverSettings, event.getGuild()));
     }
 }
