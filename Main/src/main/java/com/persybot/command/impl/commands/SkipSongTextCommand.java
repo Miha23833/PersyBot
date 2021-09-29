@@ -1,8 +1,8 @@
 package com.persybot.command.impl.commands;
 
 import com.persybot.channel.service.ChannelService;
-import com.persybot.command.AbstractCommand;
-import com.persybot.command.CommandContext;
+import com.persybot.command.AbstractTextCommand;
+import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.service.impl.ServiceAggregatorImpl;
@@ -14,13 +14,13 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import java.util.List;
 import java.util.Objects;
 
-public class SkipSongCommand extends AbstractCommand {
-    public SkipSongCommand() {
+public class SkipSongTextCommand extends AbstractTextCommand {
+    public SkipSongTextCommand() {
         super(0);
     }
 
     @Override
-    public void execute(CommandContext context) {
+    public void execute(TextCommandContext context) {
         Long channelId = context.getEvent().getGuild().getIdLong();
         GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
@@ -34,7 +34,7 @@ public class SkipSongCommand extends AbstractCommand {
     }
 
     @Override
-    public String describe(CommandContext context) {
+    public String describe(TextCommandContext context) {
         return TEXT_COMMAND.SKIP.describeText();
     }
 

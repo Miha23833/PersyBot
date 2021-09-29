@@ -1,18 +1,12 @@
 package com.persybot.command;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.Event;
 
-import java.util.List;
-
-public interface CommandContext {
+public interface CommandContext <E extends Event> {
     Guild getGuild();
 
-    GuildMessageReceivedEvent getEvent();
-
-    List<String> getArgs();
-
-    String getCommand();
+    E getEvent();
 
     Long getGuildId();
 }

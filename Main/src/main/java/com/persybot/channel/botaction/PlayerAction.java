@@ -5,4 +5,6 @@ public interface PlayerAction {
     void skipSong();
     void stopMusic();
     void setVolume(Integer volume);
+    void pauseSong();
+    void resumeSong();
 }

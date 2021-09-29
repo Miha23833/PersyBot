@@ -1,6 +1,6 @@
 package com.persybot.command.service.impl;
 
-import com.persybot.command.Command;
+import com.persybot.command.TextCommand;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.utils.EnumUtils;
@@ -31,14 +31,15 @@ public class TextCommandServiceImpl implements TextCommandService {
 
     private TextCommandServiceImpl(){}
 
-    private final Map<TEXT_COMMAND, Command> commandMap = Collections.synchronizedMap(new HashMap<>());
+    private final Map<TEXT_COMMAND, TextCommand> commandMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
-    public Command getCommand(String identifier) {
+    public TextCommand getCommand(String identifier) {
         return commandMap.get(EnumUtils.getEnumIgnoreCase(TEXT_COMMAND.class, identifier));
     }
 
-    public TextCommandServiceImpl addCommand(TEXT_COMMAND textCommand, Command action) {
+    @Override
+    public TextCommandServiceImpl addCommand(TEXT_COMMAND textCommand, TextCommand action) {
         commandMap.put(textCommand, action);
         return this;
     }

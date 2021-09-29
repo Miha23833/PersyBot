@@ -4,13 +4,14 @@ import com.persybot.adapters.DefaultListenerAdapter;
 import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
-import com.persybot.command.impl.commands.LeaveChannelCommand;
-import com.persybot.command.impl.commands.PlayMusicCommand;
-import com.persybot.command.impl.commands.SetVolumeCommand;
-import com.persybot.command.impl.commands.SkipSongCommand;
-import com.persybot.command.impl.commands.StopPlayingCommand;
-import com.persybot.command.impl.commands.TestCommand;
+import com.persybot.command.impl.commands.LeaveChannelTextCommand;
+import com.persybot.command.impl.commands.PlayMusicTextCommand;
+import com.persybot.command.impl.commands.SetVolumeTextCommand;
+import com.persybot.command.impl.commands.SkipSongTextCommand;
+import com.persybot.command.impl.commands.StopPlayingTextCommand;
+import com.persybot.command.impl.commands.TestTextCommand;
 import com.persybot.command.service.TextCommandService;
+import com.persybot.command.service.impl.ButtonCommandServiceImpl;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
 import com.persybot.config.ConfigReader;
 import com.persybot.config.impl.ConfigReaderImpl;
@@ -31,18 +32,22 @@ public class Bot {
         String token = config.getProperty("bot.token");
         populateServices();
         ShardManager jda = DefaultShardManagerBuilder.createDefault(token)
-                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator()), new ServiceUpdaterAdapter())
+                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(), defaultButtonCommandAggregator()), new ServiceUpdaterAdapter())
                 .build();
     }
 
     private TextCommandServiceImpl defaultTextCommandAggregator() {
         return TextCommandServiceImpl.getInstance()
-                .addCommand(TEXT_COMMAND.PLAY, new PlayMusicCommand())
-                .addCommand(TEXT_COMMAND.SKIP, new SkipSongCommand())
-                .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeCommand())
-                .addCommand(TEXT_COMMAND.TEST, new TestCommand())
-                .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelCommand())
-                .addCommand(TEXT_COMMAND.STOP, new StopPlayingCommand());
+                .addCommand(TEXT_COMMAND.PLAY, new PlayMusicTextCommand())
+                .addCommand(TEXT_COMMAND.SKIP, new SkipSongTextCommand())
+                .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
+                .addCommand(TEXT_COMMAND.TEST, new TestTextCommand())
+                .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
+                .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand());
+    }
+
+    private ButtonCommandServiceImpl defaultButtonCommandAggregator() {
+        return ButtonCommandServiceImpl.getInstance();
     }
 
 

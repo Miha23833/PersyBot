@@ -1,14 +1,15 @@
 package com.persybot.message;
 
+import com.persybot.enums.BUTTON_ID;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public enum PLAYER_BUTTON {
-    PAUSE(ButtonStyle.SUCCESS, "pause", Emoji.fromUnicode("U+25B6")),
-    RESUME(ButtonStyle.SUCCESS, "resume", Emoji.fromUnicode("U+25B6")),
-    SKIP(ButtonStyle.PRIMARY, "skip", Emoji.fromUnicode("U+23ED")),
-    STOP(ButtonStyle.DANGER, "stop", Emoji.fromUnicode("U+23F9"));
+    PAUSE(ButtonStyle.SUCCESS, BUTTON_ID.PLAYER_PAUSE.getId(), Emoji.fromUnicode("U+25B6")),
+    RESUME(ButtonStyle.SUCCESS, BUTTON_ID.PLAYER_RESUME.getId(), Emoji.fromUnicode("U+25B6")),
+    SKIP(ButtonStyle.PRIMARY, BUTTON_ID.PLAYER_SKIP.getId(), Emoji.fromUnicode("U+23ED")),
+    STOP(ButtonStyle.DANGER, BUTTON_ID.PLAYER_STOP.getId(), Emoji.fromUnicode("U+23F9"));
 
     private final ButtonStyle style;
     private final String id;
