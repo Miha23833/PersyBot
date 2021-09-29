@@ -2,6 +2,7 @@ package com.persybot.audio;
 
 import com.persybot.audio.impl.AudioPlayerSendHandler;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface AudioPlayer {
 
     boolean onPause();
 
-    void loadAndPlay(String trackUrl);
+    void loadAndPlay(String trackUrl, TextChannel requestingChannel);
 
     void resume();
 

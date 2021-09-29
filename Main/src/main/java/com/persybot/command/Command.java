@@ -1,7 +1,9 @@
 package com.persybot.command;
 
-public interface Command {
-    void execute(CommandContext context);
+import net.dv8tion.jda.api.events.Event;
 
-    String describe(CommandContext context);
+public interface Command<C extends CommandContext<Event>> {
+    void execute(C context);
+
+    String describe(C context);
 }

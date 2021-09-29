@@ -1,8 +1,11 @@
 package com.persybot.command.service;
 
-import com.persybot.command.Command;
+import com.persybot.command.TextCommand;
+import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.service.Service;
 
 public interface TextCommandService extends Service {
-    Command getCommand(String identifier);
+    TextCommandService addCommand(TEXT_COMMAND textCommand, TextCommand action);
+
+    TextCommand getCommand(String identifier);
 }

@@ -1,8 +1,8 @@
 package com.persybot.command.impl.commands;
 
 import com.persybot.channel.service.ChannelService;
-import com.persybot.command.AbstractCommand;
-import com.persybot.command.CommandContext;
+import com.persybot.command.AbstractTextCommand;
+import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
@@ -10,8 +10,8 @@ import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
 
-public class StopPlayingCommand extends AbstractCommand {
-    public StopPlayingCommand() {
+public class StopPlayingTextCommand extends AbstractTextCommand {
+    public StopPlayingTextCommand() {
         super(0);
     }
 
@@ -21,13 +21,13 @@ public class StopPlayingCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute(CommandContext context) {
+    public void execute(TextCommandContext context) {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId())
                 .playerAction().stopMusic();
     }
 
     @Override
-    public String describe(CommandContext context) {
+    public String describe(TextCommandContext context) {
         return null;
     }
 }

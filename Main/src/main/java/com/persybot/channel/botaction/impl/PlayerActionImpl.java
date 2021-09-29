@@ -4,7 +4,9 @@ import com.persybot.channel.Channel;
 import com.persybot.channel.botaction.PlayerAction;
 import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import net.dv8tion.jda.api.entities.TextChannel;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -14,11 +16,12 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
     }
 
     @Override
-    public void playSong(String songLink) {
+    public void playSong(String songLink, TextChannel requestingChannel) {
         if (!isUrl(songLink)) {
             songLink = "ytsearch:" + songLink;
         }
-        actingChannel.getAudioPlayer().loadAndPlay(songLink);
+
+        actingChannel.getAudioPlayer().loadAndPlay(songLink, requestingChannel);
     }
 
     @Override
@@ -39,11 +42,21 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         ServiceAggregatorImpl.getInstance().getService(DBService.class).update(actingChannel.getServerSettings());
     }
 
+    @Override
+    public void pauseSong() {
+        actingChannel.getAudioPlayer().pause();
+    }
+
+    @Override
+    public void resumeSong() {
+        actingChannel.getAudioPlayer().resume();
+    }
+
     private static boolean isUrl(String url) {
         try {
-            new URI(url);
+            new URI(url).toURL();
             return true;
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | MalformedURLException e) {
             return false;
         }
     }

@@ -1,8 +1,8 @@
 package com.persybot.command.impl.commands;
 
 import com.persybot.channel.service.ChannelService;
-import com.persybot.command.AbstractCommand;
-import com.persybot.command.CommandContext;
+import com.persybot.command.AbstractTextCommand;
+import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
@@ -10,11 +10,11 @@ import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
 
-public class SetVolumeCommand extends AbstractCommand {
+public class SetVolumeTextCommand extends AbstractTextCommand {
 
     private final ServiceAggregatorImpl serviceAggregator;
 
-    public SetVolumeCommand() {
+    public SetVolumeTextCommand() {
         super(1);
         this.serviceAggregator = ServiceAggregatorImpl.getInstance();
     }
@@ -40,7 +40,7 @@ public class SetVolumeCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute(CommandContext context) {
+    public void execute(TextCommandContext context) {
         long channelId = context.getEvent().getGuild().getIdLong();
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
@@ -54,7 +54,7 @@ public class SetVolumeCommand extends AbstractCommand {
     }
 
     @Override
-    public String describe(CommandContext context) {
+    public String describe(TextCommandContext context) {
         return null;
     }
 }

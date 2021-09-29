@@ -1,6 +1,6 @@
 package com.persybot.command.impl;
 
-import com.persybot.command.CommandContext;
+import com.persybot.command.TextCommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class CommandContextImpl implements CommandContext {
+public class TextCommandContextImpl implements TextCommandContext {
     private final GuildMessageReceivedEvent event;
     private final List<String> args;
     private final String command;
 
-    public CommandContextImpl(GuildMessageReceivedEvent event, String prefix) {
+    public TextCommandContextImpl(GuildMessageReceivedEvent event, String prefix) {
         this.event = Objects.requireNonNull(event);
         Objects.requireNonNull(prefix);
 

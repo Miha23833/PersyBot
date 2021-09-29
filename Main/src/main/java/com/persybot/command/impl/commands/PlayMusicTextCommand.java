@@ -2,8 +2,8 @@ package com.persybot.command.impl.commands;
 
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
-import com.persybot.command.AbstractCommand;
-import com.persybot.command.CommandContext;
+import com.persybot.command.AbstractTextCommand;
+import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.impl.PlayerMessage;
@@ -18,14 +18,14 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayMusicCommand extends AbstractCommand {
+public class PlayMusicTextCommand extends AbstractTextCommand {
 
-    public PlayMusicCommand() {
+    public PlayMusicTextCommand() {
         super(1);
     }
 
     @Override
-    public void execute(CommandContext context) {
+    public void execute(TextCommandContext context) {
         final TextChannel rspChannel = context.getEvent().getChannel();
         if (TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.equals(validateArgs(context.getArgs()).getRejectReason())) {
             rspChannel.sendMessage("Correct usage is `play <youtube link>`").queue();
@@ -49,14 +49,14 @@ public class PlayMusicCommand extends AbstractCommand {
                 .voiceChannelAction().joinChannel(voiceState.getChannel());
 
         String link = String.join(" ", context.getArgs());
-        channel.playerAction().playSong(link);
+        channel.playerAction().playSong(link, context.getEvent().getChannel());
 
 
         context.getEvent().getChannel().sendMessage(new PlayerMessage("currentTrack", false, false).getMessage()).queue(x -> x.getIdLong());
     }
 
     @Override
-    public String describe(CommandContext context) {
+    public String describe(TextCommandContext context) {
         return TEXT_COMMAND.PLAY.describeText();
     }
 

@@ -7,10 +7,10 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.List;
 
-public abstract class AbstractCommand implements Command{
+public abstract class AbstractTextCommand implements TextCommand {
     private final int minArgs;
 
-    protected AbstractCommand(int minArgs) {
+    protected AbstractTextCommand(int minArgs) {
         this.minArgs = minArgs;
     }
 
