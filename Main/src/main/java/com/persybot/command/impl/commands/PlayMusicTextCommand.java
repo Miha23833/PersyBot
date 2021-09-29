@@ -49,7 +49,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
                 .voiceChannelAction().joinChannel(voiceState.getChannel());
 
         String link = String.join(" ", context.getArgs());
-        channel.playerAction().playSong(link);
+        channel.playerAction().playSong(link, context.getEvent().getChannel());
 
 
         context.getEvent().getChannel().sendMessage(new PlayerMessage("currentTrack", false, false).getMessage()).queue(x -> x.getIdLong());

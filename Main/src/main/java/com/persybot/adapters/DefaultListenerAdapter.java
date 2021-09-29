@@ -50,6 +50,9 @@ public class DefaultListenerAdapter extends ListenerAdapter {
         try {
             if (EnumUtils.isInEnumIgnoreCase(BUTTON_ID.class, context.getButtonId())) {
                 buttonCommandPool.getCommand(context.getButtonId()).execute(context);
+                if (!event.getInteraction().isAcknowledged()) {
+                    event.getInteraction().deferEdit().queue();
+                }
             }
         }  catch (IllegalArgumentException e) {
             PersyBotLogger.BOT_LOGGER.error(e);

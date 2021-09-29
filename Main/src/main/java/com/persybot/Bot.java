@@ -4,6 +4,10 @@ import com.persybot.adapters.DefaultListenerAdapter;
 import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
+import com.persybot.command.button.impl.commands.PauseButtonCommand;
+import com.persybot.command.button.impl.commands.ResumeButtonCommand;
+import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
+import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.PlayMusicTextCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
@@ -17,6 +21,7 @@ import com.persybot.config.ConfigReader;
 import com.persybot.config.impl.ConfigReaderImpl;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
+import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.service.ServiceAggregator;
 import com.persybot.service.impl.ServiceAggregatorImpl;
@@ -47,7 +52,11 @@ public class Bot {
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator() {
-        return ButtonCommandServiceImpl.getInstance();
+        return ButtonCommandServiceImpl.getInstance()
+                .addCommand(BUTTON_ID.PLAYER_PAUSE, new PauseButtonCommand())
+                .addCommand(BUTTON_ID.PLAYER_RESUME, new ResumeButtonCommand())
+                .addCommand(BUTTON_ID.PLAYER_SKIP, new SkipSongButtonCommand())
+                .addCommand(BUTTON_ID.PLAYER_STOP, new StopPlayingButtonCommand());
     }
 
 

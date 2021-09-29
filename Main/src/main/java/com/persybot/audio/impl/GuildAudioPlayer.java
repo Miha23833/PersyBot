@@ -1,23 +1,26 @@
 package com.persybot.audio.impl;
 
-import com.persybot.audio.audioloadreslt.DefaultAudioLoadResultHandler;
+import com.persybot.audio.audioloadreslt.impl.DefaultAudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 
 public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     private final AudioPlayer audioPlayer;
-    private final TrackScheduler scheduler;
+    private final TrackSchedulerImpl scheduler;
     private final AudioPlayerSendHandler sendHandler;
     private final AudioPlayerManager musicManager;
 
     public GuildAudioPlayer(AudioPlayerManager manager) {
         this.musicManager = manager;
         this.audioPlayer = manager.createPlayer();
-        this.scheduler = new TrackScheduler(this.audioPlayer);
+
+        this.scheduler = new TrackSchedulerImpl(this.audioPlayer);
         this.audioPlayer.addListener(this.scheduler);
+
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
     }
 
@@ -42,8 +45,8 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     }
 
     @Override
-    public void loadAndPlay(String trackUrl) {
-        this.musicManager.loadItemOrdered(this, trackUrl, new DefaultAudioLoadResultHandler(scheduler));
+    public void loadAndPlay(String trackUrl, TextChannel requestingChannel) {
+        this.musicManager.loadItemOrdered(this, trackUrl, new DefaultAudioLoadResultHandler(scheduler, requestingChannel));
     }
 
     @Override

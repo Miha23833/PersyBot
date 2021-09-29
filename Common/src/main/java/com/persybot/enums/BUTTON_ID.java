@@ -1,11 +1,11 @@
 package com.persybot.enums;
 
 public enum BUTTON_ID {
-    PLAYER_PAUSE("player-pause"),
-    PLAYER_RESUME("player-resume"),
-    PLAYER_SKIP("player-skip"),
-    PLAYER_STOP("player-stop"),
-    PLAYER_QUEUE("player-queue");
+    PLAYER_PAUSE("player_pause"),
+    PLAYER_RESUME("player_resume"),
+    PLAYER_SKIP("player_skip"),
+    PLAYER_STOP("player_stop"),
+    PLAYER_QUEUE("player_queue");
 
     private final String id;
     BUTTON_ID(String id) {
