@@ -10,9 +10,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
     private final TrackSchedulerImpl scheduler;
+    private final boolean isSingleTrack;
     private final TextChannel requestingChannel;
 
-    public DefaultAudioLoadResultHandler(TrackSchedulerImpl scheduler, TextChannel requestingChannel) {
+    public DefaultAudioLoadResultHandler(TrackSchedulerImpl scheduler, TextChannel requestingChannel, boolean isSingleTrack) {
+        this.isSingleTrack = isSingleTrack;
         this.scheduler = scheduler;
         this.requestingChannel = requestingChannel;
     }
@@ -24,7 +26,11 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
 
     @Override
     public void playlistLoaded(AudioPlaylist playlist) {
-        scheduler.addPlaylist(new AudioPlaylistContextImpl(playlist.getTracks(), requestingChannel));
+        if (isSingleTrack) {
+            scheduler.addTrack(new AudioTrackContextImpl(playlist.getTracks().get(0), requestingChannel));
+        } else {
+            scheduler.addPlaylist(new AudioPlaylistContextImpl(playlist.getTracks(), requestingChannel));
+        }
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface AudioPlayer {
 
     boolean onPause();
 
-    void loadAndPlay(String trackUrl, TextChannel requestingChannel);
+    void loadAndPlay(String trackUrl, TextChannel requestingChannel, boolean isSingleTrack);
 
     void resume();
 
