@@ -6,9 +6,7 @@ import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class PlayerActionImpl extends AbstractBotAction implements PlayerAction {
     public PlayerActionImpl(Channel actingChannel) {
@@ -56,7 +54,7 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         try {
             new URI(url).toURL();
             return true;
-        } catch (URISyntaxException | MalformedURLException e) {
+        } catch (Exception e) {
             return false;
         }
     }
