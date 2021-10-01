@@ -6,7 +6,6 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
-import com.persybot.message.impl.PlayerMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -50,9 +49,6 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
 
         String link = String.join(" ", context.getArgs());
         channel.playerAction().playSong(link, context.getEvent().getChannel());
-
-
-        context.getEvent().getChannel().sendMessage(new PlayerMessage("currentTrack", false, false).getMessage()).queue(x -> x.getIdLong());
     }
 
     @Override

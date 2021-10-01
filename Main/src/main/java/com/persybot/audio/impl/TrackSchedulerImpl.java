@@ -32,10 +32,10 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     @Override
     public void addTrack(AudioTrackContext context) {
         if (!this.player.startTrack(context.getTrack(), true)) {
-            context.getRequestingChannel().sendMessage("Queued track: " + context.getTrack().getInfo().author + context.getTrack().getInfo().title).queue();
+            context.getRequestingChannel().sendMessage("Queued track: " + context.getTrack().getInfo().title).queue();
             this.queue.offer(context);
         } else {
-            context.getRequestingChannel().sendMessage(getStartedTrackMessage(context.getTrack().getInfo())).queue();
+            context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrack().getInfo())).queue();
         }
     }
 
@@ -61,11 +61,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         queuedTracksRsp.append("Queued tracks:\n");
         for (int i = firstPlaying ? 1 : 0; i < trackInfoRspLineLimit; i++) {
             AudioTrackInfo audioTrackInfo = audioTrackInfoList.get(i);
-            if (audioTrackInfo.author == null || audioTrackInfo.author.isBlank()) {
                 queuedTracksRsp.append(audioTrackInfo.title).append("\n");
-            } else {
-                queuedTracksRsp.append(audioTrackInfo.author).append(" - ").append(audioTrackInfo.title).append("\n");
-            }
         }
 
         if(audioTrackInfoList.size() > trackInfoRspLineLimit) {
@@ -88,7 +84,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         } else {
             AudioTrackContext context = this.queue.poll();
             this.player.startTrack(context.getTrack(), false);
-            context.getRequestingChannel().sendMessage(getStartedTrackMessage(context.getTrack().getInfo())).queue();
+            context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrack().getInfo())).queue();
         }
     }
 
@@ -109,10 +105,8 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         }
     }
 
-    private Message getStartedTrackMessage(AudioTrackInfo info) {
-        return new MessageBuilder().append("Started track: ")
-                .append(info.author)
-                .append(info.author == null ? " - " : "")
+    private Message getPlayingTrackMessage(AudioTrackInfo info) {
+        return new MessageBuilder().append("Now playing: ")
                 .append(info.title)
                 .setActionRows(createPlayerButtons(false))
                 .build();

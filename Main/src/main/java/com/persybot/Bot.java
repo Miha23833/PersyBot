@@ -1,6 +1,7 @@
 package com.persybot;
 
 import com.persybot.adapters.DefaultListenerAdapter;
+import com.persybot.adapters.SelfMessagesCleaner;
 import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
@@ -13,7 +14,6 @@ import com.persybot.command.impl.commands.PlayMusicTextCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
 import com.persybot.command.impl.commands.SkipSongTextCommand;
 import com.persybot.command.impl.commands.StopPlayingTextCommand;
-import com.persybot.command.impl.commands.TestTextCommand;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.command.service.impl.ButtonCommandServiceImpl;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
@@ -37,7 +37,11 @@ public class Bot {
         String token = config.getProperty("bot.token");
         populateServices();
         ShardManager jda = DefaultShardManagerBuilder.createDefault(token)
-                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(), defaultButtonCommandAggregator()), new ServiceUpdaterAdapter())
+                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(),
+                        defaultButtonCommandAggregator()),
+                        new ServiceUpdaterAdapter(),
+                        // TODO: move limit to config file
+                        new SelfMessagesCleaner(50))
                 .build();
     }
 
@@ -46,7 +50,6 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.PLAY, new PlayMusicTextCommand())
                 .addCommand(TEXT_COMMAND.SKIP, new SkipSongTextCommand())
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
-                .addCommand(TEXT_COMMAND.TEST, new TestTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand());
     }
