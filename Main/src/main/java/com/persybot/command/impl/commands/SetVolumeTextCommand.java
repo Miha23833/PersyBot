@@ -1,9 +1,13 @@
 package com.persybot.command.impl.commands;
 
+import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
+import com.persybot.db.model.impl.DiscordServerSettings;
+import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -42,12 +46,22 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
     @Override
     public void execute(TextCommandContext context) {
         long channelId = context.getEvent().getGuild().getIdLong();
+        int volume = Integer.parseInt(context.getArgs().get(0));
+
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
-            context.getEvent().getChannel().sendMessage(validationResult.rejectText()).queue();
+            context.getEvent().getChannel().sendMessage(new DefaultTextMessage(validationResult.rejectText()).template()).queue();
             return;
         }
+        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
+
+        DiscordServerSettings serverSettings = channel.getServerSettings();
+        serverSettings.setVolume(Integer.parseInt(context.getArgs().get(0)));
+
+        ServiceAggregatorImpl.getInstance().getService(DBService.class).update(serverSettings);
+
+        context.getEvent().getChannel().sendMessage(new DefaultTextMessage(String.join("","Volume updated to ", "'", String.valueOf(volume), "'")).template()).queue();
 
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId)
                 .playerAction().setVolume(Integer.parseInt(context.getArgs().get(0)));

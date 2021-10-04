@@ -9,6 +9,7 @@ import com.persybot.command.button.impl.commands.PauseButtonCommand;
 import com.persybot.command.button.impl.commands.ResumeButtonCommand;
 import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
+import com.persybot.command.impl.commands.ChangePrefixCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.PlayMusicTextCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
@@ -51,7 +52,9 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.SKIP, new SkipSongTextCommand())
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
-                .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand());
+                .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
+                //TODO remove hardcode of maxPrefixLen
+                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(3));
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator() {

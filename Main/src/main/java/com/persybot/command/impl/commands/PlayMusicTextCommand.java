@@ -34,7 +34,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
         Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId());
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
         if (audioManager.getSendingHandler() == null) {
-           audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
+            audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
         }
 
         GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();

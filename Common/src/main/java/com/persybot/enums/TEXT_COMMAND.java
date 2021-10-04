@@ -12,7 +12,7 @@ public enum TEXT_COMMAND {
 
 
     // Channel admin
-//    PREFIX(""),
+    PREFIX(""),
     VOLUME(""),
 
     TEST("");
