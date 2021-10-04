@@ -8,5 +8,5 @@ public interface PlayerAction {
     void stopMusic();
     void setVolume(Integer volume);
     void pauseSong();
-    void resumeSong();
+    void resumePlayer();
 }

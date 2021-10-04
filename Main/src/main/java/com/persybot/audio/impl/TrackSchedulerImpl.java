@@ -5,6 +5,7 @@ import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.audioloadreslt.impl.AudioTrackContextImpl;
 import com.persybot.message.PLAYER_BUTTON;
+import com.persybot.message.template.impl.InfoMessage;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -58,7 +59,6 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
         int trackInfoRspLineLimit = Math.min(audioTrackInfoList.size(), 7);
 
-        queuedTracksRsp.append("Queued tracks:\n");
         for (int i = firstPlaying ? 1 : 0; i < trackInfoRspLineLimit; i++) {
             AudioTrackInfo audioTrackInfo = audioTrackInfoList.get(i);
                 queuedTracksRsp.append(audioTrackInfo.title).append("\n");
@@ -69,7 +69,9 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
                     .append(audioTrackInfoList.size() - trackInfoRspLineLimit).append(" more.");
         }
 
-        playlistContext.getRequestingChannel().sendMessage(queuedTracksRsp.toString()).queue();
+        Message rsp = new MessageBuilder(new InfoMessage("Queued tracks:", queuedTracksRsp.toString()).template()).build();
+
+        playlistContext.getRequestingChannel().sendMessage(rsp).queue();
     }
 
     @Override
@@ -106,8 +108,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     }
 
     private Message getPlayingTrackMessage(AudioTrackInfo info) {
-        return new MessageBuilder().append("Now playing: ")
-                .append(info.title)
+        return new MessageBuilder(new InfoMessage("Now playing:", info.title).template())
                 .setActionRows(createPlayerButtons(false))
                 .build();
     }
