@@ -23,6 +23,7 @@ public class ChannelImpl implements Channel {
 
     public ChannelImpl(AudioPlayerManager playerManager, DiscordServerSettings serverSettings, Guild discordServer) {
         this.audioPlayer = new GuildAudioPlayer(playerManager);
+        audioPlayer.setVolume(serverSettings.getVolume());
         this.serverSettings = serverSettings;
         this.discordServer = discordServer;
     }
