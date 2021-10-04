@@ -19,6 +19,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -35,9 +36,7 @@ public class DBServiceImpl implements DBService {
     private final SessionFactory sessionFactory;
     protected AtomicBoolean onPause = new AtomicBoolean(true);
 
-    private DBServiceImpl(int countOfWorkers) {
-        this.countOfWorkers = countOfWorkers;
-
+    private DBServiceImpl() {
         Configuration configuration = new Configuration();
         Properties properties = new Properties();
 
@@ -47,17 +46,29 @@ public class DBServiceImpl implements DBService {
         configuration.configure();
         sessionFactory = configuration.buildSessionFactory();
 
+        this.countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count"));
         this.tasks = new LinkedBlockingDeque<>();
 
         workers = createWorkers();
     }
 
-    public static DBServiceImpl getInstance(int countOfWorkers) {
+    private DBServiceImpl(Properties properties) {
+        Configuration configuration = new Configuration();
+        configuration.addProperties(properties);
+        sessionFactory = configuration.buildSessionFactory();
+
+        this.tasks = new LinkedBlockingQueue<>();
+
+        countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count"));
+        workers = createWorkers();
+    }
+
+    public static DBServiceImpl getInstance() {
         if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
-                    INSTANCE = new DBServiceImpl(countOfWorkers);
+                    INSTANCE = new DBServiceImpl();
                 }
             } finally {
                 rwLock.writeLock().unlock();

@@ -63,7 +63,7 @@ public class Bot {
 
     private void populateServices(Properties properties) {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
-                .addService(DBService.class, DBServiceImpl.getInstance(Integer.parseInt(properties.getProperty("db.workers.count"))))
+                .addService(DBService.class, DBServiceImpl.getInstance())
                 .addService(TextCommandService.class, defaultTextCommandAggregator(properties))
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance());
         serviceAggregator.getService(DBService.class).start();
