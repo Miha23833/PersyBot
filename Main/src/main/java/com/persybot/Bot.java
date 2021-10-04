@@ -18,7 +18,6 @@ import com.persybot.command.impl.commands.StopPlayingTextCommand;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.command.service.impl.ButtonCommandServiceImpl;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
-import com.persybot.config.ConfigReader;
 import com.persybot.config.impl.ConfigReaderImpl;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
@@ -31,33 +30,30 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.util.Properties;
 
 public class Bot {
-    private Bot() throws IOException, LoginException {
-        ConfigReader config = new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg");
-        String token = config.getProperty("bot.token");
-        populateServices();
-        ShardManager jda = DefaultShardManagerBuilder.createDefault(token)
-                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(),
-                        defaultButtonCommandAggregator()),
+    private Bot(Properties properties) throws IOException, LoginException {
+        populateServices(properties);
+        ShardManager jda = DefaultShardManagerBuilder.createDefault(properties.getProperty("bot.token"))
+                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(properties),
+                        defaultButtonCommandAggregator(properties)),
                         new ServiceUpdaterAdapter(),
-                        // TODO: move limit to config file
-                        new SelfMessagesCleaner(50))
+                        new SelfMessagesCleaner(Integer.parseInt(properties.getProperty("bot.selfmessageslimit"))))
                 .build();
     }
 
-    private TextCommandServiceImpl defaultTextCommandAggregator() {
+    private TextCommandServiceImpl defaultTextCommandAggregator(Properties properties) {
         return TextCommandServiceImpl.getInstance()
                 .addCommand(TEXT_COMMAND.PLAY, new PlayMusicTextCommand())
                 .addCommand(TEXT_COMMAND.SKIP, new SkipSongTextCommand())
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
-                //TODO remove hardcode of maxPrefixLen
-                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(3));
+                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))));
     }
 
-    private ButtonCommandServiceImpl defaultButtonCommandAggregator() {
+    private ButtonCommandServiceImpl defaultButtonCommandAggregator(Properties properties) {
         return ButtonCommandServiceImpl.getInstance()
                 .addCommand(BUTTON_ID.PLAYER_PAUSE, new PauseButtonCommand())
                 .addCommand(BUTTON_ID.PLAYER_RESUME, new ResumeButtonCommand())
@@ -65,16 +61,23 @@ public class Bot {
                 .addCommand(BUTTON_ID.PLAYER_STOP, new StopPlayingButtonCommand());
     }
 
-
-    public static void main(String[] args) throws IOException, LoginException {
-        new Bot();
-    }
-
-    private void populateServices() {
+    private void populateServices(Properties properties) {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
-                .addService(DBService.class, DBServiceImpl.getInstance(5))
-                .addService(TextCommandService.class, defaultTextCommandAggregator())
+                .addService(DBService.class, DBServiceImpl.getInstance(Integer.parseInt(properties.getProperty("db.workers.count"))))
+                .addService(TextCommandService.class, defaultTextCommandAggregator(properties))
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance());
         serviceAggregator.getService(DBService.class).start();
+    }
+
+
+    public static void main(String[] args) throws IOException, LoginException {
+        Properties properties = new Properties();
+        if (args.length >= 1 && args[0].equalsIgnoreCase("use_env_vars")) {
+            properties.putAll(System.getenv());
+        }
+        else {
+            properties.putAll(new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg").getProperties());
+        }
+        new Bot(properties);
     }
 }

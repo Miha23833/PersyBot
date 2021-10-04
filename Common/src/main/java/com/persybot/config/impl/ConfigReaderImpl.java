@@ -22,7 +22,7 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
-    public String getProperty(String path) {
-        return properties.getProperty(path);
+    public Properties getProperties() {
+        return this.properties;
     }
 }

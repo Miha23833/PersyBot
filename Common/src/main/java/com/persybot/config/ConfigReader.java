@@ -6,7 +6,5 @@ import java.util.Properties;
 public interface ConfigReader {
     void loadFile(String path) throws IOException;
 
-    String getProperty(String path);
-
-
+    Properties getProperties();
 }
