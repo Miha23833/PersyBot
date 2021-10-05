@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="show_sql">false</property>
+
+        <property name="cache.provider_class">org.infinispan.cache.v53.InfinispanRegionFactory</property>
+        <property name="cache.use_second_level_cache">true</property>
+        <property name="cache.use_query_cache">true</property>
+
+        <property name="connection.charSet">UTF8</property>
+        <property name="connection.characterEncoding">UTF8</property>
+        <property name="connection.useUnicode">true</property>
+
+        <!-- must be greater than db workers count at least 2-->
+        <property name="connection.pool_size">7</property>
+
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
+        <property name="current_session_context_class">thread</property>
+
+        <property name="hbm2ddl.auto">update</property>
+
+        <mapping class="com.persybot.db.model.impl.DiscordServer" />
+        <mapping class="com.persybot.db.model.impl.DiscordServerSettings" />
+
+    </session-factory>
+</hibernate-configuration>
