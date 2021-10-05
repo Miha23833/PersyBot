@@ -63,7 +63,7 @@ public class Bot {
 
     private void populateServices(Properties properties) {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
-                .addService(DBService.class, DBServiceImpl.getInstance())
+                .addService(DBService.class, DBServiceImpl.getInstance(properties))
                 .addService(TextCommandService.class, defaultTextCommandAggregator(properties))
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance());
         serviceAggregator.getService(DBService.class).start();
@@ -72,12 +72,11 @@ public class Bot {
 
     public static void main(String[] args) throws IOException, LoginException {
         Properties properties = new Properties();
-        if (args.length >= 1 && args[0].equalsIgnoreCase("use_env_vars")) {
-            properties.putAll(System.getenv());
-        }
-        else {
-            properties.putAll(new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg").getProperties());
-        }
+
+        properties.putAll(new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg").getProperties());
+        properties.put("bot.token", System.getenv("bot.token"));
+        properties.put("hibernate.connection.url", System.getenv("JDBC_DATABASE_URL"));
+
         new Bot(properties);
     }
 }

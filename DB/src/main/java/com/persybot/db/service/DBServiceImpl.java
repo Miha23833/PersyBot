@@ -55,6 +55,8 @@ public class DBServiceImpl implements DBService {
     private DBServiceImpl(Properties properties) {
         Configuration configuration = new Configuration();
         configuration.addProperties(properties);
+
+        configuration.configure();
         sessionFactory = configuration.buildSessionFactory();
 
         this.tasks = new LinkedBlockingQueue<>();
@@ -63,12 +65,12 @@ public class DBServiceImpl implements DBService {
         workers = createWorkers();
     }
 
-    public static DBServiceImpl getInstance() {
+    public static DBServiceImpl getInstance(Properties properties) {
         if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
-                    INSTANCE = new DBServiceImpl();
+                    INSTANCE = new DBServiceImpl(properties);
                 }
             } finally {
                 rwLock.writeLock().unlock();
