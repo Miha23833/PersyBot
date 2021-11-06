@@ -2,6 +2,11 @@ plugins {
     id 'java'
 }
 
+configurations {
+    modules
+    compile.extendsFrom(modules)
+}
+
 version 'unspecified'
 
 repositories {
@@ -22,6 +27,23 @@ dependencies {
 
     compile project(':Common')
     compile project(':DB')
+}
+
+task packageAll(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'com.persybot.Bot'
+    }
+
+    // pack yours main module
+    from sourceSets.main.output
+
+    // pack your other two modules
+    from {
+        configurations.modules.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // pack all dependencies in the project
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 tasks.withType(JavaCompile) {
