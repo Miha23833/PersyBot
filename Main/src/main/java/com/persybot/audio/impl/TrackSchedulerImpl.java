@@ -25,6 +25,8 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrackContext> queue;
 
+    private AudioTrack repeatingTrack = null;
+
     public TrackSchedulerImpl(AudioPlayer player) {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
@@ -81,7 +83,9 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
     @Override
     public void nextTrack() {
-        if (queue.isEmpty()) {
+        if (repeatingTrack != null) {
+            this.player.startTrack(repeatingTrack.makeClone(), false);
+        } else if (queue.isEmpty()) {
             player.stopTrack();
         } else {
             AudioTrackContext context = this.queue.poll();
@@ -104,6 +108,18 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
             nextTrack();
+        }
+    }
+
+    @Override
+    public void repeatTrack() {
+        this.repeatingTrack = player.getPlayingTrack();
+    }
+
+    @Override
+    public void stopRepeating() {
+        if (this.repeatingTrack != null) {
+            this.repeatingTrack = null;
         }
     }
 

@@ -5,6 +5,7 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -26,7 +27,7 @@ public class SkipSongTextCommand extends AbstractTextCommand {
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
 
         if (!isExecutorAndBotAreInSameVoiceChannel(voiceState, audioManager)) {
-            context.getEvent().getChannel().sendMessage("You must be in the same channel as me to skip song.").queue();
+            context.getEvent().getChannel().sendMessage(new DefaultTextMessage("You must be in the same channel as me to skip song.").template()).queue();
         }
 
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId)

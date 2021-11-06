@@ -12,6 +12,7 @@ import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
 import com.persybot.command.impl.commands.ChangePrefixCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.PlayMusicTextCommand;
+import com.persybot.command.impl.commands.ReplayMusicCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
 import com.persybot.command.impl.commands.SkipSongTextCommand;
 import com.persybot.command.impl.commands.StopPlayingTextCommand;
@@ -33,7 +34,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Bot {
-    private Bot(Properties properties) throws IOException, LoginException {
+    private Bot(Properties properties) throws LoginException {
         populateServices(properties);
         ShardManager jda = DefaultShardManagerBuilder.createDefault(properties.getProperty("bot.token"))
                 .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(properties),
@@ -50,7 +51,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
-                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))));
+                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))))
+                .addCommand(TEXT_COMMAND.REPEAT, new ReplayMusicCommand());
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator(Properties properties) {

@@ -72,6 +72,12 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
 
     @Override
     public void skip() {
+        this.scheduler.stopRepeating();
         this.scheduler.nextTrack();
+    }
+
+    @Override
+    public void repeat() {
+        this.scheduler.repeatTrack();
     }
 }

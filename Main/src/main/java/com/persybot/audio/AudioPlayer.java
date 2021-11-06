@@ -26,4 +26,6 @@ public interface AudioPlayer {
     List<AudioTrackInfo> getQueue();
 
     void skip();
+
+    void repeat();
 }

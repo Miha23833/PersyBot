@@ -19,4 +19,7 @@ public interface TrackScheduler {
 
     List<AudioTrackInfo> getQueuedTracksInfo();
 
+    void repeatTrack();
+
+    void stopRepeating();
 }

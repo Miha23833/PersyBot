@@ -46,7 +46,7 @@ public class DBServiceImpl implements DBService {
         configuration.configure();
         sessionFactory = configuration.buildSessionFactory();
 
-        this.countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count"));
+        this.countOfWorkers = 7;
         this.tasks = new LinkedBlockingDeque<>();
 
         workers = createWorkers();

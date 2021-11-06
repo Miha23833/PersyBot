@@ -9,4 +9,5 @@ public interface PlayerAction {
     void setVolume(Integer volume);
     void pauseSong();
     void resumePlayer();
+    void repeat();
 }

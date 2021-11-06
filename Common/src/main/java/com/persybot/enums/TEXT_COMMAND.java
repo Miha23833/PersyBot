@@ -9,6 +9,7 @@ public enum TEXT_COMMAND {
     PLAY("Plays music. To use write '''<prefix>play <link or name of sound>'''."),
     SKIP(""),
     STOP(""),
+    REPEAT(""),
 
 
     // Channel admin
