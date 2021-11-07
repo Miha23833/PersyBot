@@ -73,7 +73,9 @@ public class Bot {
     public static void main(String[] args) throws IOException, LoginException {
         Properties properties = new Properties();
 
-        properties.putAll(new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg").getProperties());
+        properties.put("bot.selfmessageslimit", 50);
+        properties.put("db.workers.count", 20);
+        properties.put("bot.prefix.maxlen", 3);
         properties.put("bot.token", System.getenv("bot.token"));
         properties.put("hibernate.connection.url", System.getenv("JDBC_DATABASE_URL"));
 
