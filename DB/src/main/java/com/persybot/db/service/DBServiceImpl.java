@@ -36,22 +36,6 @@ public class DBServiceImpl implements DBService {
     private final SessionFactory sessionFactory;
     protected AtomicBoolean onPause = new AtomicBoolean(true);
 
-    private DBServiceImpl() {
-        Configuration configuration = new Configuration();
-        Properties properties = new Properties();
-
-        loadProperties(properties, "DB\\src\\main\\resources\\hibernate.cfg.xml");
-
-        configuration.addProperties(properties);
-        configuration.configure();
-        sessionFactory = configuration.buildSessionFactory();
-
-        this.countOfWorkers = 7;
-        this.tasks = new LinkedBlockingDeque<>();
-
-        workers = createWorkers();
-    }
-
     private DBServiceImpl(Properties properties) {
         Configuration configuration = new Configuration();
         configuration.addProperties(properties);
@@ -63,12 +47,12 @@ public class DBServiceImpl implements DBService {
         workers = createWorkers();
     }
 
-    public static DBServiceImpl getInstance() {
+    public static DBServiceImpl getInstance(Properties properties) {
         if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
-                    INSTANCE = new DBServiceImpl();
+                    INSTANCE = new DBServiceImpl(properties);
                 }
             } finally {
                 rwLock.writeLock().unlock();

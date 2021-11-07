@@ -19,7 +19,10 @@ import com.persybot.command.impl.commands.StopPlayingTextCommand;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.command.service.impl.ButtonCommandServiceImpl;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
-import com.persybot.config.impl.ConfigReaderImpl;
+import com.persybot.config.MasterConfig;
+import com.persybot.config.impl.ConfigFileReader;
+import com.persybot.config.impl.EnvironmentVariableReader;
+import com.persybot.config.impl.MasterConfigImpl;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
 import com.persybot.enums.BUTTON_ID;
@@ -30,17 +33,16 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.util.Properties;
 
 public class Bot {
-    private Bot(Properties properties) throws LoginException {
-        populateServices(properties);
-        ShardManager jda = DefaultShardManagerBuilder.createDefault(properties.getProperty("bot.token"))
-                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(properties),
-                        defaultButtonCommandAggregator(properties)),
+    private Bot(Properties dbProperties, Properties botProperties) throws LoginException {
+        populateServices(dbProperties, botProperties);
+        ShardManager jda = DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
+                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties),
+                        defaultButtonCommandAggregator(botProperties)),
                         new ServiceUpdaterAdapter(),
-                        new SelfMessagesCleaner(Integer.parseInt(properties.getProperty("bot.selfmessageslimit"))))
+                        new SelfMessagesCleaner(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))))
                 .build();
     }
 
@@ -63,23 +65,57 @@ public class Bot {
                 .addCommand(BUTTON_ID.PLAYER_STOP, new StopPlayingButtonCommand());
     }
 
-    private void populateServices(Properties properties) {
+    private void populateServices(Properties dbProperties, Properties botProperties) {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
-                .addService(DBService.class, DBServiceImpl.getInstance())
-                .addService(TextCommandService.class, defaultTextCommandAggregator(properties))
+                .addService(DBService.class, DBServiceImpl.getInstance(dbProperties))
+                .addService(TextCommandService.class, defaultTextCommandAggregator(botProperties))
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance());
         serviceAggregator.getService(DBService.class).start();
     }
 
 
-    public static void main(String[] args) throws IOException, LoginException {
-        Properties properties = new Properties();
-        if (args.length >= 1 && args[0].equalsIgnoreCase("use_env_vars")) {
-            properties.putAll(System.getenv());
-        }
-        else {
-            properties.putAll(new ConfigReaderImpl("Main\\src\\main\\resources\\botConfig.cfg").getProperties());
-        }
-        new Bot(properties);
+    public static void main(String[] args) throws LoginException {
+        new Bot(getDbProperties(), getBotProperties());
+    }
+
+    private static Properties getDbProperties() {
+        ConfigFileReader fileConfig = new ConfigFileReader("config/hibernate.cfg.xml");
+
+        EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
+                .requireProperty("db.workers.count")
+                .requireProperty("DATABASE_URL")
+                .requireProperty("connection.driver_class")
+                .requireProperty("show_sql")
+                .requireProperty("connection.url")
+                .requireProperty("connection.username")
+                .requireProperty("connection.password")
+                .requireProperty("connection.charSet")
+                .requireProperty("connection.characterEncoding")
+                .requireProperty("connection.useUnicode")
+                .requireProperty("connection.pool_size")
+                .requireProperty("hibernate.dialect")
+                .requireProperty("hbm2ddl.auto")
+                .requireProperty("current_session_context_class");
+
+        MasterConfig dbConfig = new MasterConfigImpl();
+        return dbConfig
+                .addConfigSource(fileConfig)
+                .addConfigSource(envConfig)
+                .getProperties();
+    }
+
+    private static Properties getBotProperties() {
+        ConfigFileReader fileConfig = new ConfigFileReader("config/botConfig.xml");
+
+        EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
+                .requireProperty("bot.token")
+                .requireProperty("bot.selfmessageslimit")
+                .requireProperty("bot.prefix.maxlen");
+
+        MasterConfig botConfig = new MasterConfigImpl();
+        return botConfig
+                .addConfigSource(fileConfig)
+                .addConfigSource(envConfig)
+                .getProperties();
     }
 }
