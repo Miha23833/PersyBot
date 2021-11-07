@@ -46,8 +46,6 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
-# configs
-*.cfg
 log4j.properties
 /Common/src/main/resources/log4j2.xml
 

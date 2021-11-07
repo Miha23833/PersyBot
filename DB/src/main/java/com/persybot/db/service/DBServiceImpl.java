@@ -1,6 +1,8 @@
 package com.persybot.db.service;
 
 import com.persybot.db.model.HbTable;
+import com.persybot.db.model.impl.DiscordServer;
+import com.persybot.db.model.impl.DiscordServerSettings;
 import com.persybot.db.worker.impl.DBWorkerImpl;
 import com.persybot.logger.impl.PersyBotLogger;
 import org.hibernate.Session;
@@ -13,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -36,9 +39,16 @@ public class DBServiceImpl implements DBService {
     private final SessionFactory sessionFactory;
     protected AtomicBoolean onPause = new AtomicBoolean(true);
 
+    private static List<Class<?>> entities = Arrays.asList(
+            DiscordServer.class,
+            DiscordServerSettings.class);
+
     private DBServiceImpl(Properties properties) {
         Configuration configuration = new Configuration();
         configuration.addProperties(properties);
+
+        addEntities(configuration);
+
         sessionFactory = configuration.buildSessionFactory();
 
         this.tasks = new LinkedBlockingQueue<>();
@@ -198,6 +208,10 @@ public class DBServiceImpl implements DBService {
             workers.add(new DBWorkerImpl(sessionFactory, tasks, onPause));
         }
         return workers;
+    }
+
+    private void addEntities(Configuration cfg) {
+        entities.forEach(cfg::addAnnotatedClass);
     }
 
 }

@@ -23,6 +23,7 @@ import com.persybot.config.MasterConfig;
 import com.persybot.config.impl.ConfigFileReader;
 import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
+import com.persybot.config.impl.XmlConfigFileReader;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
 import com.persybot.enums.BUTTON_ID;
@@ -33,9 +34,24 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Bot {
+    private static String rootDir;
+
+    static {
+        try {
+            rootDir = new File(Bot.class.getProtectionDomain().getCodeSource().getLocation()
+                    .toURI()).getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
     private Bot(Properties dbProperties, Properties botProperties) throws LoginException {
         populateServices(dbProperties, botProperties);
         ShardManager jda = DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
@@ -79,23 +95,23 @@ public class Bot {
     }
 
     private static Properties getDbProperties() {
-        ConfigFileReader fileConfig = new ConfigFileReader("config/hibernate.cfg.xml");
+        ConfigFileReader fileConfig = new ConfigFileReader("resources/hibernateConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
                 .requireProperty("db.workers.count")
                 .requireProperty("DATABASE_URL")
-                .requireProperty("connection.driver_class")
-                .requireProperty("show_sql")
-                .requireProperty("connection.url")
-                .requireProperty("connection.username")
-                .requireProperty("connection.password")
-                .requireProperty("connection.charSet")
-                .requireProperty("connection.characterEncoding")
-                .requireProperty("connection.useUnicode")
-                .requireProperty("connection.pool_size")
+                .requireProperty("hibernate.connection.driver_class")
+                .requireProperty("hibernate.show_sql")
+                .requireProperty("hibernate.connection.url")
+                .requireProperty("hibernate.connection.username")
+                .requireProperty("hibernate.connection.password")
+                .requireProperty("hibernate.connection.charSet")
+                .requireProperty("hibernate.connection.characterEncoding")
+                .requireProperty("hibernate.connection.useUnicode")
+                .requireProperty("hibernate.connection.pool_size")
                 .requireProperty("hibernate.dialect")
-                .requireProperty("hbm2ddl.auto")
-                .requireProperty("current_session_context_class");
+                .requireProperty("hibernate.hbm2ddl.auto")
+                .requireProperty("hibernate.current_session_context_class");
 
         MasterConfig dbConfig = new MasterConfigImpl();
         return dbConfig
@@ -105,7 +121,7 @@ public class Bot {
     }
 
     private static Properties getBotProperties() {
-        ConfigFileReader fileConfig = new ConfigFileReader("config/botConfig.xml");
+        ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
                 .requireProperty("bot.token")

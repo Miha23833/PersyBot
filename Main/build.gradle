@@ -1,5 +1,11 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java'
+}
+
+configurations {
+    modules
+    compile.extendsFrom(modules)
 }
 
 version 'unspecified'
@@ -22,6 +28,17 @@ dependencies {
 
     compile project(':Common')
     compile project(':DB')
+}
+
+shadowJar {
+    // TODO: figure out how to remove configs from root dir in jar
+    from('src/main') {
+        include 'resources/**/*.xml', 'resources/**/*.cfg'
+    }
+
+    manifest {
+        attributes 'Main-Class': 'com.persybot.Bot'
+    }
 }
 
 tasks.withType(JavaCompile) {
