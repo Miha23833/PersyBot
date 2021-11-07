@@ -46,7 +46,7 @@ public class DBServiceImpl implements DBService {
         configuration.configure();
         sessionFactory = configuration.buildSessionFactory();
 
-        this.countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count"));
+        this.countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count", "7"));
         this.tasks = new LinkedBlockingDeque<>();
 
         workers = createWorkers();
@@ -61,7 +61,7 @@ public class DBServiceImpl implements DBService {
 
         this.tasks = new LinkedBlockingQueue<>();
 
-        countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count"));
+        countOfWorkers = Integer.parseInt(properties.getProperty("db.workers.count", "7"));
         workers = createWorkers();
     }
 

@@ -39,7 +39,7 @@ public class Bot {
                 .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(properties),
                         defaultButtonCommandAggregator(properties)),
                         new ServiceUpdaterAdapter(),
-                        new SelfMessagesCleaner(Integer.parseInt(properties.getProperty("bot.selfmessageslimit"))))
+                        new SelfMessagesCleaner(Integer.parseInt(properties.getProperty("bot.selfmessageslimit", "100"))))
                 .build();
     }
 
@@ -50,7 +50,7 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
-                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))));
+                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen", "3"))));
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator(Properties properties) {
