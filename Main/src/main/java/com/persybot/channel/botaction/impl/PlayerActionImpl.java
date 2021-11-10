@@ -55,6 +55,11 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         actingChannel.getAudioPlayer().repeat();
     }
 
+    @Override
+    public void mixQueue() {
+        actingChannel.getAudioPlayer().mixQueue();
+    }
+
     private static boolean isUrl(String url) {
         try {
             new URI(url).toURL();

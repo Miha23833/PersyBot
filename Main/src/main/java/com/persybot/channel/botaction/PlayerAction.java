@@ -10,4 +10,5 @@ public interface PlayerAction {
     void pauseSong();
     void resumePlayer();
     void repeat();
+    void mixQueue();
 }

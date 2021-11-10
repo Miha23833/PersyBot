@@ -80,4 +80,9 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     public void repeat() {
         this.scheduler.repeatTrack();
     }
+
+    @Override
+    public void mixQueue() {
+        this.scheduler.mixQueue();
+    }
 }

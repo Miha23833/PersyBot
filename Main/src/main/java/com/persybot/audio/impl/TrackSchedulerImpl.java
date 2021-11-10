@@ -16,7 +16,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
@@ -121,6 +123,13 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         if (this.repeatingTrack != null) {
             this.repeatingTrack = null;
         }
+    }
+
+    @Override
+    public void mixQueue() {
+        Set<AudioTrackContext> tempQueue = new HashSet<>(this.queue);
+        this.queue.clear();
+        queue.addAll(tempQueue);
     }
 
     private Message getPlayingTrackMessage(AudioTrackInfo info) {

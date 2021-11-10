@@ -28,4 +28,6 @@ public interface AudioPlayer {
     void skip();
 
     void repeat();
+
+    void mixQueue();
 }
