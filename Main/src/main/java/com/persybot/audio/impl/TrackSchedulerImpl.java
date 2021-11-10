@@ -96,6 +96,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
     @Override
     public void clearQueue() {
+        this.repeatingTrack = null;
         this.queue.clear();
     }
 

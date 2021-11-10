@@ -1,6 +1,7 @@
 package com.persybot;
 
 import com.persybot.adapters.DefaultListenerAdapter;
+import com.persybot.adapters.JDAStateListenerAdapter;
 import com.persybot.adapters.SelfMessagesCleaner;
 import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
@@ -23,42 +24,28 @@ import com.persybot.config.MasterConfig;
 import com.persybot.config.impl.ConfigFileReader;
 import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
-import com.persybot.config.impl.XmlConfigFileReader;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.service.ServiceAggregator;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.staticdata.StaticData;
+import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Bot {
-    private static String rootDir;
-
-    static {
-        try {
-            rootDir = new File(Bot.class.getProtectionDomain().getCodeSource().getLocation()
-                    .toURI()).getPath();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-
     private Bot(Properties dbProperties, Properties botProperties) throws LoginException {
         populateServices(dbProperties, botProperties);
-        ShardManager jda = DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
+        DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
                 .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties),
                         defaultButtonCommandAggregator(botProperties)),
                         new ServiceUpdaterAdapter(),
-                        new SelfMessagesCleaner(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))))
+                        new SelfMessagesCleaner(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
+                        new JDAStateListenerAdapter(botProperties))
                 .build();
     }
 
@@ -85,7 +72,8 @@ public class Bot {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
                 .addService(DBService.class, DBServiceImpl.getInstance(dbProperties))
                 .addService(TextCommandService.class, defaultTextCommandAggregator(botProperties))
-                .addService(ChannelService.class, ChannelServiceImpl.getInstance());
+                .addService(ChannelService.class, ChannelServiceImpl.getInstance())
+                .addService(StaticData.class, StaticDataImpl.getInstance());
         serviceAggregator.getService(DBService.class).start();
     }
 

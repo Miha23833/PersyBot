@@ -45,6 +45,11 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     }
 
     @Override
+    public boolean isPlaying() {
+        return this.audioPlayer.getPlayingTrack() != null;
+    }
+
+    @Override
     public void loadAndPlay(String trackUrl, TextChannel requestingChannel) {
         this.musicManager.loadItemOrdered(this, trackUrl, new DefaultAudioLoadResultHandler(scheduler, requestingChannel));
     }
