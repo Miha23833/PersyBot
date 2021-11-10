@@ -12,6 +12,7 @@ import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
 import com.persybot.command.impl.commands.ChangePrefixCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
+import com.persybot.command.impl.commands.MixPlayingTracksCommand;
 import com.persybot.command.impl.commands.PlayMusicTextCommand;
 import com.persybot.command.impl.commands.ReplayMusicCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
@@ -35,6 +36,8 @@ import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 public class Bot {
@@ -57,7 +60,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
                 .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))))
-                .addCommand(TEXT_COMMAND.REPEAT, new ReplayMusicCommand());
+                .addCommand(TEXT_COMMAND.REPEAT, new ReplayMusicCommand())
+                .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand());
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator(Properties properties) {

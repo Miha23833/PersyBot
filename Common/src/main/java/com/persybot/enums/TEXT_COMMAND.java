@@ -10,6 +10,7 @@ public enum TEXT_COMMAND {
     SKIP(""),
     STOP(""),
     REPEAT(""),
+    MIX("Mixes playing queue."),
 
 
     // Channel admin

@@ -22,4 +22,6 @@ public interface TrackScheduler {
     void repeatTrack();
 
     void stopRepeating();
+
+    void mixQueue();
 }
