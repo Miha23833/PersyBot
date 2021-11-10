@@ -6,6 +6,7 @@ import com.persybot.channel.service.ChannelService;
 import com.persybot.event.EventListener;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +47,16 @@ public class VoiceInactivityChecker extends Thread {
         Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
 
         if (channel != null) {
-            AudioPlayer audioPlayer = channel.getAudioPlayer();
-
             long currentTime = System.currentTimeMillis();
+            AudioPlayer audioPlayer = channel.getAudioPlayer();
+            VoiceChannel connectedChannel = channel.getGuild().getAudioManager().getConnectedChannel();
 
-            if (!audioPlayer.isPlaying() || audioPlayer.onPause()) {
+            int connectedMembersCount = 0;
+            if (connectedChannel != null) {
+                connectedMembersCount = connectedChannel.getMembers().size();
+            }
+
+            if (connectedMembersCount < 2 || !audioPlayer.isPlaying() || audioPlayer.onPause()) {
                 if (currentTime - guildsLastActivity.get(channelId) > maxInactivityTime) {
                     channel.playerAction().stopMusic();
                     // TODO: add message "Leave channel due to inactivity" when add "Last acting text channel"
