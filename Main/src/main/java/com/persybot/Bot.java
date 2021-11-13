@@ -36,8 +36,6 @@ import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.Properties;
 
 public class Bot {
@@ -116,6 +114,8 @@ public class Bot {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
+                .requireProperty("bot.activityChecker.checkPause")
+                .requireProperty("bot.activityChecker.maxInactivityTime")
                 .requireProperty("bot.token")
                 .requireProperty("bot.selfmessageslimit")
                 .requireProperty("bot.prefix.maxlen");
