@@ -3,7 +3,7 @@ package com.persybot.message.service;
 // TODO load count from config
 public enum MessageType {
     PLAYER_NOW_PLAYING(2),
-    PLAYER_PAUSE_RESUME(2),
+    PLAYER_STATE(2),
     PLAYER_INFO(200),
 
 
