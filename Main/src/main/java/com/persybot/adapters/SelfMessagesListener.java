@@ -2,7 +2,6 @@ package com.persybot.adapters;
 
 import com.persybot.enums.BUTTON_ID;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.Component;
@@ -20,17 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
-public class SelfMessagesCleaner extends ListenerAdapter {
-    private final Map<Long, Map<Long, Queue<Message>>> guild_textChannel_Messages;
+public class SelfMessagesListener extends ListenerAdapter {
     private final Map<Long, Map<Long, Queue<Message>>> guild_textChannel_messagesWithButtons;
     private final Set<String> playerButtonIds;
 
     private final int messageLimitInHistory;
 
-    public SelfMessagesCleaner(int messageLimitInHistory) {
+    public SelfMessagesListener(int messageLimitInHistory) {
         playerButtonIds = Arrays.stream(BUTTON_ID.values()).map(BUTTON_ID::getId).collect(Collectors.toSet());
         this.messageLimitInHistory = messageLimitInHistory;
-        guild_textChannel_Messages = new ConcurrentHashMap<>();
         guild_textChannel_messagesWithButtons = new ConcurrentHashMap<>();
     }
 
@@ -47,27 +44,6 @@ public class SelfMessagesCleaner extends ListenerAdapter {
             if (containsExactlyPlayerButtons(event.getMessage())) {
                 removeSelfPreviousMessagesPlayerButtons(event);
                 addToMessages(guild_textChannel_messagesWithButtons, guildId, textChannelId, event.getMessage());
-            }
-        }
-        else {
-            addToMessages(guild_textChannel_Messages, guildId, textChannelId, event.getMessage());
-        }
-    }
-
-    private void removeSelfPreviousMessagesWithoutButtons(GuildMessageReceivedEvent event) {
-        long guildId = event.getGuild().getIdLong();
-        long textChannelId = event.getChannel().getIdLong();
-
-        if (guild_textChannel_Messages.containsKey(guildId)) {
-            if (guild_textChannel_Messages.containsKey(textChannelId)) {
-                List<String> messagesToRemove = guild_textChannel_Messages.get(guildId).get(textChannelId)
-                        .stream()
-                        .map(Message::getId)
-                        .collect(Collectors.toList());
-
-                event.getChannel().deleteMessagesByIds(messagesToRemove).queue();
-
-                guild_textChannel_Messages.get(guildId).get(textChannelId).clear();
             }
         }
     }
@@ -103,15 +79,7 @@ public class SelfMessagesCleaner extends ListenerAdapter {
     }
 
     private void addToMessages(Map<Long, Map<Long, Queue<Message>>> pool, long guildId, long textChannelId, Message message) {
-        guild_textChannel_messagesWithButtons.computeIfAbsent(guildId, k -> new ConcurrentHashMap<>())
+        pool.computeIfAbsent(guildId, k -> new ConcurrentHashMap<>())
                 .computeIfAbsent(textChannelId, k -> new ConcurrentLinkedQueue<>()).add(message);
-    }
-
-    private void updateMessages(TextChannel channel, List<Message> messages) {
-        messages.forEach(msg -> channel.editMessageById(msg.getId(), msg).queue());
-    }
-
-    private void updateMessage(TextChannel textChannel, Message message) {
-        textChannel.editMessageById(message.getId(), message).queue();
     }
 }

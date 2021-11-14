@@ -1,6 +1,8 @@
 package com.persybot.adapters;
 
 import com.persybot.logger.impl.PersyBotLogger;
+import com.persybot.message.service.MessageControlService;
+import com.persybot.message.service.impl.MessageControlServiceImpl;
 import com.persybot.perfomance.voiceactivity.impl.VoiceInactivityChecker;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.staticdata.StaticData;
@@ -23,6 +25,8 @@ public class JDAStateListenerAdapter extends ListenerAdapter {
         PersyBotLogger.BOT_LOGGER.info("Bot status was changed from " + event.getOldStatus() + " to " + event.getNewStatus());
 
         if (event.getNewStatus().equals(JDA.Status.CONNECTED) ) {
+            populateServices(botProperties, event.getEntity());
+
             runVoiceActivityChecker(this.botProperties);
         }
     }
@@ -36,5 +40,9 @@ public class JDAStateListenerAdapter extends ListenerAdapter {
         VoiceInactivityChecker activityChecker = new VoiceInactivityChecker(activeChannels, checkPause, maxInactivityTime);
 
         activityChecker.start();
+    }
+
+    private void populateServices(Properties botProperties, JDA jda) {
+        ServiceAggregatorImpl.getInstance().addService(MessageControlService.class, MessageControlServiceImpl.getInstance(jda));
     }
 }

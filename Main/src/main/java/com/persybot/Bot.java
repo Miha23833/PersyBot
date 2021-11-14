@@ -2,7 +2,7 @@ package com.persybot;
 
 import com.persybot.adapters.DefaultListenerAdapter;
 import com.persybot.adapters.JDAStateListenerAdapter;
-import com.persybot.adapters.SelfMessagesCleaner;
+import com.persybot.adapters.SelfMessagesListener;
 import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
@@ -29,6 +29,8 @@ import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
+import com.persybot.message.service.MessageAggregatorService;
+import com.persybot.message.service.impl.MessageAggregatorServiceImpl;
 import com.persybot.service.ServiceAggregator;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.staticdata.StaticData;
@@ -45,7 +47,7 @@ public class Bot {
                 .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties),
                         defaultButtonCommandAggregator(botProperties)),
                         new ServiceUpdaterAdapter(),
-                        new SelfMessagesCleaner(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
+                        new SelfMessagesListener(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
                         new JDAStateListenerAdapter(botProperties))
                 .build();
     }
@@ -72,6 +74,7 @@ public class Bot {
 
     private void populateServices(Properties dbProperties, Properties botProperties) {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
+                .addService(MessageAggregatorService.class, MessageAggregatorServiceImpl.getInstance())
                 .addService(DBService.class, DBServiceImpl.getInstance(dbProperties))
                 .addService(TextCommandService.class, defaultTextCommandAggregator(botProperties))
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance())
