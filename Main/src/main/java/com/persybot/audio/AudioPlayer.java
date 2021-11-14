@@ -29,6 +29,8 @@ public interface AudioPlayer {
 
     void skip();
 
+    void skip(int countOfSkips);
+
     void repeat();
 
     void mixQueue();

@@ -28,6 +28,11 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
     }
 
     @Override
+    public void skipSong(int countOfSkips) {
+        actingChannel.getAudioPlayer().skip(countOfSkips);
+    }
+
+    @Override
     public void stopMusic() {
         actingChannel.getAudioPlayer().stop();
     }

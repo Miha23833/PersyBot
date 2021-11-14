@@ -6,6 +6,7 @@ public enum MessageType {
     PLAYER_STATE(2),
     PLAYER_INFO(200),
 
+    BUTTON_ERROR(3),
 
     ERROR(5);
 

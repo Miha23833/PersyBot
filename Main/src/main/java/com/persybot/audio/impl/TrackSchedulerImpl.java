@@ -87,6 +87,19 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     }
 
     @Override
+    public void skipMultiple(int countOfSkips) {
+        if (countOfSkips >= queue.size()) {
+            this.queue.clear();
+            this.player.stopTrack();
+        } else {
+            for (int i = 1; i < countOfSkips; i++) {
+                this.queue.remove();
+            }
+            this.nextTrack();
+        }
+    }
+
+    @Override
     public void nextTrack() {
         if (repeatingTrack != null) {
             this.player.startTrack(repeatingTrack.makeClone(), false);

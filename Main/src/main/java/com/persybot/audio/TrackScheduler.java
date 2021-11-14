@@ -13,6 +13,8 @@ public interface TrackScheduler {
 
     boolean isEmpty();
 
+    void skipMultiple(int countOfSkips);
+
     void nextTrack();
 
     void clearQueue();
