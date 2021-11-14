@@ -1,9 +1,11 @@
 package com.persybot.command.button.impl.commands;
 
+import com.persybot.callback.consumer.MessageSendSuccess;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.ButtonCommand;
 import com.persybot.command.ButtonCommandContext;
 import com.persybot.message.PLAYER_BUTTON;
+import com.persybot.message.service.MessageType;
 import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 
@@ -13,7 +15,7 @@ public class ResumeButtonCommand implements ButtonCommand {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().resumePlayer();
         context.getEvent().getInteraction().editButton(PLAYER_BUTTON.PAUSE.button(false)).queue();
 
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player resumed.").template()).queue();
+        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player resumed.").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_PAUSE_RESUME, x).accept(x));
     }
 
     @Override

@@ -1,7 +1,10 @@
 package com.persybot.audio.audioloadreslt.impl;
 
 import com.persybot.audio.impl.TrackSchedulerImpl;
+import com.persybot.callback.consumer.MessageSendSuccess;
 import com.persybot.logger.impl.PersyBotLogger;
+import com.persybot.message.service.MessageType;
+import com.persybot.message.template.impl.InfoMessage;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -40,6 +43,6 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
     @Override
     public void loadFailed(FriendlyException exception) {
         PersyBotLogger.BOT_LOGGER.error(exception);
-        requestingChannel.sendMessage("Failed to load track.").queue();
+        requestingChannel.sendMessage(new InfoMessage("Error", "Failed to load track.").template()).queue(x -> new MessageSendSuccess<>(MessageType.ERROR, x).accept(x));
     }
 }

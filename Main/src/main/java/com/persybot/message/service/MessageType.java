@@ -1,9 +1,13 @@
 package com.persybot.message.service;
 
+// TODO load count from config
 public enum MessageType {
-    PLAYER_NOW_PLAYING(3),
+    PLAYER_NOW_PLAYING(2),
+    PLAYER_PAUSE_RESUME(2),
     PLAYER_INFO(200),
-    ERROR(30);
+
+
+    ERROR(5);
 
 
     public int getMaxMessagesCount() {
