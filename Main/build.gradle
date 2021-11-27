@@ -23,7 +23,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     dependencies {
         // JDA discord API
-        implementation("net.dv8tion:JDA:4.3.0_277")
+        implementation("net.dv8tion:JDA:4.4.0_350")
         implementation 'com.github.sedmelluq:lavaplayer:PR650-SNAPSHOT'
     }
 

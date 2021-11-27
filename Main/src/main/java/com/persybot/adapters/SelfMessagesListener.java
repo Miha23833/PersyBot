@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.internal.requests.Route;
 import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,7 +70,7 @@ public class SelfMessagesListener extends ListenerAdapter {
     }
 
     private void removeButtons(Message message) {
-        new MessageActionImpl(message.getJDA(), Route.Messages.EDIT_MESSAGE.compile(message.getChannel().getId(), message.getId()), message.getChannel()).setActionRows().queue();
+        new MessageActionImpl(message.getJDA(), message.getId(), message.getChannel()).setActionRows().queue();
     }
 
     private boolean containsExactlyPlayerButtons(Message message) {
