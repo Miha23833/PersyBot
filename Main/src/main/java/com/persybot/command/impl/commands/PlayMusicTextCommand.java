@@ -7,9 +7,11 @@ import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -24,31 +26,59 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
     }
 
     @Override
-    public void execute(TextCommandContext context) {
-        final TextChannel rspChannel = context.getEvent().getChannel();
-        if (TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.equals(validateArgs(context.getArgs()).getRejectReason())) {
-            rspChannel.sendMessage("Correct usage is `play <youtube link>`").queue();
-            return;
+    protected boolean runBefore(TextCommandContext context) {
+        Member requestingMember = context.getEvent().getMember();
+        if (requestingMember == null) {
+            return false;
         }
 
+        final TextChannel rspChannel = context.getEvent().getChannel();
+        if (TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.equals(validateArgs(context.getArgs()).getRejectReason())) {
+            BotUtils.sendMessage("Correct usage is `play <youtube link>`", rspChannel);
+            return false;
+        }
+        if (!BotUtils.isMemberInVoiceChannel(requestingMember)) {
+            BotUtils.sendMessage("Please join to a voice channel first", rspChannel);
+            return false;
+        }
+
+        if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember(),requestingMember.getVoiceState().getChannel())
+                && !BotUtils.canJoin(requestingMember, requestingMember.getVoiceState().getChannel())) {
+            BotUtils.sendMessage("I cannot connect to your voice channel", rspChannel);
+            return false;
+        }
+
+        if (!BotUtils.canSpeak(context.getGuild().getSelfMember())) {
+            BotUtils.sendMessage("I cannot speak in your voice channel", rspChannel);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected boolean runCommand(TextCommandContext context) {
         Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId());
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
+
         if (audioManager.getSendingHandler() == null) {
             audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
         }
 
-        GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
-        if (voiceState == null) {
-            rspChannel.sendMessage("Pleas join to a voice first").queue();
-            return;
-        }
+        VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();
 
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
-                .getChannel(context.getGuildId())
-                .voiceChannelAction().joinChannel(voiceState.getChannel());
+        if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
+            ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
+                    .getChannel(context.getGuildId())
+                    .voiceChannelAction().joinChannel(voiceChannel);
+
+            BotUtils.sendMessage("Connected to " + voiceChannel.getName(), context.getEvent().getChannel());
+        }
 
         String link = String.join(" ", context.getArgs());
         channel.playerAction().playSong(link, context.getEvent().getChannel());
+
+
+        return true;
     }
 
     @Override
