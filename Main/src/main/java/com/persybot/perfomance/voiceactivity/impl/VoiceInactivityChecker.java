@@ -3,13 +3,10 @@ package com.persybot.perfomance.voiceactivity.impl;
 import com.persybot.audio.AudioPlayer;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
-import com.persybot.event.EventListener;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class VoiceInactivityChecker extends Thread {
@@ -17,16 +14,10 @@ public class VoiceInactivityChecker extends Thread {
     private final long checkPause;
     private final Map<Long, Long> guildsLastActivity;
 
-    private final List<EventListener> eventListeners = new ArrayList<>();
-
     public VoiceInactivityChecker(Map<Long, Long> guildsLastActivity, long checkPause, long maxInactivityTime) {
         this.checkPause = checkPause;
         this.guildsLastActivity = guildsLastActivity;
         this.maxInactivityTime = maxInactivityTime;
-    }
-
-    public void addEventListeners(EventListener eventListener) {
-        this.eventListeners.add(eventListener);
     }
 
     @Override
