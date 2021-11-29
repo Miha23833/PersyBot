@@ -4,7 +4,7 @@ public enum TEXT_COMMAND {
 //    HELP(""),
 
     // Music
-//    JOIN(""),
+    JOIN(""),
     LEAVE(""),
     PLAY("Plays music. To use write '''<prefix>play <link or name of sound>'''."),
     SKIP(""),
