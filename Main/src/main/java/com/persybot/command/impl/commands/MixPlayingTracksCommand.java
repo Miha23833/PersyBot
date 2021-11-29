@@ -6,6 +6,7 @@ import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
@@ -22,10 +23,16 @@ public class MixPlayingTracksCommand extends AbstractTextCommand {
     }
 
     @Override
-    public void execute(TextCommandContext context) {
+    protected boolean runCommand(TextCommandContext context) {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().mixQueue();
+        return true;
+    }
 
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Playing queue was mixed.").template()).queue();
+    @Override
+    protected boolean runAfter(TextCommandContext context) {
+        // TODO show new queue
+        BotUtils.sendMessage(new DefaultTextMessage("Playing queue was mixed.").template(), context.getEvent().getChannel());
+        return true;
     }
 
     @Override

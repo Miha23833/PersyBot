@@ -9,6 +9,7 @@ import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
@@ -26,24 +27,29 @@ public class ChangePrefixCommand extends AbstractTextCommand {
     protected ValidationResult<TEXT_COMMAND_REJECT_REASON> validateArgs(List<String> args) {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> rsp = new TextCommandValidationResult();
         if (args == null || args.size() < 1 || args.get(0) == null || args.get(0).isBlank()) {
-            rsp.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Please, set new prefix.");
+            rsp.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Please, set new prefix");
             return rsp;
         }
         if (args.get(0).length() > 3) {
-            rsp.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, String.join(" ", "Max length of prefix is ", String.valueOf(maxPrefixLen), "."));
+            rsp.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, String.join(" ", "Max length of prefix is ", String.valueOf(maxPrefixLen)));
         }
 
         return rsp;
     }
 
     @Override
-    public void execute(TextCommandContext context) {
+    protected boolean runBefore(TextCommandContext context) {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
-            context.getEvent().getChannel().sendMessage(new DefaultTextMessage(validationResult.rejectText()).template()).queue();
-            return;
+            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel());
+            return false;
         }
+        return true;
+    }
+
+    @Override
+    protected boolean runCommand(TextCommandContext context) {
         String prefix = context.getArgs().get(0);
 
         Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getEvent().getGuild().getIdLong());
@@ -53,7 +59,8 @@ public class ChangePrefixCommand extends AbstractTextCommand {
 
         ServiceAggregatorImpl.getInstance().getService(DBService.class).update(serverSettings);
 
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template()).queue();
+        BotUtils.sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template(), context.getEvent().getChannel());
+        return true;
     }
 
     @Override

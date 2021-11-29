@@ -18,7 +18,7 @@ public class TextCommandValidationResult implements ValidationResult<TEXT_COMMAN
         if (rejectReason == null) {
             return rejectionReasonText;
         }
-        return rejectReason.text() + rejectionReasonText;
+        return rejectReason.text() + " " + rejectionReasonText;
     }
 
     @Override

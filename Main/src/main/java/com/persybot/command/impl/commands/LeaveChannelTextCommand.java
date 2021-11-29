@@ -4,11 +4,11 @@ import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.List;
 
@@ -23,23 +23,32 @@ public class LeaveChannelTextCommand extends AbstractTextCommand {
     }
 
     @Override
-    public void execute(TextCommandContext context) {
-        GuildVoiceState connectedChannelState = context.getEvent().getGuild().getSelfMember().getVoiceState();
-
-        if (connectedChannelState == null) {
-            context.getEvent().getMessage().reply("I am not connected to a voice channel!").queue();
-            return;
+    protected boolean runBefore(TextCommandContext context) {
+        if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember())) {
+            BotUtils.sendMessage("I am not connected to a voice channel", context.getEvent().getChannel());
+            return false;
         }
 
-        VoiceChannel connectedChannel = connectedChannelState.getChannel();
-        if(connectedChannel == null) {
-            context.getEvent().getMessage().reply("I am not connected to a voice channel!").queue();
-            return;
+        if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getGuild().getSelfMember(), context.getEvent().getMember())){
+            BotUtils.sendMessage("You must be in the same channel as me", context.getEvent().getChannel());
+            return false;
         }
+        return true;
+    }
 
+    @Override
+    protected boolean runCommand(TextCommandContext context) {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
                 .getChannel(context.getGuildId())
                 .voiceChannelAction().leaveChannel();
+        return true;
+    }
+
+    @Override
+    protected boolean runAfter(TextCommandContext context) {
+
+        BotUtils.sendMessage(new DefaultTextMessage("Left voice channel").template(), context.getEvent().getChannel());
+        return true;
     }
 
     @Override

@@ -6,18 +6,17 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.List;
-import java.util.Objects;
 
 public class PlayMusicTextCommand extends AbstractTextCommand {
 
@@ -70,8 +69,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
             ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
                     .getChannel(context.getGuildId())
                     .voiceChannelAction().joinChannel(voiceChannel);
-
-            BotUtils.sendMessage("Connected to " + voiceChannel.getName(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel());
         }
 
         String link = String.join(" ", context.getArgs());
@@ -93,18 +91,5 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
             validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.text());
         }
         return validationResult;
-    }
-
-    private void joinChannel(TextChannel textChannel, GuildVoiceState voiceState, AudioManager audioManager) {
-        if (!isExecutorInVoiceChannel(voiceState)) {
-            textChannel.sendMessage("You need to be in a voice channel for this command to work").queue();
-            return;
-        }
-
-        final VoiceChannel memberChannel = voiceState.getChannel();
-
-        audioManager.openAudioConnection(memberChannel);
-
-        textChannel.sendMessageFormat("Connecting to `\uD83D\uDD0A %s`", Objects.requireNonNull(memberChannel).getName()).queue();
     }
 }

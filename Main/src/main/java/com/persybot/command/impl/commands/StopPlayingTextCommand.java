@@ -21,9 +21,10 @@ public class StopPlayingTextCommand extends AbstractTextCommand {
     }
 
     @Override
-    public void execute(TextCommandContext context) {
+    protected boolean runCommand(TextCommandContext context) {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId())
                 .playerAction().stopMusic();
+        return true;
     }
 
     @Override

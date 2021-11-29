@@ -24,7 +24,7 @@ public abstract class AbstractTextCommand implements TextCommand {
     }
 
     @Override
-    public void execute(TextCommandContext context) {
+    public final void execute(TextCommandContext context) {
         try {
             boolean canContinue = true;
             for (Function<TextCommandContext, Boolean> step: executingSequence) {

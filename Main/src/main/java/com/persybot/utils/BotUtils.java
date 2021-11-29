@@ -4,6 +4,7 @@ import com.persybot.logger.impl.PersyBotLogger;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -49,7 +50,15 @@ public interface BotUtils {
         channel.sendMessage(text).queue();
     }
 
+    static void sendMessage(@NotNull Message message, @NotNull TextChannel channel) {
+        channel.sendMessage(message).queue();
+    }
+
     static void sendPersonalMessage(@NotNull String text, @NotNull User user) {
         user.openPrivateChannel().queue((channel) -> channel.sendMessage(text).queue());
+    }
+
+    static String bold(@NotNull String text) {
+        return String.join("", "**", text, "**");
     }
 }

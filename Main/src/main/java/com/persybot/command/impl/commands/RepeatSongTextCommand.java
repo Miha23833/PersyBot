@@ -1,23 +1,19 @@
 package com.persybot.command.impl.commands;
 
-import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
 
-public class ReplayMusicCommand extends AbstractTextCommand {
-    protected ReplayMusicCommand(int minArgs) {
-        super(minArgs);
-    }
-
-    public ReplayMusicCommand() {
+public class RepeatSongTextCommand extends AbstractTextCommand {
+    public RepeatSongTextCommand() {
         super(0);
     }
 
@@ -27,12 +23,15 @@ public class ReplayMusicCommand extends AbstractTextCommand {
     }
 
     @Override
-    public void execute(TextCommandContext context) {
-        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId());
+    protected boolean runCommand(TextCommandContext context) {
+        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().repeat();
+        return true;
+    }
 
-        channel.playerAction().repeat();
-
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Repeating song...").template()).queue();
+    @Override
+    protected boolean runAfter(TextCommandContext context) {
+        BotUtils.sendMessage(new DefaultTextMessage("Repeating song...").template(), context.getEvent().getChannel());
+        return true;
     }
 
     @Override
