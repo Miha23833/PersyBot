@@ -5,9 +5,11 @@ import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.audioloadreslt.impl.AudioTrackContextImpl;
 import com.persybot.callback.consumer.MessageSendSuccess;
+import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.PLAYER_BUTTON;
 import com.persybot.message.service.MessageType;
 import com.persybot.message.template.impl.InfoMessage;
+import com.persybot.utils.URLUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -16,7 +18,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +29,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import static com.persybot.utils.DateTimeUtils.toTimeDuration;
+import static com.persybot.utils.URLUtil.isYoutube;
+
 public class TrackSchedulerImpl extends AudioEventAdapter implements TrackScheduler {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrackContext> queue;
+
+    private final TimeFormat timeFormat = TimeFormat.TIME_LONG;
 
     private AudioTrack repeatingTrack = null;
 
@@ -151,7 +160,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     }
 
     private Message getPlayingTrackMessage(AudioTrackInfo info) {
-        return new MessageBuilder(new InfoMessage("Now playing:", info.title).template())
+        return new MessageBuilder(new InfoMessage("Now playing:", getAudioTrackPresent(info)).template())
                 .setActionRows(createPlayerButtons(false))
                 .build();
     }
@@ -162,5 +171,24 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
                 isOnPause ? PLAYER_BUTTON.RESUME.button(false) : PLAYER_BUTTON.PAUSE.button(false),
                 PLAYER_BUTTON.SKIP.button(false)
         ));
+    }
+
+    private String getAudioTrackPresent(AudioTrackInfo info) {
+        StringBuilder builder = new StringBuilder();
+
+        String sourceAddress = "";
+        try {
+            sourceAddress = URLUtil.getSiteDomain(info.uri);
+        } catch (URISyntaxException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+        }
+
+        if (info.author != null && !isYoutube(sourceAddress)) {
+            builder.append(info.author).append(" - ");
+        }
+        builder.append(info.title);
+
+        builder.append(" (").append(toTimeDuration(info.length)).append(")");
+        return builder.toString();
     }
 }
