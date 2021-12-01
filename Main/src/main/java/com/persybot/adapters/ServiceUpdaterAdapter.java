@@ -2,7 +2,7 @@ package com.persybot.adapters;
 
 import com.persybot.channel.impl.ChannelImpl;
 import com.persybot.channel.service.ChannelService;
-import com.persybot.db.model.impl.DiscordServerSettings;
+import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.service.ServiceAggregator;

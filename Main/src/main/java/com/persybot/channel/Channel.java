@@ -3,7 +3,7 @@ package com.persybot.channel;
 import com.persybot.audio.AudioPlayer;
 import com.persybot.channel.botaction.PlayerAction;
 import com.persybot.channel.botaction.VoiceChannelAction;
-import com.persybot.db.model.impl.DiscordServerSettings;
+import com.persybot.db.entity.DiscordServerSettings;
 import net.dv8tion.jda.api.entities.Guild;
 
 public interface Channel {
