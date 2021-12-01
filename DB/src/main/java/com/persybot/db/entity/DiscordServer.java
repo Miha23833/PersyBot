@@ -8,7 +8,6 @@ public class DiscordServer implements DbData {
 
     private long serverId;
     private long languageId;
-    private String comment;
 
     public DiscordServer(long serverId, long languageId) {
         this.serverId = serverId;
@@ -33,10 +32,6 @@ public class DiscordServer implements DbData {
 
     public void setLanguageId(long languageId) {
         this.languageId = languageId;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     @Override

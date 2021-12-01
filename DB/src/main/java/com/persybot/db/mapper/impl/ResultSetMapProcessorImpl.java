@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
-    private final Map<Class<? extends DbData>, ResultSetMapper> mappers;
+    private final Map<Class<? extends DbData>, ResultSetMapper<? extends DbData>> mappers;
 
     public ResultSetMapProcessorImpl() {
         mappers = new HashMap<>();
@@ -28,8 +28,8 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
             throw new IllegalArgumentException("Cannot map a result set to " + dataClass);
         }
 
-        List<ResultSetRow> rows = toRowSet(data);
-        ResultSetMapper mapper = mappers.get(dataClass);
+        List<ResultSetRow> rows = toRowList(data);
+        ResultSetMapper<?> mapper = mappers.get(dataClass);
 
         Map<Serializable, T> result = new HashMap<>();
 
@@ -44,19 +44,19 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
             throw new IllegalArgumentException("Cannot map a result set to " + dataClass);
         }
 
-        List<ResultSetRow> rows = toRowSet(data);
-        ResultSetMapper<T> mapper = mappers.get(dataClass);
+        List<ResultSetRow> rows = toRowList(data);
+        ResultSetMapper<?> mapper = mappers.get(dataClass);
 
         return rows.stream().map((ResultSetRow dataRow) -> dataClass.cast(mapper.map(dataRow))).collect(Collectors.toList());
     }
 
     @Override
-    public <T extends DbData> ResultSetMapProcessor addMapper(ResultSetMapper<? extends DbData> mapper, Class<T> entity) {
+    public <T extends DbData> ResultSetMapProcessor addMapper(ResultSetMapper<T> mapper, Class<T> entity) {
         this.mappers.put(entity, mapper);
         return this;
     }
 
-    private <T extends DbData> List<ResultSetRow> toRowSet(ResultSet data) throws SQLException {
+    private List<ResultSetRow> toRowList(ResultSet data) throws SQLException {
         List<ResultSetRow> rows = new LinkedList<>();
         ResultSetMetaData metaData = data.getMetaData();
         int columnCount = metaData.getColumnCount();
@@ -69,5 +69,9 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
             rows.add(row);
         }
         return rows;
+    }
+
+    private <T extends DbData> ResultSetMapper<?> getMapper(Class<T> dataClass) {
+        return this.mappers.get(dataClass);
     }
 }
