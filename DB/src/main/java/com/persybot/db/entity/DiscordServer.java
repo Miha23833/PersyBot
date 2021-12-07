@@ -1,6 +1,7 @@
 package com.persybot.db.entity;
 
 import com.persybot.db.DbData;
+import com.persybot.db.sql.container.DiscordServerSqlContainer;
 
 import java.io.Serializable;
 
@@ -37,5 +38,9 @@ public class DiscordServer implements DbData {
     @Override
     public Serializable getIdentifier() {
         return this.getServerId();
+    }
+
+    public static Class<DiscordServerSqlContainer> getSqlContainerClass() {
+        return DiscordServerSqlContainer.class;
     }
 }

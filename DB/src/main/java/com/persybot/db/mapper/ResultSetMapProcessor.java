@@ -11,6 +11,7 @@ import java.util.Map;
 public interface ResultSetMapProcessor {
     <T extends DbData> Map<Serializable, T> map(ResultSet data, Class<T> dataClass) throws SQLException;
     <T extends DbData> List<T> asList(ResultSet data, Class<T> dataClass) throws SQLException;
+    <T extends DbData> T getSingle(ResultSet data, Class<T> dataClass) throws SQLException;
 
     <T extends DbData> ResultSetMapProcessor addMapper(ResultSetMapper<T> mapper, Class<T> dataClass);
 }

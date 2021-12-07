@@ -51,6 +51,28 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
     }
 
     @Override
+    public <T extends DbData> T getSingle(ResultSet data, Class<T> dataClass) throws SQLException {
+        if (!mappers.containsKey(dataClass)) {
+            throw new IllegalArgumentException("Cannot map a result set to " + dataClass);
+        }
+
+        ResultSetMetaData metaData = data.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        ResultSetMapper<?> mapper = mappers.get(dataClass);
+
+        data.next();
+
+        ResultSetRow row = new ResultSetRowImpl();
+        for (int i = 1; i <= columnCount; i++) {
+            row.add(metaData.getColumnName(i), data.getObject(i));
+        }
+        if (data.next()) {
+            throw new IllegalArgumentException("Data with more than 1 row is not allowed");
+        }
+        return dataClass.cast(mapper.map(row));
+    }
+
+    @Override
     public <T extends DbData> ResultSetMapProcessor addMapper(ResultSetMapper<T> mapper, Class<T> entity) {
         this.mappers.put(entity, mapper);
         return this;

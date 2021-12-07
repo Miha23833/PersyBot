@@ -28,29 +28,37 @@ import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
+import com.persybot.db.sql.sourcereader.impl.XmlSqlSource;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
+import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.service.MessageAggregatorService;
 import com.persybot.message.service.impl.MessageAggregatorServiceImpl;
-import com.persybot.service.ServiceAggregator;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.staticdata.StaticData;
 import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import org.xml.sax.SAXException;
 
-import javax.security.auth.login.LoginException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class Bot {
-    private Bot(Properties dbProperties, Properties botProperties) throws LoginException {
-        populateServices(dbProperties, botProperties);
-        DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
-                .addEventListeners(new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties),
-                        defaultButtonCommandAggregator(botProperties)),
-                        new ServiceUpdaterAdapter(),
-                        new SelfMessagesListener(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
-                        new JDAStateListenerAdapter(botProperties))
-                .build();
+    private Bot(Properties dbProperties, Properties botProperties) {
+        try {
+            populateServicesBeforeLaunch(dbProperties, botProperties);
+            DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
+                    .addEventListeners(
+                            new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties), defaultButtonCommandAggregator()),
+                            new ServiceUpdaterAdapter(),
+                            new SelfMessagesListener(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
+                            new JDAStateListenerAdapter(botProperties))
+                    .build();
+        } catch (Throwable e) {
+            PersyBotLogger.BOT_LOGGER.fatal(e.getStackTrace(), e);
+        }
     }
 
     private TextCommandServiceImpl defaultTextCommandAggregator(Properties properties) {
@@ -66,7 +74,7 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand());
     }
 
-    private ButtonCommandServiceImpl defaultButtonCommandAggregator(Properties properties) {
+    private ButtonCommandServiceImpl defaultButtonCommandAggregator() {
         return ButtonCommandServiceImpl.getInstance()
                 .addCommand(BUTTON_ID.PLAYER_PAUSE, new PauseButtonCommand())
                 .addCommand(BUTTON_ID.PLAYER_RESUME, new ResumeButtonCommand())
@@ -74,39 +82,30 @@ public class Bot {
                 .addCommand(BUTTON_ID.PLAYER_STOP, new StopPlayingButtonCommand());
     }
 
-    private void populateServices(Properties dbProperties, Properties botProperties) {
-        ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance()
+    private void populateServicesBeforeLaunch(Properties dbProperties, Properties botProperties) throws SQLException, IOException, SAXException, ParserConfigurationException {
+        ServiceAggregatorImpl.getInstance()
                 .addService(MessageAggregatorService.class, MessageAggregatorServiceImpl.getInstance())
                 .addService(DBService.class, DBServiceImpl.getInstance(dbProperties))
                 .addService(TextCommandService.class, defaultTextCommandAggregator(botProperties))
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance())
                 .addService(StaticData.class, StaticDataImpl.getInstance());
-        serviceAggregator.getService(DBService.class).start();
     }
 
 
-    public static void main(String[] args) throws LoginException {
+    public static void main(String[] args) {
         new Bot(getDbProperties(), getBotProperties());
     }
 
     private static Properties getDbProperties() {
-        ConfigFileReader fileConfig = new ConfigFileReader("resources/hibernateConfig.cfg");
+        ConfigFileReader fileConfig = new ConfigFileReader("resources/dbConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("db.workers.count")
-                .requireProperty("DATABASE_URL")
-                .requireProperty("hibernate.connection.driver_class")
-                .requireProperty("hibernate.show_sql")
-                .requireProperty("hibernate.connection.url")
-                .requireProperty("hibernate.connection.username")
-                .requireProperty("hibernate.connection.password")
-                .requireProperty("hibernate.connection.charSet")
-                .requireProperty("hibernate.connection.characterEncoding")
-                .requireProperty("hibernate.connection.useUnicode")
-                .requireProperty("hibernate.connection.pool_size")
-                .requireProperty("hibernate.dialect")
-                .requireProperty("hibernate.hbm2ddl.auto")
-                .requireProperty("hibernate.current_session_context_class");
+                .requireProperty("db.url")
+                .requireProperty("characterEncoding")
+                .requireProperty("db.username")
+                .requireProperty("db.password")
+                .requireProperty("db.query.source.SqlXmlPath")
+                .requireProperty("db.query.source.sqlFileDir");
 
         MasterConfig dbConfig = new MasterConfigImpl();
         return dbConfig
@@ -130,5 +129,11 @@ public class Bot {
                 .addConfigSource(fileConfig)
                 .addConfigSource(envConfig)
                 .getProperties();
+    }
+
+    private static class SqlSourceFileLoader {
+        public static XmlSqlSource loadXmlFile() throws IOException, ParserConfigurationException, SAXException {
+            return new XmlSqlSource("SQL.xml", "DB/src/main/java/com/persybot/db/sql/Data.sql");
+        }
     }
 }

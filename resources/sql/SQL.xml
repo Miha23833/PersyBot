@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <DiscordServer>
+        <SQL id="getById">
+            SELECT * FROM discordserver WHERE serverid = ?
+        </SQL>
+        <SQL id="getByFields">
+            SELECT * FROM discordserver WHERE
+            languageid IS NULL OR languageid = ?
+            AND serverid IS NULL OR serverid = ?
+        </SQL>
+        <SQL id="update">
+            UPDATE discordserver SET
+            languageid = COALESCE(?, languageid)
+            WHERE serverid = ?
+        </SQL>
+    </DiscordServer>
+    <DiscordServerSettings>
+        <SQL id="getById">
+            SELECT * FROM discordserversettings WHERE serverid = ?
+        </SQL>
+        <SQL id="getByFields">
+            SELECT * FROM  discordserversettings WHERE
+             serverid IS NULL OR serverid = ?
+             AND prefix IS NULL OR prefix = ?
+             AND volume IS NULL OR volume = ?
+        </SQL>
+        <SQL id="update">
+            UPDATE discordserversettings SET
+            volume = COALESCE(?, volume),
+            prefix = COALESCE(?, prefix)
+            WHERE serverid = ?
+        </SQL>
+    </DiscordServerSettings>
+</root>

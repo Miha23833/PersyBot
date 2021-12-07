@@ -42,7 +42,7 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         actingChannel.getAudioPlayer().setVolume(volume);
 
         actingChannel.getServerSettings().setVolume(volume);
-        ServiceAggregatorImpl.getInstance().getService(DBService.class).update(actingChannel.getServerSettings());
+        ServiceAggregatorImpl.getInstance().getService(DBService.class).updateDiscordServerSettings(actingChannel.getServerSettings());
     }
 
     @Override

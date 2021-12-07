@@ -47,8 +47,4 @@ gradle-app.setting
 .gradletasknamecache
 
 log4j.properties
-/Common/src/main/resources/log4j2.xml
-
-
-/DB/src/main/resources/hibernate.cfg.xml
 /.idea/

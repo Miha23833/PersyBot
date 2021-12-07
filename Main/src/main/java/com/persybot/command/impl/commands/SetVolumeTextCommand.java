@@ -67,7 +67,7 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
         DiscordServerSettings serverSettings = channel.getServerSettings();
         serverSettings.setVolume(volume);
 
-        ServiceAggregatorImpl.getInstance().getService(DBService.class).update(serverSettings);
+        ServiceAggregatorImpl.getInstance().getService(DBService.class).updateDiscordServerSettings(serverSettings);
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId).playerAction().setVolume(volume);
 
         BotUtils.sendMessage(

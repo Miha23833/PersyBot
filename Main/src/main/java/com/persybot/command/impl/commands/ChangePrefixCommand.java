@@ -57,7 +57,7 @@ public class ChangePrefixCommand extends AbstractTextCommand {
         DiscordServerSettings serverSettings = channel.getServerSettings();
         serverSettings.setPrefix(prefix);
 
-        ServiceAggregatorImpl.getInstance().getService(DBService.class).update(serverSettings);
+        ServiceAggregatorImpl.getInstance().getService(DBService.class).updateDiscordServerSettings(serverSettings);
 
         BotUtils.sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template(), context.getEvent().getChannel());
         return true;
