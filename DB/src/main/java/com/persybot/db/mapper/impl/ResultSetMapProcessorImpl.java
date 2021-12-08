@@ -5,7 +5,6 @@ import com.persybot.db.mapper.ResultSetMapProcessor;
 import com.persybot.db.mapper.ResultSetMapper;
 import com.persybot.db.mapper.ResultSetRow;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -23,7 +22,7 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
     }
 
     @Override
-    public <T extends DbData> Map<Serializable, T> map(ResultSet data, Class<T> dataClass) throws SQLException {
+    public <T extends DbData> Map<Long, T> map(ResultSet data, Class<T> dataClass) throws SQLException {
         if (!mappers.containsKey(dataClass)) {
             throw new IllegalArgumentException("Cannot map a result set to " + dataClass);
         }
@@ -31,7 +30,7 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
         List<ResultSetRow> rows = toRowList(data);
         ResultSetMapper<?> mapper = mappers.get(dataClass);
 
-        Map<Serializable, T> result = new HashMap<>();
+        Map<Long, T> result = new HashMap<>();
 
         rows.stream().map(mapper::map).map(dataClass::cast).forEach(val -> result.put(val.getIdentifier(), val));
 
@@ -60,7 +59,9 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
         int columnCount = metaData.getColumnCount();
         ResultSetMapper<?> mapper = mappers.get(dataClass);
 
-        data.next();
+        if (!data.next()) {
+            return null;
+        }
 
         ResultSetRow row = new ResultSetRowImpl();
         for (int i = 1; i <= columnCount; i++) {

@@ -12,12 +12,12 @@ public enum TEXT_COMMAND {
     REPEAT(""),
     MIX("Mixes playing queue."),
 
+    PLAYLIST(""),
+
 
     // Channel admin
     PREFIX(""),
-    VOLUME(""),
-
-    TEST("");
+    VOLUME("");
 
     private final String describeText;
 

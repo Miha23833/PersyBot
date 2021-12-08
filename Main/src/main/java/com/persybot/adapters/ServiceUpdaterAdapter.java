@@ -2,6 +2,7 @@ package com.persybot.adapters;
 
 import com.persybot.channel.impl.ChannelImpl;
 import com.persybot.channel.service.ChannelService;
+import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.service.ServiceAggregator;
@@ -42,9 +43,21 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
         long serverId = event.getGuild().getIdLong();
-        DiscordServerSettings serverSettings;
-        serverSettings = dbService.getDiscordServerSettings(serverId);
+        DiscordServer discordServer = getDefaultDiscordServer(serverId);
+        this.dbService.saveDiscordServer(discordServer);
+
+        DiscordServerSettings serverSettings = getDefaultDiscordServerSettings(serverId);
+        this.dbService.saveDiscordServerSettings(serverSettings);
+        serverSettings = this.dbService.getDiscordServerSettings(serverId);
 
         channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), serverSettings, event.getGuild()));
+    }
+
+    private DiscordServer getDefaultDiscordServer(Long serverId) {
+        return new DiscordServer(serverId, 1);
+    }
+
+    private DiscordServerSettings getDefaultDiscordServerSettings(long serverId) {
+        return new DiscordServerSettings(serverId, 100, "..");
     }
 }

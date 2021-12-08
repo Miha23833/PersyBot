@@ -22,25 +22,45 @@ public class DiscordServerSettingsSqlContainer extends AbstractSqlContainer<Disc
     @Override
     public PreparedStatement getById(long id) throws SQLException {
         PreparedStatement statement = this.connection.prepareStatement(query(DefaultQueryId.GET_BY_ID.queryId()));
-        statement.setLong(1, id);
+        nullSafeSetLong(statement, 1, id);
+
         return statement;
     }
 
     @Override
     public PreparedStatement update(DiscordServerSettings updatedEntity) throws SQLException {
         PreparedStatement statement = this.connection.prepareStatement(query(DefaultQueryId.UPDATE.queryId()));
-        statement.setLong(1, updatedEntity.getVolume());
-        statement.setString(2, updatedEntity.getPrefix());
-        statement.setLong(3, updatedEntity.getServerId());
+
+        nullSafeSetInt(statement, 1, updatedEntity.getVolume());
+        nullSafeSetString(statement, 2, updatedEntity.getPrefix());
+        nullSafeSetLong(statement, 3, updatedEntity.getServerId());
+
         return statement;
     }
 
     @Override
     public PreparedStatement getByFields(DiscordServerSettings entity) throws SQLException {
         PreparedStatement statement = this.connection.prepareStatement(query(DefaultQueryId.GET_BY_FIELDS.queryId()));
-        statement.setLong(1, entity.getServerId());
-        statement.setString(2, entity.getPrefix());
-        statement.setLong(3, entity.getVolume());
+
+        nullSafeSetLong(statement, 1, entity.getServerId());
+        nullSafeSetLong(statement, 2, entity.getServerId());
+
+        nullSafeSetString(statement, 3, entity.getPrefix());
+        nullSafeSetString(statement, 4, entity.getPrefix());
+
+        nullSafeSetInt(statement, 5, entity.getVolume());
+        nullSafeSetInt(statement, 6, entity.getVolume());
+
+        return statement;
+    }
+
+    @Override
+    public PreparedStatement insert(DiscordServerSettings entity) throws SQLException {
+        PreparedStatement statement = this.connection.prepareStatement(query(DefaultQueryId.INSERT.queryId()));
+
+        nullSafeSetLong(statement, 1, entity.getServerId());
+        nullSafeSetString(statement, 2, entity.getPrefix());
+        nullSafeSetInt(statement, 3 ,entity.getVolume());
         return statement;
     }
 }

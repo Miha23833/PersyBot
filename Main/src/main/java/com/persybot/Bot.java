@@ -15,6 +15,7 @@ import com.persybot.command.impl.commands.JoinToVoiceChannelCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.MixPlayingTracksCommand;
 import com.persybot.command.impl.commands.PlayMusicTextCommand;
+import com.persybot.command.impl.commands.PlaylistCommand;
 import com.persybot.command.impl.commands.RepeatSongTextCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
 import com.persybot.command.impl.commands.SkipSongTextCommand;
@@ -71,7 +72,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
                 .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))))
                 .addCommand(TEXT_COMMAND.REPEAT, new RepeatSongTextCommand())
-                .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand());
+                .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand())
+                .addCommand(TEXT_COMMAND.PLAYLIST, new PlaylistCommand(10));
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator() {

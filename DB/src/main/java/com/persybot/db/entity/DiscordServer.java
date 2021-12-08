@@ -3,8 +3,6 @@ package com.persybot.db.entity;
 import com.persybot.db.DbData;
 import com.persybot.db.sql.container.DiscordServerSqlContainer;
 
-import java.io.Serializable;
-
 public class DiscordServer implements DbData {
 
     private long serverId;
@@ -36,7 +34,7 @@ public class DiscordServer implements DbData {
     }
 
     @Override
-    public Serializable getIdentifier() {
+    public Long getIdentifier() {
         return this.getServerId();
     }
 

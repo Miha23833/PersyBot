@@ -1,15 +1,17 @@
 package com.persybot.db.service;
 
-import com.persybot.db.DbData;
 import com.persybot.db.SqlContainer;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
+import com.persybot.db.entity.PlayList;
 import com.persybot.db.entity.mappers.DiscordServerMapper;
 import com.persybot.db.entity.mappers.DiscordServerSettingsMapper;
+import com.persybot.db.entity.mappers.PlayListMapper;
 import com.persybot.db.mapper.ResultSetMapProcessor;
 import com.persybot.db.mapper.impl.ResultSetMapProcessorImpl;
 import com.persybot.db.sql.container.DiscordServerSettingsSqlContainer;
 import com.persybot.db.sql.container.DiscordServerSqlContainer;
+import com.persybot.db.sql.container.PlayListSqlContainer;
 import com.persybot.db.sql.master.SqlMaster;
 import com.persybot.db.sql.sourcereader.SqlSource;
 import com.persybot.db.sql.sourcereader.impl.XmlSqlSource;
@@ -20,10 +22,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.Serializable;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -75,10 +74,14 @@ public class DBServiceImpl implements DBService {
         return INSTANCE;
     }
 
-    private ResultSetMapProcessor defaultResultSetMapProcessor() {
-        return new ResultSetMapProcessorImpl()
-                .addMapper(new DiscordServerMapper(), DiscordServer.class)
-                .addMapper(new DiscordServerSettingsMapper(), DiscordServerSettings.class);
+    @Override
+    public Long saveDiscordServerSettings(DiscordServerSettings entity) {
+        try {
+            return mapProcessor.getSingleLong(container(DiscordServerSettingsSqlContainer.class).insert(entity).executeQuery());
+        } catch (SQLException | IllegalArgumentException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return null;
+        }
     }
 
     @Override
@@ -94,11 +97,23 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public void updateDiscordServerSettings(DiscordServerSettings entity) {
+    public boolean updateDiscordServerSettings(DiscordServerSettings entity) {
         try {
             container(DiscordServerSettingsSqlContainer.class).update(entity).execute();
+            return true;
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
+            return false;
+        }
+    }
+
+    @Override
+    public Long saveDiscordServer(DiscordServer entity) {
+        try {
+            return mapProcessor.getSingleLong(container(DiscordServerSqlContainer.class).insert(entity).executeQuery());
+        } catch (SQLException | IllegalArgumentException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return null;
         }
     }
 
@@ -115,34 +130,92 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public void updateDiscordServer(DiscordServer entity) {
+    public boolean updateDiscordServer(DiscordServer entity) {
         try {
             container(DiscordServerSqlContainer.class).update(entity).execute();
+            return true;
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
+            return false;
         }
     }
 
-    private <T extends DbData> List<T> getList(String query, Class<T> tClass) {
+    @Override
+    public PlayList getPlaylistById(long id) {
         try {
-            return mapProcessor.asList(executeQuery(query), tClass);
+            return mapProcessor.getSingle(
+                    container(PlayListSqlContainer.class).getById(id).executeQuery(),
+                    PlayList.class);
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
             return null;
         }
     }
 
-    private <T extends DbData> Map<Serializable, T> getMap(String query, Class<T> tClass) {
+    @Override
+    public PlayList getPlaylistByName(String name, long serverId) {
+        PlayList entity = new PlayList(null, serverId, name, null);
         try {
-            return mapProcessor.map(executeQuery(query), tClass);
+            return mapProcessor.getSingle(
+                    container(PlayListSqlContainer.class).getByFields(entity).executeQuery(),
+                    PlayList.class);
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
             return null;
         }
     }
 
-    private ResultSet executeQuery(String query) throws SQLException {
-        return this.dataSource.getConnection().prepareStatement(query).executeQuery();
+    @Override
+    public Map<Long, PlayList> getAllPlaylistForServer(Long serverId) {
+        try {
+            return mapProcessor.map(
+                    container(PlayListSqlContainer.class).getAllPlaylistForServer(serverId).executeQuery(),
+                    PlayList.class);
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return null;
+        }
+    }
+
+    @Override
+    public Long saveOrUpdatePlayList(PlayList playList) {
+        if (isPlaylistExists(playList)) {
+            updatePlayList(playList);
+            return playList.getId();
+        } else {
+            return savePlayList(playList);
+        }
+    }
+
+    @Override
+    public boolean isPlaylistExists(PlayList entity) {
+        try {
+            return mapProcessor.getSingleBoolean(container(PlayListSqlContainer.class).isPlayListExists(entity).executeQuery());
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return false;
+        }
+    }
+
+    @Override
+    public Long savePlayList(PlayList entity) {
+        try {
+            return mapProcessor.getSingleLong(container(PlayListSqlContainer.class).insert(entity).executeQuery());
+        } catch (SQLException | IllegalArgumentException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return null;
+        }
+    }
+
+    @Override
+    public boolean updatePlayList(PlayList entity) {
+        try {
+            container(PlayListSqlContainer.class).update(entity).execute();
+            return true;
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return false;
+        }
     }
 
     private SqlMaster defaultSQLMaster() throws SQLException {
@@ -151,10 +224,18 @@ public class DBServiceImpl implements DBService {
                 .source(source)
                 .addContainer(DiscordServerSqlContainer.class, DiscordServerSqlContainer::new)
                 .addContainer(DiscordServerSettingsSqlContainer.class, DiscordServerSettingsSqlContainer::new)
+                .addContainer(PlayListSqlContainer.class, PlayListSqlContainer::new)
                 .build();
     }
 
     private  <T extends SqlContainer<?>> T container(Class<T> klass) {
         return this.sqlMaster.container(klass);
+    }
+
+    private ResultSetMapProcessor defaultResultSetMapProcessor() {
+        return new ResultSetMapProcessorImpl()
+                .addMapper(new DiscordServerMapper(), DiscordServer.class)
+                .addMapper(new DiscordServerSettingsMapper(), DiscordServerSettings.class)
+                .addMapper(new PlayListMapper(), PlayList.class);
     }
 }

@@ -37,7 +37,12 @@ public class XmlSqlSource implements SqlSource {
 
     @Override
     public String getQuery(String entity, String queryName) {
-        return this.queries.get(entity).get(queryName);
+        try {
+            return this.queries.get(entity).get(queryName);
+        } catch (Exception e) {
+            PersyBotLogger.BOT_LOGGER.fatal("Cannot gen query of Entity " + entity + " and query name " + queryName, e.getStackTrace(), e);
+            throw e;
+        }
     }
 
     private void loadQueriesFromDocument(Document document) {
