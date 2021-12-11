@@ -24,6 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -75,24 +76,24 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public Long saveDiscordServerSettings(DiscordServerSettings entity) {
+    public Optional<Long> saveDiscordServerSettings(DiscordServerSettings entity) {
         try {
-            return mapProcessor.getSingleLong(container(DiscordServerSettingsSqlContainer.class).insert(entity).executeQuery());
+            return Optional.ofNullable(mapProcessor.getSingleLong(container(DiscordServerSettingsSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
-            return null;
+            return Optional.empty();
         }
     }
 
     @Override
-    public DiscordServerSettings getDiscordServerSettings(long id) {
+    public Optional<DiscordServerSettings> getDiscordServerSettings(long id) {
         try {
-            return mapProcessor.getSingle(
+            return Optional.ofNullable(mapProcessor.getSingle(
                     container(DiscordServerSettingsSqlContainer.class).getById(id).executeQuery(),
-                    DiscordServerSettings.class);
+                    DiscordServerSettings.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -108,24 +109,24 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public Long saveDiscordServer(DiscordServer entity) {
+    public Optional<Long> saveDiscordServer(DiscordServer entity) {
         try {
-            return mapProcessor.getSingleLong(container(DiscordServerSqlContainer.class).insert(entity).executeQuery());
+            return Optional.ofNullable(mapProcessor.getSingleLong(container(DiscordServerSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
-            return null;
+            return Optional.empty();
         }
     }
 
     @Override
-    public DiscordServer getDiscordServer(long id) {
+    public Optional<DiscordServer> getDiscordServer(long id) {
         try {
-            return mapProcessor.getSingle(
+            return Optional.ofNullable(mapProcessor.getSingle(
                     container(DiscordServerSqlContainer.class).getById(id).executeQuery(),
-                    DiscordServer.class);
+                    DiscordServer.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -141,11 +142,11 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public PlayList getPlaylistById(long id) {
+    public Optional<PlayList> getPlaylistById(long id) {
         try {
-            return mapProcessor.getSingle(
+            return Optional.ofNullable(mapProcessor.getSingle(
                     container(PlayListSqlContainer.class).getById(id).executeQuery(),
-                    PlayList.class);
+                    PlayList.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
             return null;
@@ -153,12 +154,12 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public PlayList getPlaylistByName(String name, long serverId) {
+    public Optional<PlayList> getPlaylistByName(String name, long serverId) {
         PlayList entity = new PlayList(null, serverId, name, null);
         try {
-            return mapProcessor.getSingle(
+            return Optional.ofNullable(mapProcessor.getSingle(
                     container(PlayListSqlContainer.class).getByFields(entity).executeQuery(),
-                    PlayList.class);
+                    PlayList.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
             return null;
@@ -166,11 +167,11 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public Map<Long, PlayList> getAllPlaylistForServer(Long serverId) {
+    public Optional<Map<Long, PlayList>> getAllPlaylistForServer(Long serverId) {
         try {
-            return mapProcessor.map(
+            return Optional.ofNullable(mapProcessor.map(
                     container(PlayListSqlContainer.class).getAllPlaylistForServer(serverId).executeQuery(),
-                    PlayList.class);
+                    PlayList.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
             return null;
@@ -178,10 +179,10 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public Long saveOrUpdatePlayList(PlayList playList) {
+    public Optional<Long> saveOrUpdatePlayList(PlayList playList) {
         if (isPlaylistExists(playList)) {
             updatePlayList(playList);
-            return playList.getId();
+            return Optional.ofNullable(playList.getId());
         } else {
             return savePlayList(playList);
         }
@@ -198,12 +199,12 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public Long savePlayList(PlayList entity) {
+    public Optional<Long> savePlayList(PlayList entity) {
         try {
-            return mapProcessor.getSingleLong(container(PlayListSqlContainer.class).insert(entity).executeQuery());
+            return Optional.ofNullable(mapProcessor.getSingleLong(container(PlayListSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
             PersyBotLogger.BOT_LOGGER.error(e);
-            return null;
+            return Optional.empty();
         }
     }
 

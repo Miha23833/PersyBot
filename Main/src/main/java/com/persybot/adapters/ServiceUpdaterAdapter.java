@@ -14,16 +14,23 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+import java.util.Properties;
+
 public class ServiceUpdaterAdapter extends ListenerAdapter {
     private final ChannelService channelService;
     private final StaticData staticData;
     private final DBService dbService;
 
-    public ServiceUpdaterAdapter() {
+    private final String defaultPrefix;
+
+    public ServiceUpdaterAdapter(Properties botConfig) {
         ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance();
         channelService = serviceAggregator.getService(ChannelService.class);
         dbService = serviceAggregator.getService(DBService.class);
         staticData = serviceAggregator.getService(StaticData.class);
+
+        this.defaultPrefix = botConfig.getProperty("bot.prefix.default");
     }
 
     @Override
@@ -43,14 +50,30 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
         long serverId = event.getGuild().getIdLong();
-        DiscordServer discordServer = getDefaultDiscordServer(serverId);
-        this.dbService.saveDiscordServer(discordServer);
 
-        DiscordServerSettings serverSettings = getDefaultDiscordServerSettings(serverId);
-        this.dbService.saveDiscordServerSettings(serverSettings);
-        serverSettings = this.dbService.getDiscordServerSettings(serverId);
+        Optional<DiscordServer> discordServer = this.dbService.getDiscordServer(serverId);
+        Optional<DiscordServerSettings> serverSettings = this.dbService.getDiscordServerSettings(serverId);
 
-        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), serverSettings, event.getGuild()));
+        if (discordServer.isPresent()) {
+            if (serverSettings.isEmpty()) {
+                this.dbService.saveDiscordServerSettings(getDefaultDiscordServerSettings(serverId));
+
+                serverSettings = this.dbService.getDiscordServerSettings(serverId);
+            }
+        } else {
+            DiscordServer newDiscordServerRecord = getDefaultDiscordServer(serverId);
+            dbService.saveDiscordServer(newDiscordServerRecord);
+            DiscordServerSettings newServerSettings = getDefaultDiscordServerSettings(serverId);
+            dbService.saveDiscordServerSettings(newServerSettings);
+
+            serverSettings = this.dbService.getDiscordServerSettings(serverId);
+        }
+
+        if (serverSettings.isEmpty()) {
+            throw new RuntimeException("Cannot save/get discord server settings with id = " + serverId);
+        }
+
+        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), serverSettings.get(), event.getGuild()));
     }
 
     private DiscordServer getDefaultDiscordServer(Long serverId) {
@@ -58,6 +81,10 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
     }
 
     private DiscordServerSettings getDefaultDiscordServerSettings(long serverId) {
-        return new DiscordServerSettings(serverId, 100, "..");
+        return new DiscordServerSettings(serverId, 100, defaultPrefix);
+    }
+
+    private boolean isDiscordServerExists(long serverId) {
+        return this.dbService.getDiscordServer(serverId).isPresent();
     }
 }

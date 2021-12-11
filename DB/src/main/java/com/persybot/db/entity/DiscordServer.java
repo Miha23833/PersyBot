@@ -6,9 +6,9 @@ import com.persybot.db.sql.container.DiscordServerSqlContainer;
 public class DiscordServer implements DbData {
 
     private long serverId;
-    private long languageId;
+    private int languageId;
 
-    public DiscordServer(long serverId, long languageId) {
+    public DiscordServer(long serverId, int languageId) {
         this.serverId = serverId;
         this.languageId = languageId;
     }
@@ -29,7 +29,7 @@ public class DiscordServer implements DbData {
         return languageId;
     }
 
-    public void setLanguageId(long languageId) {
+    public void setLanguageId(int languageId) {
         this.languageId = languageId;
     }
 

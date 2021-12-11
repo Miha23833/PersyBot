@@ -6,21 +6,22 @@ import com.persybot.db.entity.PlayList;
 import com.persybot.service.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface DBService extends Service {
-    Long saveDiscordServerSettings(DiscordServerSettings entity);
-    DiscordServerSettings getDiscordServerSettings(long id);
+    Optional<Long> saveDiscordServerSettings(DiscordServerSettings entity);
+    Optional<DiscordServerSettings> getDiscordServerSettings(long id);
     boolean updateDiscordServerSettings(DiscordServerSettings entity);
 
-    Long saveDiscordServer(DiscordServer entity);
-    DiscordServer getDiscordServer(long id);
+    Optional<Long> saveDiscordServer(DiscordServer entity);
+    Optional<DiscordServer> getDiscordServer(long id);
     boolean updateDiscordServer(DiscordServer entity);
 
-    PlayList getPlaylistById(long id);
-    PlayList getPlaylistByName(String name, long serverId);
-    Map<Long, PlayList> getAllPlaylistForServer(Long serverId);
+    Optional<PlayList> getPlaylistById(long id);
+    Optional<PlayList> getPlaylistByName(String name, long serverId);
+    Optional<Map<Long, PlayList>> getAllPlaylistForServer(Long serverId);
     boolean updatePlayList(PlayList entity);
-    Long saveOrUpdatePlayList(PlayList playList);
+    Optional<Long> saveOrUpdatePlayList(PlayList playList);
     boolean isPlaylistExists(PlayList playList);
-    Long savePlayList(PlayList playList);
+    Optional<Long> savePlayList(PlayList playList);
 }

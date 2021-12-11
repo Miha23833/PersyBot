@@ -49,11 +49,12 @@ import java.util.Properties;
 public class Bot {
     private Bot(Properties dbProperties, Properties botProperties) {
         try {
+            
             populateServicesBeforeLaunch(dbProperties, botProperties);
             DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
                     .addEventListeners(
                             new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties), defaultButtonCommandAggregator()),
-                            new ServiceUpdaterAdapter(),
+                            new ServiceUpdaterAdapter(botProperties),
                             new SelfMessagesListener(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
                             new JDAStateListenerAdapter(botProperties))
                     .build();

@@ -21,7 +21,7 @@ public class DiscordServerSqlContainer extends AbstractSqlContainer<DiscordServe
 
     @Override
     public PreparedStatement getById(long id) throws SQLException {
-        PreparedStatement statement = this.connection.prepareStatement(DefaultQueryId.GET_BY_ID.queryId());
+        PreparedStatement statement = this.connection.prepareStatement(query(DefaultQueryId.GET_BY_ID.queryId()));
 
         nullSafeSetLong(statement, 1, id);
         return statement;

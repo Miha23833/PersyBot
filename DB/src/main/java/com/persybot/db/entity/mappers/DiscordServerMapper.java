@@ -9,7 +9,7 @@ public class DiscordServerMapper implements ResultSetMapper<DiscordServer> {
     public DiscordServer map(ResultSetRow dataRow) {
         DiscordServer ds = new DiscordServer();
 
-        ds.setLanguageId((long) dataRow.get("languageid"));
+        ds.setLanguageId((int) dataRow.get("languageid"));
         ds.setServerId((long) dataRow.get("serverid"));
 
         return ds;

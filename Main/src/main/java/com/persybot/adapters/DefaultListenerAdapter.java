@@ -20,15 +20,17 @@ import org.jetbrains.annotations.NotNull;
 public class DefaultListenerAdapter extends ListenerAdapter {
     private final TextCommandService textCommandPool;
     private ButtonCommandService buttonCommandPool;
+    private final ChannelService channelService;
 
     public DefaultListenerAdapter(TextCommandService textCommandPool, ButtonCommandService buttonCommandPool) {
         this.textCommandPool = textCommandPool;
         this.buttonCommandPool = buttonCommandPool;
+        this.channelService = ServiceAggregatorImpl.getInstance().getService(ChannelService.class);
     }
 
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
-        String prefix = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(event.getGuild().getIdLong()).getServerSettings().getPrefix();
+        String prefix = channelService.getChannel(event.getGuild().getIdLong()).getServerSettings().getPrefix();
         if (event.getMessage().getContentRaw().startsWith(prefix) && !event.getMessage().getContentRaw().equals(prefix)) {
             TextCommandContext context = new TextCommandContextImpl(event, prefix);
             try {
