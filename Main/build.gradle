@@ -40,6 +40,18 @@ shadowJar {
     manifest {
         attributes 'Main-Class': 'com.persybot.Bot'
     }
+
+    doLast {
+        copyRecourcesToBuild
+    }
+}
+
+task copyRecourcesToBuild {
+    copy {
+        from rootDir.path
+        into rootDir.path + '/Main/build/libs'
+        include 'resources/**'
+    }
 }
 
 tasks.withType(JavaCompile) {
