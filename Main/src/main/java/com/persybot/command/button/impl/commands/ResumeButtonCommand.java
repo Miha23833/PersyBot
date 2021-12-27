@@ -15,7 +15,7 @@ public class ResumeButtonCommand implements ButtonCommand {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().resumePlayer();
         context.getEvent().getInteraction().editButton(PLAYER_BUTTON.PAUSE.button(false)).queue();
 
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player resumed.").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_STATE, x).accept(x));
+        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player resumed").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_STATE, x).accept(x));
     }
 
     @Override

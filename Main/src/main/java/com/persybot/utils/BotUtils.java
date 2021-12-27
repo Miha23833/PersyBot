@@ -22,7 +22,7 @@ public interface BotUtils {
         GuildVoiceState selfVoiceState = selfMember.getVoiceState();
 
         if (memberVoiceState == null || selfVoiceState == null) {
-            PersyBotLogger.BOT_LOGGER.error("Cannot get member voice state.");
+            PersyBotLogger.BOT_LOGGER.error("Cannot get member voice state");
             return false;
         }
         return memberVoiceState.getChannel() != null && memberVoiceState.getChannel().equals(selfVoiceState.getChannel());

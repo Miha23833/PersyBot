@@ -13,7 +13,7 @@ public class StopPlayingButtonCommand implements ButtonCommand {
     public void execute(ButtonCommandContext context) {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().stopMusic();
 
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player stopped.").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_STATE, x).accept(x));
+        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player stopped").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_STATE, x).accept(x));
     }
 
     @Override

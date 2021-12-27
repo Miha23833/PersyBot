@@ -19,7 +19,7 @@ public class SkipSongButtonCommand implements ButtonCommand {
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
 
         if (!isExecutorAndBotAreInSameVoiceChannel(voiceState, audioManager)) {
-            context.getEvent().getChannel().sendMessage(new InfoMessage(null, "You must be in the same channel as me to skip song.").template()).queue(x -> new MessageSendSuccess<>(MessageType.BUTTON_ERROR, x).accept(x));
+            context.getEvent().getChannel().sendMessage(new InfoMessage(null, "You must be in the same channel as me to skip song").template()).queue(x -> new MessageSendSuccess<>(MessageType.BUTTON_ERROR, x).accept(x));
             return;
         }
 

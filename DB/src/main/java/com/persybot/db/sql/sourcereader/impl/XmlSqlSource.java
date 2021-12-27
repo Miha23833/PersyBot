@@ -24,7 +24,7 @@ public class XmlSqlSource implements SqlSource {
     private final String sqlFileDir;
     public XmlSqlSource(String xmlPath, String sqlFileDir) throws ParserConfigurationException, IOException, SAXException {
         if (!new File(sqlFileDir).isDirectory()) {
-            throw new InvalidPathException(sqlFileDir, "Path is not directory.");
+            throw new InvalidPathException(sqlFileDir, "Path is not directory");
         }
         if (!sqlFileDir.endsWith("/")) {
             sqlFileDir = sqlFileDir + "/";

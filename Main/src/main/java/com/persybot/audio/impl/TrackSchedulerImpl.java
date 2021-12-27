@@ -82,7 +82,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
         if(audioTrackInfoList.size() > trackInfoRspLineLimit) {
             queuedTracksRsp.append("And ")
-                    .append(audioTrackInfoList.size() - trackInfoRspLineLimit).append(" more.");
+                    .append(audioTrackInfoList.size() - trackInfoRspLineLimit).append(" more");
         }
 
         Message rsp = new MessageBuilder(new InfoMessage("Queued tracks:", queuedTracksRsp.toString()).template()).build();

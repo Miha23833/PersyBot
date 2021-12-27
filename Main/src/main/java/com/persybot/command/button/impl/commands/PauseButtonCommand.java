@@ -15,7 +15,7 @@ public class PauseButtonCommand implements ButtonCommand {
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().pauseSong();
         context.getEvent().getInteraction().editButton(PLAYER_BUTTON.RESUME.button(false)).queue();
 
-        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player paused.").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_STATE, x).accept(x));
+        context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player paused").template()).queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_STATE, x).accept(x));
 
 
     }

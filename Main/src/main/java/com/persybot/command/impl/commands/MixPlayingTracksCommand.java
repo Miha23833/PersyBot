@@ -31,7 +31,7 @@ public class MixPlayingTracksCommand extends AbstractTextCommand {
     @Override
     protected boolean runAfter(TextCommandContext context) {
         // TODO show new queue
-        BotUtils.sendMessage(new DefaultTextMessage("Playing queue was mixed.").template(), context.getEvent().getChannel());
+        BotUtils.sendMessage(new DefaultTextMessage("Playing queue was mixed").template(), context.getEvent().getChannel());
         return true;
     }
 

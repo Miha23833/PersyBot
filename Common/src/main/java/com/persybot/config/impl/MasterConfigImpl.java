@@ -33,11 +33,11 @@ public class MasterConfigImpl implements MasterConfig, ConfigSource {
         for (Object propKey : src.keySet()) {
             if (dest.contains(propKey)) {
                 if (dest.get(propKey).equals(src.get(propKey))) {
-                    String text = String.format("The result properties already has property with key %s and same value.", propKey);
+                    String text = String.format("The result properties already has property with key %s and same value", propKey);
 
                     PersyBotLogger.BOT_LOGGER.warn(text);
                 } else {
-                    String text = String.format("The result properties already has property with key %s, but new value is different: %s. It will be ignored.", propKey, src.get(propKey));
+                    String text = String.format("The result properties already has property with key %s, but new value is different: %s. It will be ignored", propKey, src.get(propKey));
 
                     PersyBotLogger.BOT_LOGGER.warn(text);
                 }

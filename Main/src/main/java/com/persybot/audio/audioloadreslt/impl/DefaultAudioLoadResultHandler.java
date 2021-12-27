@@ -37,12 +37,12 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
 
     @Override
     public void noMatches() {
-        requestingChannel.sendMessage("Cannot find track.").queue();
+        requestingChannel.sendMessage("Cannot find track").queue();
     }
 
     @Override
     public void loadFailed(FriendlyException exception) {
         PersyBotLogger.BOT_LOGGER.error(exception);
-        requestingChannel.sendMessage(new InfoMessage("Error", "Failed to load track.").template()).queue(x -> new MessageSendSuccess<>(MessageType.ERROR, x).accept(x));
+        requestingChannel.sendMessage(new InfoMessage("Error", "Failed to load track").template()).queue(x -> new MessageSendSuccess<>(MessageType.ERROR, x).accept(x));
     }
 }

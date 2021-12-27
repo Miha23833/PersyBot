@@ -34,7 +34,7 @@ public class AbstractWorker<T> extends Thread implements Worker {
         if (!tasks.isEmpty()) {
             RunnableFuture<T> task = tasks.poll();
             if (task != null) {
-                PersyBotLogger.BOT_LOGGER.error(Thread.currentThread().getName() + "Started task.");
+                PersyBotLogger.BOT_LOGGER.error(Thread.currentThread().getName() + "Started task");
                 try {
                     isBusy.set(true);
                     task.run();

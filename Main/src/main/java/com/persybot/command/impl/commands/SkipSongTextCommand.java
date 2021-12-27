@@ -67,6 +67,6 @@ public class SkipSongTextCommand extends AbstractTextCommand {
     }
 
     private void sendIncorrectCountOfSkipsMessage(TextCommandContext context) {
-        BotUtils.sendMessage(new DefaultTextMessage("Incorrect count of skipping songs.").template(),  context.getEvent().getChannel());
+        BotUtils.sendMessage(new DefaultTextMessage("Incorrect count of skipping songs").template(),  context.getEvent().getChannel());
     }
 }

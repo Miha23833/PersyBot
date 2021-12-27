@@ -28,13 +28,13 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
     protected ValidationResult<TEXT_COMMAND_REJECT_REASON> validateArgs(List<String> args) {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = new TextCommandValidationResult();
         if (!hasMinimumArgs(args)) {
-            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Enter volume value.");
+            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Enter volume value");
             return validationResult;
         }
         try {
             Integer.parseInt(args.get(0));
         } catch (NumberFormatException e) {
-            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Volume must number-like.");
+            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Volume must number-like");
             return validationResult;
         }
         int volume = Integer.parseInt(args.get(0));
