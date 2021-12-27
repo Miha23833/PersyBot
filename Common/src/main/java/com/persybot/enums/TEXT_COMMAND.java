@@ -6,11 +6,11 @@ public enum TEXT_COMMAND {
     // Music
     JOIN(""),
     LEAVE(""),
-    PLAY("Plays music. To use write '''<prefix>play <link or name of sound>'''."),
+    PLAY("Plays music. To use write '''<prefix>play <link or name of sound>'''"),
     SKIP(""),
     STOP(""),
     REPEAT(""),
-    MIX("Mixes playing queue."),
+    MIX("Mixes playing queue"),
 
     PLAYLIST(""),
 
