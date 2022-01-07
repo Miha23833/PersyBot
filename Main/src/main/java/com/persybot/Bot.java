@@ -32,7 +32,6 @@ import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
-import com.persybot.db.sql.sourcereader.impl.XmlSqlSource;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
@@ -139,11 +138,5 @@ public class Bot {
                 .addConfigSource(fileConfig)
                 .addConfigSource(envConfig)
                 .getProperties();
-    }
-
-    private static class SqlSourceFileLoader {
-        public static XmlSqlSource loadXmlFile() throws IOException, ParserConfigurationException, SAXException {
-            return new XmlSqlSource("SQL.xml", "DB/src/main/java/com/persybot/db/sql/Data.sql");
-        }
     }
 }

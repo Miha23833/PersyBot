@@ -24,7 +24,12 @@ public class XmlSqlSource implements SqlSource {
     private final String sqlFileDir;
     public XmlSqlSource(String xmlPath, String sqlFileDir) throws ParserConfigurationException, IOException, SAXException {
         if (!new File(sqlFileDir).isDirectory()) {
-            throw new InvalidPathException(Paths.get("").toAbsolutePath() + sqlFileDir, "Path is not directory");
+            PersyBotLogger.BOT_LOGGER.error("\n\n\nContains:\n\n");
+            Files.list(Paths.get(""))
+                    .limit(10)
+                    .forEach(PersyBotLogger.BOT_LOGGER::error);
+
+            throw new InvalidPathException(sqlFileDir, "Path is not directory");
         }
         if (!sqlFileDir.endsWith("/")) {
             sqlFileDir = sqlFileDir + "/";
