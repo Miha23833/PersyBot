@@ -24,7 +24,7 @@ public class XmlSqlSource implements SqlSource {
     private final String sqlFileDir;
     public XmlSqlSource(String xmlPath, String sqlFileDir) throws ParserConfigurationException, IOException, SAXException {
         if (!new File(sqlFileDir).isDirectory()) {
-            throw new InvalidPathException(sqlFileDir, "Path is not directory");
+            throw new InvalidPathException(Paths.get("").toAbsolutePath() + sqlFileDir, "Path is not directory");
         }
         if (!sqlFileDir.endsWith("/")) {
             sqlFileDir = sqlFileDir + "/";
@@ -40,7 +40,7 @@ public class XmlSqlSource implements SqlSource {
         try {
             return this.queries.get(entity).get(queryName);
         } catch (Exception e) {
-            PersyBotLogger.BOT_LOGGER.fatal("Cannot gen query of Entity " + entity + " and query name " + queryName, e.getStackTrace(), e);
+            PersyBotLogger.BOT_LOGGER.fatal("Cannot get query of Entity " + entity + " and query name " + queryName, e.getStackTrace(), e);
             throw e;
         }
     }
