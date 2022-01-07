@@ -25,7 +25,7 @@ public class XmlSqlSource implements SqlSource {
     public XmlSqlSource(String xmlPath, String sqlFileDir) throws ParserConfigurationException, IOException, SAXException {
         if (!new File(sqlFileDir).isDirectory()) {
             PersyBotLogger.BOT_LOGGER.error("\n\n\nContains:\n\n\n");
-            Files.list(Paths.get("/resources"))
+            Files.list(Paths.get("resources"))
                     .limit(10)
                     .forEach(PersyBotLogger.BOT_LOGGER::error);
 
