@@ -46,13 +46,14 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class Bot {
     private Bot(Properties dbProperties, Properties botProperties) {
         try {
-            
+            PersyBotLogger.BOT_LOGGER.error(Paths.get("").toAbsolutePath());
             populateServicesBeforeLaunch(dbProperties, botProperties);
             DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
                     .addEventListeners(
