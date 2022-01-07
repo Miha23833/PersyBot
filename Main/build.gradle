@@ -25,6 +25,8 @@ dependencies {
         // JDA discord API
         implementation("net.dv8tion:JDA:4.4.0_350")
         implementation 'com.github.sedmelluq:lavaplayer:PR650-SNAPSHOT'
+        implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
+        implementation("com.google.guava:guava:31.0.1-jre")
     }
 
     compile project(':Common')

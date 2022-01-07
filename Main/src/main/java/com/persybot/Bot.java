@@ -6,7 +6,9 @@ import com.persybot.adapters.SelfMessagesListener;
 import com.persybot.adapters.ServiceUpdaterAdapter;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
+import com.persybot.command.button.impl.commands.NextPageCommand;
 import com.persybot.command.button.impl.commands.PauseButtonCommand;
+import com.persybot.command.button.impl.commands.PrevPageCommand;
 import com.persybot.command.button.impl.commands.ResumeButtonCommand;
 import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
@@ -18,6 +20,7 @@ import com.persybot.command.impl.commands.PlayMusicTextCommand;
 import com.persybot.command.impl.commands.PlaylistCommand;
 import com.persybot.command.impl.commands.RepeatSongTextCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
+import com.persybot.command.impl.commands.ShowQueueCommand;
 import com.persybot.command.impl.commands.SkipSongTextCommand;
 import com.persybot.command.impl.commands.StopPlayingTextCommand;
 import com.persybot.command.service.TextCommandService;
@@ -74,7 +77,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))))
                 .addCommand(TEXT_COMMAND.REPEAT, new RepeatSongTextCommand())
                 .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand())
-                .addCommand(TEXT_COMMAND.PLAYLIST, new PlaylistCommand(10));
+                .addCommand(TEXT_COMMAND.PLAYLIST, new PlaylistCommand(10))
+                .addCommand(TEXT_COMMAND.QUEUE, new ShowQueueCommand());
     }
 
     private ButtonCommandServiceImpl defaultButtonCommandAggregator() {
@@ -82,16 +86,18 @@ public class Bot {
                 .addCommand(BUTTON_ID.PLAYER_PAUSE, new PauseButtonCommand())
                 .addCommand(BUTTON_ID.PLAYER_RESUME, new ResumeButtonCommand())
                 .addCommand(BUTTON_ID.PLAYER_SKIP, new SkipSongButtonCommand())
-                .addCommand(BUTTON_ID.PLAYER_STOP, new StopPlayingButtonCommand());
+                .addCommand(BUTTON_ID.PLAYER_STOP, new StopPlayingButtonCommand())
+                .addCommand(BUTTON_ID.PREV_PAGE, new PrevPageCommand())
+                .addCommand(BUTTON_ID.NEXT_PAGE, new NextPageCommand());
     }
 
     private void populateServicesBeforeLaunch(Properties dbProperties, Properties botProperties) throws SQLException, IOException, SAXException, ParserConfigurationException {
         ServiceAggregatorImpl.getInstance()
                 .addService(MessageAggregatorService.class, MessageAggregatorServiceImpl.getInstance())
                 .addService(DBService.class, DBServiceImpl.getInstance(dbProperties))
+                .addService(StaticData.class, StaticDataImpl.getInstance())
                 .addService(TextCommandService.class, defaultTextCommandAggregator(botProperties))
-                .addService(ChannelService.class, ChannelServiceImpl.getInstance())
-                .addService(StaticData.class, StaticDataImpl.getInstance());
+                .addService(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
 

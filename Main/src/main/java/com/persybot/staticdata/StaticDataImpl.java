@@ -1,5 +1,7 @@
 package com.persybot.staticdata;
 
+import com.persybot.staticdata.pojo.PageableMessages;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -10,9 +12,17 @@ public class StaticDataImpl implements StaticData {
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     private final Map<Long, Long> guildsWithActiveVoiceChannel = new HashMap<>();
+    private final PageableMessages pageableMessages = new PageableMessages();
 
+    // TODO: make pojo of this map
+    @Override
     public Map<Long, Long> getGuildsWithActiveVoiceChannel() {
         return guildsWithActiveVoiceChannel;
+    }
+
+    @Override
+    public PageableMessages getPageableMessages() {
+        return this.pageableMessages;
     }
 
     private StaticDataImpl(){

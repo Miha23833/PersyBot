@@ -3,7 +3,6 @@ package com.persybot.audio.impl;
 import com.persybot.audio.audioloadreslt.impl.DefaultAudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
@@ -71,8 +70,8 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     }
 
     @Override
-    public List<AudioTrackInfo> getQueue() {
-        return scheduler.getQueuedTracksInfo();
+    public List<String> getQueuedTracks() {
+        return scheduler.getQueuedTracks();
     }
 
     @Override

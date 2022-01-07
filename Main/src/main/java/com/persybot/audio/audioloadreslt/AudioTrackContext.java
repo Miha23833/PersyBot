@@ -7,4 +7,6 @@ public interface AudioTrackContext {
     AudioTrack getTrack();
 
     TextChannel getRequestingChannel();
+
+    String getTrackPresent();
 }

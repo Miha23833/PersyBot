@@ -5,11 +5,9 @@ import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.audioloadreslt.impl.AudioTrackContextImpl;
 import com.persybot.callback.consumer.MessageSendSuccess;
-import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.PLAYER_BUTTON;
 import com.persybot.message.service.MessageType;
 import com.persybot.message.template.impl.InfoMessage;
-import com.persybot.utils.URLUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -20,7 +18,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -28,9 +25,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
-
-import static com.persybot.utils.DateTimeUtils.toTimeDuration;
-import static com.persybot.utils.URLUtil.isYoutube;
 
 public class TrackSchedulerImpl extends AudioEventAdapter implements TrackScheduler {
     private final AudioPlayer player;
@@ -51,7 +45,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
             context.getRequestingChannel().sendMessage("Queued track: " + context.getTrack().getInfo().title).queue();
             this.queue.offer(context);
         } else {
-            context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrack().getInfo()))
+            context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrackPresent()))
                     .queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_NOW_PLAYING, x).accept(x));
         }
     }
@@ -117,7 +111,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         } else {
             AudioTrackContext context = this.queue.poll();
             this.player.startTrack(context.getTrack(), false);
-            context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrack().getInfo()))
+            context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrackPresent()))
                     .queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_NOW_PLAYING, x).accept(x));
         }
     }
@@ -126,11 +120,6 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     public void clearQueue() {
         this.repeatingTrack = null;
         this.queue.clear();
-    }
-
-    @Override
-    public List<AudioTrackInfo> getQueuedTracksInfo() {
-        return this.queue.stream().map(x -> x.getTrack().getInfo()).collect(Collectors.toList());
     }
 
     @Override
@@ -159,8 +148,8 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         queue.addAll(tempQueue);
     }
 
-    private Message getPlayingTrackMessage(AudioTrackInfo info) {
-        return new MessageBuilder(new InfoMessage("Now playing:", getAudioTrackPresent(info)).template())
+    private Message getPlayingTrackMessage(String trackTitle) {
+        return new MessageBuilder(new InfoMessage("Now playing:", trackTitle).template())
                 .setActionRows(createPlayerButtons(false))
                 .build();
     }
@@ -173,22 +162,8 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         ));
     }
 
-    private String getAudioTrackPresent(AudioTrackInfo info) {
-        StringBuilder builder = new StringBuilder();
-
-        String sourceAddress = "";
-        try {
-            sourceAddress = URLUtil.getSiteDomain(info.uri);
-        } catch (URISyntaxException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
-        }
-
-        if (info.author != null && !isYoutube(sourceAddress)) {
-            builder.append(info.author).append(" - ");
-        }
-        builder.append(info.title);
-
-        builder.append(" (").append(toTimeDuration(info.length)).append(")");
-        return builder.toString();
+    @Override
+    public List<String> getQueuedTracks() {
+        return this.queue.stream().map(AudioTrackContext::getTrackPresent).collect(Collectors.toList());
     }
 }

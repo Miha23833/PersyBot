@@ -1,7 +1,6 @@
 package com.persybot.audio;
 
 import com.persybot.audio.impl.AudioPlayerSendHandler;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public interface AudioPlayer {
 
     void stop();
 
-    List<AudioTrackInfo> getQueue();
+    List<String> getQueuedTracks();
 
     void skip();
 

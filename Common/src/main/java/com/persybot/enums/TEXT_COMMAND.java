@@ -13,7 +13,7 @@ public enum TEXT_COMMAND {
     MIX("Mixes playing queue"),
 
     PLAYLIST(""),
-
+    QUEUE("Shows playing queue"),
 
     // Channel admin
     PREFIX(""),

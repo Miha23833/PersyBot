@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultListenerAdapter extends ListenerAdapter {
     private final TextCommandService textCommandPool;
-    private ButtonCommandService buttonCommandPool;
+    private final ButtonCommandService buttonCommandPool;
     private final ChannelService channelService;
 
     public DefaultListenerAdapter(TextCommandService textCommandPool, ButtonCommandService buttonCommandPool) {
