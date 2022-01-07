@@ -5,12 +5,14 @@ import org.apache.commons.collections4.list.CursorableLinkedList;
 
 public class PageableMessage implements Pageable<Message> {
     private final CursorableLinkedList<Message> pages;
+    private final long messageId;
 
     private Message current;
 
     private CursorableLinkedList.Cursor<Message> cursor;
     
-    public PageableMessage() {
+    public PageableMessage(long messageId) {
+        this.messageId = messageId;
         this.pages = new CursorableLinkedList<>();
         
         this.cursor = this.pages.cursor();
@@ -60,5 +62,9 @@ public class PageableMessage implements Pageable<Message> {
         }
         this.cursor = this.pages.cursor(0);
         this.current = this.cursor.next();
+    }
+
+    public long getMessageId() {
+        return messageId;
     }
 }

@@ -5,6 +5,7 @@ public enum MessageType {
     PLAYER_NOW_PLAYING(2),
     PLAYER_STATE(2),
     PLAYER_INFO(200),
+    PLAYER_QUEUE(1),
 
     BUTTON_ERROR(3),
 
