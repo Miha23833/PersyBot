@@ -51,7 +51,7 @@ public class ShowQueueCommand implements TextCommand {
         pageableMessage.pointToFirst();
         context.getEvent().getChannel().sendMessage(new PagingMessage(pageableMessage.getCurrent(), false, pageContents.size() > 1).template())
                 .queue(success -> {
-                    messages.add(success.getTextChannel().getIdLong(), success.getIdLong(), pageableMessage);
+                    messages.add(success.getTextChannel().getIdLong(), PageableMessages.PAGE_TYPE.PLAYER_QUEUE, pageableMessage);
                     new MessageSendSuccess<>(MessageType.PLAYER_QUEUE, success).accept(success);
                 });
     }
