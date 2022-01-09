@@ -11,7 +11,7 @@ CREATE TABLE discordserversettings (
 	prefix TEXT NOT NULL DEFAULT '..',
 	volume INT NOT NULL DEFAULT 100,
 	CONSTRAINT discordserversettings_pkey PRIMARY KEY (serverid),
-	FOREIGN KEY(serverid) REFERENCES discordserver(serverid)
+	FOREIGN KEY(serverid) REFERENCES public.discordserver(serverid)
 );
 
 CREATE SEQUENCE playlist_id_seq;
