@@ -1,6 +1,6 @@
 package com.persybot.channel.service.impl;
 
-import com.persybot.audio.audiomanager.spotify.Spotify;
+import com.persybot.audio.audiomanager.spotify.SpotifyAudioSourceManager;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -29,7 +29,7 @@ public class ChannelServiceImpl implements ChannelService {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
                     AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-                    playerManager.registerSourceManager(new Spotify("1876e1505c3a49a78b8de5d88d5b1165", "d4d7add9d23541439ee3418acf713e31"));
+                    playerManager.registerSourceManager(new SpotifyAudioSourceManager("1876e1505c3a49a78b8de5d88d5b1165", "d4d7add9d23541439ee3418acf713e31"));
 
                     AudioSourceManagers.registerRemoteSources(playerManager);
 

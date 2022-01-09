@@ -38,7 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Spotify implements AudioSourceManager {
+public class SpotifyAudioSourceManager implements AudioSourceManager {
     private static final String SPOTIFY_ADDRESS = "https://www.open.spotify.com";
     private static final String SPOTIFY_DOMAIN = "open.spotify.com";
     private static final Pattern TRACK_ID_PATTERN = Pattern.compile("^(?:http://|https://|)(?:www\\.|)(?:m\\.|)open.spotify\\.com/(track)/([a-zA-Z0-9-_]+)/?(?:\\?.*|)$");
@@ -50,7 +50,7 @@ public class Spotify implements AudioSourceManager {
     private final YoutubeAudioSourceManager yt;
     private final AudioTrackFactory audioTrackFactory;
 
-    public Spotify(String clientId, String clientSecret) throws ParseException {
+    public SpotifyAudioSourceManager(String clientId, String clientSecret) throws ParseException {
         yt = new YoutubeAudioSourceManager();
         this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), yt);
 
