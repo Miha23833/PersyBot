@@ -7,7 +7,6 @@ import com.persybot.paginator.PageableMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.staticdata.StaticData;
 import com.persybot.staticdata.pojo.pagination.PageableMessages;
-import com.persybot.staticdata.pojo.pagination.PageableMessages.PAGE_TYPE;
 import net.dv8tion.jda.api.entities.Message;
 
 public class PrevPageCommand implements ButtonCommand {
@@ -21,9 +20,9 @@ public class PrevPageCommand implements ButtonCommand {
     public void execute(ButtonCommandContext context) {
         long textChannelId = context.getEvent().getMessage().getTextChannel().getIdLong();
         Message currentMessage = context.getEvent().getMessage();
-        PageableMessage pageableMessage = messages.get(textChannelId, PAGE_TYPE.PLAYER_QUEUE);
+        PageableMessage pageableMessage = messages.get(textChannelId, context.getEvent().getMessageIdLong());
 
-        if (!messages.contains(textChannelId, PAGE_TYPE.PLAYER_QUEUE) || !pageableMessage.hasPrev()) {
+        if (!messages.contains(textChannelId, context.getEvent().getMessageIdLong()) || !pageableMessage.hasPrev()) {
             return;
         }
 

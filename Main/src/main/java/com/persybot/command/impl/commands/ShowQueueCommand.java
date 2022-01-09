@@ -37,7 +37,7 @@ public class ShowQueueCommand implements TextCommand {
         if (queue.isEmpty()) {
             return;
         }
-        PageableMessage pageableMessage = new PageableMessage(context.getEvent().getMessageIdLong());
+        PageableMessage pageableMessage = new PageableMessage();
 
         List<List<String>> pageContents = Lists.partition(queue, 8);
 
@@ -51,7 +51,7 @@ public class ShowQueueCommand implements TextCommand {
         pageableMessage.pointToFirst();
         context.getEvent().getChannel().sendMessage(new PagingMessage(pageableMessage.getCurrent(), false, pageContents.size() > 1).template())
                 .queue(success -> {
-                    messages.add(success.getTextChannel().getIdLong(), PageableMessages.PAGE_TYPE.PLAYER_QUEUE, pageableMessage);
+                    messages.add(success.getTextChannel().getIdLong(), PageableMessages.PAGE_TYPE.PLAYER_QUEUE, success.getIdLong(), pageableMessage);
                     new MessageSendSuccess<>(MessageType.PLAYER_QUEUE, success).accept(success);
                 });
     }

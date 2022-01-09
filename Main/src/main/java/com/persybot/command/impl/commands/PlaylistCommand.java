@@ -1,5 +1,6 @@
 package com.persybot.command.impl.commands;
 
+import com.google.common.collect.Lists;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
@@ -9,25 +10,38 @@ import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.message.template.impl.InfoMessage;
+import com.persybot.message.template.impl.PagingMessage;
+import com.persybot.paginator.PageableMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.staticdata.StaticData;
+import com.persybot.staticdata.pojo.pagination.PageableMessages;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class PlaylistCommand extends AbstractTextCommand {
+    private final PageableMessages messages;
+
     private final int maxPlaylistNameSize;
+    private final String SHOW_PLAYLIST_LIST_KEYWORD = "list";
 
     public PlaylistCommand(int maxPlaylistNameSize) {
         super(1);
         this.maxPlaylistNameSize = maxPlaylistNameSize;
+
+        messages = ServiceAggregatorImpl.getInstance().getService(StaticData.class).getPageableMessages();
     }
 
     @Override
@@ -43,6 +57,10 @@ public class PlaylistCommand extends AbstractTextCommand {
 
         if (requestingMember == null) {
             return false;
+        }
+
+        if (context.getArgs().get(0).equals(SHOW_PLAYLIST_LIST_KEYWORD)) {
+            return true;
         }
 
         final TextChannel rspChannel = context.getEvent().getChannel();
@@ -89,8 +107,17 @@ public class PlaylistCommand extends AbstractTextCommand {
     @Override
     protected boolean runCommand(TextCommandContext context) {
         if (context.getArgs().size() == 1) {
-            String playListName = context.getArgs().get(0);
+            if (context.getArgs().get(0).equals(SHOW_PLAYLIST_LIST_KEYWORD)) {
+                Map<Long, PlayList> playlists = getPlaylists(context.getGuildId());
+                if (playlists.isEmpty()) {
+                    BotUtils.sendMessage("There is no playlists", context.getEvent().getChannel());
+                }
+                sendListOfPlaylists(context.getGuildId(), context.getEvent().getChannel());
+                return true;
+            } else {
+                String playListName = context.getArgs().get(0);
                 playPlaylist(playListName, context.getGuildId(), context.getEvent().getChannel(), context);
+            }
         }
         else if (context.getArgs().size() > 1) {
             String playListName = context.getArgs().get(0);
@@ -156,5 +183,35 @@ public class PlaylistCommand extends AbstractTextCommand {
         }
 
         ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(guildId).playerAction().playSong(playList.getUrl(), rspChannel);
+    }
+
+    private void sendListOfPlaylists(long serverId, TextChannel rspChannel) {
+        Map<Long, PlayList> playlists = getPlaylists(serverId);
+        List<String> data = new LinkedList<>();
+        PageableMessage rsp = new PageableMessage();
+
+        for (PlayList playlist: playlists.values()) {
+            if (BotUtils.isUrl(playlist.getUrl())) {
+                data.add(BotUtils.toHypertext(playlist.getName(), playlist.getUrl()));
+            }
+            else {
+                data.add(playlist.getName() + " - " + playlist.getUrl());
+            }
+        }
+
+        List<List<String>> pageContents = Lists.partition(data, 8);
+
+        for (List<String> pageContent: pageContents) {
+            Message page = new InfoMessage("Available playlists:", String.join("\n ", pageContent) + "\n").template();
+            rsp.addPage(page);
+        }
+
+        rsp.pointToFirst();
+        rspChannel.sendMessage(new PagingMessage(rsp.getCurrent(), false, rsp.hasNext()).template())
+                .queue(success -> messages.add(success.getTextChannel().getIdLong(), PageableMessages.PAGE_TYPE.PLAYLISTS, success.getIdLong(), rsp));
+    }
+
+    private Map<Long, PlayList> getPlaylists(long serverId) {
+        return ServiceAggregatorImpl.getInstance().getService(DBService.class).getAllPlaylistForServer(serverId).orElse(new HashMap<>());
     }
 }

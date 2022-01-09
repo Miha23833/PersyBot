@@ -6,7 +6,7 @@ import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.net.URI;
+import static com.persybot.utils.BotUtils.isUrl;
 
 public class PlayerActionImpl extends AbstractBotAction implements PlayerAction {
     public PlayerActionImpl(Channel actingChannel) {
@@ -63,15 +63,6 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
     @Override
     public void mixQueue() {
         actingChannel.getAudioPlayer().mixQueue();
-    }
-
-    private static boolean isUrl(String url) {
-        try {
-            new URI(url).toURL();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
 

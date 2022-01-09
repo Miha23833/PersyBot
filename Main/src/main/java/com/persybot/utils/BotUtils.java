@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URI;
 import java.util.Objects;
 
 public interface BotUtils {
@@ -58,7 +59,24 @@ public interface BotUtils {
         user.openPrivateChannel().queue((channel) -> channel.sendMessage(text).queue());
     }
 
+    static String toHypertext(String text, String link) {
+        return "[" + text + "]" + "(" + link + ")";
+    }
+
     static String bold(@NotNull String text) {
         return String.join("", "**", text, "**");
+    }
+
+    static boolean isUrl(String url) {
+        try {
+            new URI(url).toURL();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    static int countOfLines(String text) {
+        return text.split("\r\n|\r|\n").length;
     }
 }
