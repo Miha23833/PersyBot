@@ -1,9 +1,13 @@
 package com.persybot.audio.audiomanager.spotify;
 
+import com.persybot.audio.audiomanager.AudioTrackFactory;
+import com.persybot.audio.audiomanager.SongMetadata;
+import com.persybot.audio.audiomanager.youtube.LazyYoutubeAudioTrackFactory;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -35,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Spotify implements AudioSourceManager {
+    private static final String SPOTIFY_ADDRESS = "https://www.open.spotify.com";
     private static final String SPOTIFY_DOMAIN = "open.spotify.com";
     private static final Pattern TRACK_ID_PATTERN = Pattern.compile("^(?:http://|https://|)(?:www\\.|)(?:m\\.|)open.spotify\\.com/(track)/([a-zA-Z0-9-_]+)/?(?:\\?.*|)$");
     private static final Pattern PLAYLIST_ID_PATTERN = Pattern.compile("^(?:http://|https://|)(?:www\\.|)(?:m\\.|)open.spotify\\.com/(playlist)/([a-zA-Z0-9-_]+)/?(?:\\?.*|)$");
@@ -43,9 +48,11 @@ public class Spotify implements AudioSourceManager {
     private final ScheduledExecutorService tokenUpdater;
     
     private final YoutubeAudioSourceManager yt;
+    private final AudioTrackFactory audioTrackFactory;
 
     public Spotify(String clientId, String clientSecret) throws ParseException {
         yt = new YoutubeAudioSourceManager();
+        this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), yt);
 
         spotify = SpotifyApi.builder()
                 .setClientId(clientId)
@@ -111,13 +118,13 @@ public class Spotify implements AudioSourceManager {
     }
 
     @Override
-    public void encodeTrack(AudioTrack track, DataOutput output) throws IOException {
-
+    public void encodeTrack(AudioTrack track, DataOutput output) {
+        throw new UnsupportedOperationException("encodeTrack is unsupported.");
     }
 
     @Override
-    public AudioTrack decodeTrack(AudioTrackInfo trackInfo, DataInput input) throws IOException {
-        return null;
+    public AudioTrack decodeTrack(AudioTrackInfo trackInfo, DataInput input) {
+        throw new UnsupportedOperationException("decodeTrack is unsupported.");
     }
 
     @Override
@@ -152,15 +159,12 @@ public class Spotify implements AudioSourceManager {
     }
 
     private AudioTrack loadFromYT(AudioPlayerManager manager, Track track) {
-        String artists = collectArtists(track.getArtists());
+        SongMetadata metadata = getSongMetaData(track);
+        return audioTrackFactory.getAudioTrack(metadata);
+    }
 
-        AudioReference reference = new AudioReference("ytsearch:" + artists + " - " + track.getName(), null);
-
-        List<AudioTrack> tracks = ((BasicAudioPlaylist) this.yt.loadItem(manager, reference)).getTracks();
-
-        if (tracks.size() > 0) {
-            return tracks.get(0);
-        }
-        return null;
+    private SongMetadata getSongMetaData(Track track) {
+        String firstArtistName = track.getArtists().length == 0 ? "" : collectArtists(track.getArtists());
+        return new SongMetadata(track.getName(), firstArtistName, track.getDurationMs(), SPOTIFY_ADDRESS);
     }
 }

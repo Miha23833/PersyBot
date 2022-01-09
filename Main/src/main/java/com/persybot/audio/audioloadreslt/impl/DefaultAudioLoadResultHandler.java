@@ -1,5 +1,6 @@
 package com.persybot.audio.audioloadreslt.impl;
 
+import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.impl.TrackSchedulerImpl;
 import com.persybot.callback.consumer.MessageSendSuccess;
 import com.persybot.logger.impl.PersyBotLogger;
@@ -10,6 +11,9 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.TextChannel;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
     private final TrackSchedulerImpl scheduler;
@@ -31,7 +35,8 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
             AudioTrack track = playlist.getTracks().get(0);
             trackLoaded(track);
         } else {
-            scheduler.addPlaylist(new AudioPlaylistContextImpl(playlist.getTracks(), requestingChannel));
+            List<AudioTrackContext> tracks = playlist.getTracks().stream().map(x -> new AudioTrackContextImpl(x, requestingChannel)).collect(Collectors.toList());
+            scheduler.addPlaylist(new AudioPlaylistContextImpl(tracks, requestingChannel));
         }
     }
 

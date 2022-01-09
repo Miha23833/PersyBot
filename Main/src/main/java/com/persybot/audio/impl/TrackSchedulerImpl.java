@@ -12,7 +12,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -55,23 +54,23 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
         boolean firstPlaying = queue.isEmpty();
 
         if (firstPlaying) {
-            addTrack(new AudioTrackContextImpl(playlistContext.getTracks().get(0), playlistContext.getRequestingChannel()));
+            addTrack(new AudioTrackContextImpl(playlistContext.getTracks().get(0).getTrack(), playlistContext.getRequestingChannel()));
 
-            playlistContext.getTracks().stream().skip(1).forEach(track -> queue.add(new AudioTrackContextImpl(track, playlistContext.getRequestingChannel())));
+            playlistContext.getTracks().stream().skip(1).forEach(track -> queue.add(new AudioTrackContextImpl(track.getTrack(), playlistContext.getRequestingChannel())));
 
         } else {
-            playlistContext.getTracks().forEach(track -> queue.add(new AudioTrackContextImpl(track, playlistContext.getRequestingChannel())));
+            playlistContext.getTracks().forEach(track -> queue.add(new AudioTrackContextImpl(track.getTrack(), playlistContext.getRequestingChannel())));
         }
 
 
         StringBuilder queuedTracksRsp = new StringBuilder();
-        List<AudioTrackInfo> audioTrackInfoList = playlistContext.getTracksInfo();
+        List<AudioTrackContext> audioTrackInfoList = playlistContext.getTracks();
 
         int trackInfoRspLineLimit = Math.min(audioTrackInfoList.size(), 7);
 
         for (int i = firstPlaying ? 1 : 0; i < trackInfoRspLineLimit; i++) {
-            AudioTrackInfo audioTrackInfo = audioTrackInfoList.get(i);
-                queuedTracksRsp.append(audioTrackInfo.title).append("\n");
+            AudioTrackContext trackContext = audioTrackInfoList.get(i);
+                queuedTracksRsp.append(trackContext.getTrackPresent()).append("\n");
         }
 
         if(audioTrackInfoList.size() > trackInfoRspLineLimit) {
