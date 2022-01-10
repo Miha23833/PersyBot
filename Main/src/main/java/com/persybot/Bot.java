@@ -41,6 +41,7 @@ import com.persybot.message.service.impl.MessageAggregatorServiceImpl;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.staticdata.StaticData;
 import com.persybot.staticdata.StaticDataImpl;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import org.xml.sax.SAXException;
 
@@ -60,6 +61,7 @@ public class Bot {
                             new ServiceUpdaterAdapter(botProperties),
                             new SelfMessagesListener(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
                             new JDAStateListenerAdapter(botProperties))
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .build();
         } catch (Throwable e) {
             PersyBotLogger.BOT_LOGGER.fatal(e.getStackTrace(), e);
