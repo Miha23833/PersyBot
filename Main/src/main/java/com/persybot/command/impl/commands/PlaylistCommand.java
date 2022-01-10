@@ -138,6 +138,14 @@ public class PlaylistCommand extends AbstractTextCommand {
 
         if (!hasMinimumArgs(args)) {
             result.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Correct usage: playlist [name] [link]");
+            return result;
+        }
+
+        if (args.size() > 1 && args.get(1) != null) {
+            if (!BotUtils.isUrl(args.get(1))) {
+                result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Second argument must be link");
+                return result;
+            }
         }
 
         return result;
