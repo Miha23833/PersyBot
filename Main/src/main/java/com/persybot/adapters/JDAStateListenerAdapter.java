@@ -39,7 +39,7 @@ public class JDAStateListenerAdapter extends ListenerAdapter {
 
         VoiceInactivityChecker activityChecker = new VoiceInactivityChecker(activeChannels, checkPause, maxInactivityTime);
 
-        activityChecker.start();
+        activityChecker.run();
     }
 
     private void populateServices(Properties botProperties, JDA jda) {

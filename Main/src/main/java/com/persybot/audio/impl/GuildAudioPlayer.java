@@ -39,7 +39,7 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     }
 
     @Override
-    public boolean onPause() {
+    public boolean isPaused() {
         return audioPlayer.isPaused();
     }
 

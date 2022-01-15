@@ -3,51 +3,49 @@ package com.persybot.perfomance.voiceactivity.impl;
 import com.persybot.audio.AudioPlayer;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
-import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class VoiceInactivityChecker extends Thread {
+public class VoiceInactivityChecker {
+    private final ScheduledExecutorService executorService;
+
+    private final ChannelService channelService;
+
     private final long maxInactivityTime;
-    private final long checkPause;
+    private final long checkPauseMillis;
     private final Map<Long, Long> guildsLastActivity;
 
-    public VoiceInactivityChecker(Map<Long, Long> guildsLastActivity, long checkPause, long maxInactivityTime) {
-        this.checkPause = checkPause;
+    public VoiceInactivityChecker(Map<Long, Long> guildsLastActivity, long checkPauseMillis, long maxInactivityTime) {
+        this.checkPauseMillis = checkPauseMillis;
         this.guildsLastActivity = guildsLastActivity;
         this.maxInactivityTime = maxInactivityTime;
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.channelService = ServiceAggregatorImpl.getInstance().getService(ChannelService.class);
     }
 
-    @Override
     public void run() {
-        while (true) {
-            for (Long channelId: guildsLastActivity.keySet()) {
-                checkInactivity(channelId);
-            }
-            try {
-                Thread.sleep(checkPause);
-            } catch (InterruptedException e) {
-                PersyBotLogger.BOT_LOGGER.error(e);
-            }
-        }
+        this.executorService.scheduleWithFixedDelay(
+                () -> guildsLastActivity.keySet().forEach(this::checkInactivity), 0, checkPauseMillis, TimeUnit.MILLISECONDS);
     }
 
     private void checkInactivity(long channelId) {
-        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
+        Channel channel = channelService.getChannel(channelId);
 
         if (channel != null) {
             long currentTime = System.currentTimeMillis();
             AudioPlayer audioPlayer = channel.getAudioPlayer();
             VoiceChannel connectedChannel = channel.getGuild().getAudioManager().getConnectedChannel();
 
-            int connectedMembersCount = 0;
-            if (connectedChannel != null) {
-                connectedMembersCount = connectedChannel.getMembers().size();
+            if (connectedChannel == null) {
+                return;
             }
 
-            if (connectedMembersCount < 2 || !audioPlayer.isPlaying() || audioPlayer.onPause()) {
+            if (connectedChannel.getMembers().size() < 2 || !audioPlayer.isPlaying() || audioPlayer.isPaused()) {
                 if (currentTime - guildsLastActivity.get(channelId) > maxInactivityTime) {
                     channel.playerAction().stopMusic();
                     // TODO: add message "Leave channel due to inactivity" when add "Last acting text channel"
@@ -59,7 +57,6 @@ public class VoiceInactivityChecker extends Thread {
             }
         }
     }
-
 
 
 }

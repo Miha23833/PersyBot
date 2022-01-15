@@ -12,7 +12,7 @@ public interface AudioPlayer {
 
     boolean hasNextTrack();
 
-    boolean onPause();
+    boolean isPaused();
 
     boolean isPlaying();
 
