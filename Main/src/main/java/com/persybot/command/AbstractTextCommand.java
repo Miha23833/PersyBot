@@ -44,20 +44,20 @@ public abstract class AbstractTextCommand implements TextCommand {
 
     protected abstract ValidationResult<TEXT_COMMAND_REJECT_REASON> validateArgs(List<String> args);
 
-    protected boolean isExecutorInVoiceChannel(GuildVoiceState memberVoiceState) {
+    protected final boolean isExecutorInVoiceChannel(GuildVoiceState memberVoiceState) {
         return memberVoiceState != null && memberVoiceState.inVoiceChannel() && memberVoiceState.getChannel() != null;
     }
 
-    protected boolean isExecutorAndBotAreInSameVoiceChannel(GuildVoiceState memberVoiceState, AudioManager audioManager) {
+    protected final boolean isExecutorAndBotAreInSameVoiceChannel(GuildVoiceState memberVoiceState, AudioManager audioManager) {
         return (isExecutorInVoiceChannel(memberVoiceState) && audioManager.isConnected());
     }
 
     protected boolean runBefore(TextCommandContext context){
         return true;
     }
-    protected boolean runCommand(TextCommandContext context){
-        return true;
-    }
+
+    protected abstract boolean runCommand(TextCommandContext context);
+
     protected boolean runAfter(TextCommandContext context){
         return true;
     }

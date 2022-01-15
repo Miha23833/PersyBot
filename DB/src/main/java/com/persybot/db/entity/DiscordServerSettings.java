@@ -19,10 +19,6 @@ public class DiscordServerSettings implements DbData {
         this.serverId = serverId;
     }
 
-    public DiscordServerSettings() {
-
-    }
-
     public int getVolume() {
         return volume;
     }

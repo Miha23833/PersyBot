@@ -17,7 +17,9 @@ public enum TEXT_COMMAND {
 
     // Channel admin
     PREFIX(""),
-    VOLUME("");
+    VOLUME(""),
+    ADDMEET(""),
+    REMOVEMEET("");
 
     private final String describeText;
 

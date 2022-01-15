@@ -7,11 +7,14 @@ import com.persybot.db.entity.PlayList;
 import com.persybot.db.entity.mappers.DiscordServerMapper;
 import com.persybot.db.entity.mappers.DiscordServerSettingsMapper;
 import com.persybot.db.entity.mappers.PlayListMapper;
+import com.persybot.db.entity.ServerAudioSettings;
+import com.persybot.db.entity.mappers.ServerAudioSettingsMapper;
 import com.persybot.db.mapper.ResultSetMapProcessor;
 import com.persybot.db.mapper.impl.ResultSetMapProcessorImpl;
 import com.persybot.db.sql.container.DiscordServerSettingsSqlContainer;
 import com.persybot.db.sql.container.DiscordServerSqlContainer;
 import com.persybot.db.sql.container.PlayListSqlContainer;
+import com.persybot.db.sql.container.ServerAudioSettingsSqlContainer;
 import com.persybot.db.sql.master.SqlMaster;
 import com.persybot.db.sql.sourcereader.SqlSource;
 import com.persybot.db.sql.sourcereader.impl.XmlSqlSource;
@@ -46,9 +49,6 @@ public class DBServiceImpl implements DBService {
         configuration.setJdbcUrl(properties.getProperty("db.url"));
         configuration.setUsername(properties.getProperty("db.username"));
         configuration.setPassword(properties.getProperty("db.password"));
-//        configuration.addDataSourceProperty("cachePrepStmts", properties.getProperty("db.cachePrepStmts")); //true
-//        configuration.addDataSourceProperty("prepStmtCacheSize", properties.getProperty("db.prepStmtCacheSize")); // 250
-//        configuration.addDataSourceProperty("prepStmtCacheSqlLimit", properties.getProperty("db.prepStmtCacheSqlLimit")); // 2048
         configuration.setMinimumIdle(5);
 
         this.dataSource = new HikariDataSource(configuration);
@@ -209,6 +209,39 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
+    public Optional<Long> saveServerAudioSettings(ServerAudioSettings entity) {
+        try {
+            return Optional.ofNullable(mapProcessor.getSingleLong(container(ServerAudioSettingsSqlContainer.class).insert(entity).executeQuery()));
+        } catch (SQLException | IllegalArgumentException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<ServerAudioSettings> getServerAudioSettings(long id) {
+        try {
+            return Optional.ofNullable(mapProcessor.getSingle(
+                    container(ServerAudioSettingsSqlContainer.class).getById(id).executeQuery(),
+                    ServerAudioSettings.class));
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public boolean updateServerAudioSettings(ServerAudioSettings entity) {
+        try {
+            container(ServerAudioSettingsSqlContainer.class).update(entity).execute();
+            return true;
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e);
+            return false;
+        }
+    }
+
+    @Override
     public boolean updatePlayList(PlayList entity) {
         try {
             container(PlayListSqlContainer.class).update(entity).execute();
@@ -226,6 +259,7 @@ public class DBServiceImpl implements DBService {
                 .addContainer(DiscordServerSqlContainer.class, DiscordServerSqlContainer::new)
                 .addContainer(DiscordServerSettingsSqlContainer.class, DiscordServerSettingsSqlContainer::new)
                 .addContainer(PlayListSqlContainer.class, PlayListSqlContainer::new)
+                .addContainer(ServerAudioSettingsSqlContainer.class, ServerAudioSettingsSqlContainer::new)
                 .build();
     }
 
@@ -237,6 +271,7 @@ public class DBServiceImpl implements DBService {
         return new ResultSetMapProcessorImpl()
                 .addMapper(new DiscordServerMapper(), DiscordServer.class)
                 .addMapper(new DiscordServerSettingsMapper(), DiscordServerSettings.class)
-                .addMapper(new PlayListMapper(), PlayList.class);
+                .addMapper(new PlayListMapper(), PlayList.class)
+                .addMapper(new ServerAudioSettingsMapper(), ServerAudioSettings.class);
     }
 }

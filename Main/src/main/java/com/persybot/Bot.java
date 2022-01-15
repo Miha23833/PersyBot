@@ -12,12 +12,14 @@ import com.persybot.command.button.impl.commands.PrevPageCommand;
 import com.persybot.command.button.impl.commands.ResumeButtonCommand;
 import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
+import com.persybot.command.impl.commands.AddMeetSoundTextCommand;
 import com.persybot.command.impl.commands.ChangePrefixCommand;
 import com.persybot.command.impl.commands.JoinToVoiceChannelCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.MixPlayingTracksCommand;
 import com.persybot.command.impl.commands.PlayMusicTextCommand;
 import com.persybot.command.impl.commands.PlaylistCommand;
+import com.persybot.command.impl.commands.RemoveMeetSoundTextCommand;
 import com.persybot.command.impl.commands.RepeatSongTextCommand;
 import com.persybot.command.impl.commands.SetVolumeTextCommand;
 import com.persybot.command.impl.commands.ShowQueueCommand;
@@ -80,6 +82,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.REPEAT, new RepeatSongTextCommand())
                 .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand())
                 .addCommand(TEXT_COMMAND.PLAYLIST, new PlaylistCommand(10))
+                .addCommand(TEXT_COMMAND.ADDMEET, new AddMeetSoundTextCommand())
+                .addCommand(TEXT_COMMAND.REMOVEMEET, new RemoveMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.QUEUE, new ShowQueueCommand());
     }
 

@@ -4,6 +4,8 @@ import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
+import com.persybot.db.entity.ServerAudioSettings;
+import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
@@ -17,11 +19,14 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PlayMusicTextCommand extends AbstractTextCommand {
+    private DBService dbService;
 
     public PlayMusicTextCommand() {
         super(1);
+        this.dbService = ServiceAggregatorImpl.getInstance().getService(DBService.class);
     }
 
     @Override
@@ -57,6 +62,9 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
     @Override
     protected boolean runCommand(TextCommandContext context) {
         Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId());
+
+        Optional<ServerAudioSettings> audioSettings = dbService.getServerAudioSettings(context.getGuildId());
+
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
 
         if (audioManager.getSendingHandler() == null) {
@@ -64,18 +72,22 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
         }
 
         VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();
+        String link = String.join(" ", context.getArgs());
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
             ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
                     .getChannel(context.getGuildId())
                     .voiceChannelAction().joinChannel(voiceChannel);
             BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel());
+
+            audioSettings.ifPresent(as -> {
+                if (as.getMeetAudioLink() != null && !channel.getAudioPlayer().isPlaying()) {
+                    channel.playerAction().playSong(as.getMeetAudioLink(), context.getEvent().getChannel());
+                }
+            });
         }
 
-        String link = String.join(" ", context.getArgs());
         channel.playerAction().playSong(link, context.getEvent().getChannel());
-
-
         return true;
     }
 

@@ -3,6 +3,7 @@ package com.persybot.db.service;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.entity.PlayList;
+import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.service.Service;
 
 import java.util.Map;
@@ -24,4 +25,8 @@ public interface DBService extends Service {
     Optional<Long> saveOrUpdatePlayList(PlayList playList);
     boolean isPlaylistExists(PlayList playList);
     Optional<Long> savePlayList(PlayList playList);
+
+    Optional<Long> saveServerAudioSettings(ServerAudioSettings entity);
+    Optional<ServerAudioSettings> getServerAudioSettings(long id);
+    boolean updateServerAudioSettings(ServerAudioSettings entity);
 }

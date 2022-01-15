@@ -87,4 +87,21 @@
             RETURNING id
         </SQL>
     </PlayList>
+
+    <ServerAudioSettings>
+        <SQL id="getById">
+            SELECT * FROM serverplayersettings WHERE serverid = ?
+        </SQL>
+
+        <SQL id="update">
+            UPDATE serverplayersettings SET
+            meetaudiolink = ?
+            WHERE serverid = ?
+        </SQL>
+
+        <SQL id="insert">
+            INSERT INTO serverplayersettings (serverid, meetaudiolink)
+            VALUES (?, ?)
+        </SQL>
+    </ServerAudioSettings>
 </root>

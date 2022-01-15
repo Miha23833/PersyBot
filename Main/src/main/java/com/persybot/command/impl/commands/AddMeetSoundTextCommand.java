@@ -1,0 +1,68 @@
+package com.persybot.command.impl.commands;
+
+import com.persybot.command.AbstractTextCommand;
+import com.persybot.command.TextCommandContext;
+import com.persybot.db.entity.ServerAudioSettings;
+import com.persybot.db.service.DBService;
+import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
+import com.persybot.message.template.impl.InfoMessage;
+import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.utils.BotUtils;
+import com.persybot.validation.ValidationResult;
+import com.persybot.validation.impl.TextCommandValidationResult;
+
+import java.util.List;
+
+public class AddMeetSoundTextCommand extends AbstractTextCommand {
+    private DBService dbService;
+
+    public AddMeetSoundTextCommand() {
+        super(1);
+        this.dbService = ServiceAggregatorImpl.getInstance().getService(DBService.class);
+    }
+
+    @Override
+    protected ValidationResult<TEXT_COMMAND_REJECT_REASON> validateArgs(List<String> args) {
+        ValidationResult<TEXT_COMMAND_REJECT_REASON> result = new TextCommandValidationResult();
+
+        if (!hasMinimumArgs(args)) {
+            result.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Provide link to track");
+            return result;
+        }
+
+        // TODO: add check if link is playable
+        if (!BotUtils.isUrl(args.get(0))) {
+            result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Argument must be a link");
+            return result;
+        }
+
+        return result;
+    }
+
+    @Override
+    protected boolean runCommand(TextCommandContext context) {
+        long serverId = context.getGuildId();
+
+        ServerAudioSettings audioSettings = dbService.getServerAudioSettings(serverId).orElse(null);
+
+        if (audioSettings == null) {
+            audioSettings = new ServerAudioSettings(serverId, context.getArgs().get(0));
+            dbService.saveServerAudioSettings(audioSettings);
+        } else {
+            audioSettings.setMeetAudioLink(context.getArgs().get(0));
+            dbService.updateServerAudioSettings(audioSettings);
+        }
+        return true;
+    }
+
+    @Override
+    protected boolean runAfter(TextCommandContext context) {
+        context.getEvent().getChannel().sendMessage(new InfoMessage("Success", "Meeting track was updated").template()).queue();
+        return true;
+    }
+
+    @Override
+    public String describe(TextCommandContext context) {
+        return "Use it to set track that bot will play every time when it starts play new queue";
+    }
+}

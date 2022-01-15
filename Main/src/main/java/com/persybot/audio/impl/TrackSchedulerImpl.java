@@ -15,7 +15,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,8 +27,6 @@ import java.util.stream.Collectors;
 public class TrackSchedulerImpl extends AudioEventAdapter implements TrackScheduler {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrackContext> queue;
-
-    private final TimeFormat timeFormat = TimeFormat.TIME_LONG;
 
     private AudioTrack repeatingTrack = null;
 
