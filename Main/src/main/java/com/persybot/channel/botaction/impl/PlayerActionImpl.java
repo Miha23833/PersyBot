@@ -6,7 +6,7 @@ import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import static com.persybot.utils.BotUtils.isUrl;
+import static com.persybot.utils.URLUtil.isUrl;
 
 public class PlayerActionImpl extends AbstractBotAction implements PlayerAction {
     public PlayerActionImpl(Channel actingChannel) {

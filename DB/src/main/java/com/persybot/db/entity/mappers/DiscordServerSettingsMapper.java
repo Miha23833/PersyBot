@@ -9,7 +9,7 @@ public class DiscordServerSettingsMapper implements ResultSetMapper<DiscordServe
     public DiscordServerSettings map(ResultSetRow dataRow) {
         DiscordServerSettings entity = new DiscordServerSettings((long) dataRow.get("serverid"));
 
-        entity.setPrefix(String.valueOf(dataRow.get("prefix")));
+        entity.setPrefix(dataRow.getString("prefix"));
         entity.setVolume((int) dataRow.get("volume"));
 
         return entity;

@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.persybot.utils.URLUtil.isPlayableLink;
+import static com.persybot.utils.URLUtil.isUrl;
+
 public class PlaylistCommand extends AbstractTextCommand {
     private final PageableMessages messages;
     private DBService dbService;
@@ -158,8 +161,8 @@ public class PlaylistCommand extends AbstractTextCommand {
         }
 
         if (args.size() > 1 && args.get(1) != null) {
-            if (!BotUtils.isUrl(args.get(1))) {
-                result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Second argument must be link");
+            if (!isUrl(args.get(1)) && !isPlayableLink(args.get(1))) {
+                result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Second argument must be playable link");
                 return result;
             }
         }
@@ -215,7 +218,7 @@ public class PlaylistCommand extends AbstractTextCommand {
         PageableMessage rsp = new PageableMessage();
 
         for (PlayList playlist: playlists.values()) {
-            if (BotUtils.isUrl(playlist.getUrl())) {
+            if (isUrl(playlist.getUrl())) {
                 data.add(BotUtils.toHypertext(playlist.getName(), playlist.getUrl()));
             }
             else {

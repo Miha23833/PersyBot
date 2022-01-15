@@ -8,7 +8,7 @@ public class ServerAudioSettingsMapper implements ResultSetMapper<ServerAudioSet
     @Override
     public ServerAudioSettings map(ResultSetRow dataRow) {
         ServerAudioSettings settings = new ServerAudioSettings((long) dataRow.get("serverid"));
-        settings.setMeetAudioLink(String.valueOf(dataRow.get("meetaudiolink")));
+        settings.setMeetAudioLink(dataRow.getString("meetaudiolink"));
 
         return settings;
     }

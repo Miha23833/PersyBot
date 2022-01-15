@@ -7,6 +7,6 @@ import com.persybot.db.mapper.ResultSetRow;
 public class PlayListMapper implements ResultSetMapper<PlayList> {
     @Override
     public PlayList map(ResultSetRow dataRow) {
-        return new PlayList((long) dataRow.get("id"), (long) dataRow.get("serverid"), String.valueOf(dataRow.get("name")), String.valueOf(dataRow.get("url")));
+        return new PlayList((long) dataRow.get("id"), (long) dataRow.get("serverid"), dataRow.getString("name"), dataRow.getString("url"));
     }
 }

@@ -7,11 +7,13 @@ import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.InfoMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
-import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
+
+import static com.persybot.utils.URLUtil.isPlayableLink;
+import static com.persybot.utils.URLUtil.isUrl;
 
 public class AddMeetSoundTextCommand extends AbstractTextCommand {
     private DBService dbService;
@@ -31,12 +33,26 @@ public class AddMeetSoundTextCommand extends AbstractTextCommand {
         }
 
         // TODO: add check if link is playable
-        if (!BotUtils.isUrl(args.get(0))) {
-            result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Argument must be a link");
+        if (!isUrl(args.get(0))) {
+            result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Argument must be url");
+            return result;
+        }
+        if (!isPlayableLink(args.get(0))) {
+            result.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "I cannot play this url");
             return result;
         }
 
         return result;
+    }
+
+    @Override
+    protected boolean runBefore(TextCommandContext context) {
+        ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
+        if (validationResult.isValid()) {
+            return true;
+        }
+        context.getEvent().getChannel().sendMessage(validationResult.rejectText()).queue();
+        return false;
     }
 
     @Override

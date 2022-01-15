@@ -18,6 +18,15 @@ public class ResultSetRowImpl implements ResultSetRow {
     }
 
     @Override
+    public String getString(String key) {
+        Object val = this.data.get(key);
+        if (val == null) {
+            return null;
+        }
+        return String.valueOf(val);
+    }
+
+    @Override
     public void add(String key, Object val) {
         this.data.put(key, val);
     }

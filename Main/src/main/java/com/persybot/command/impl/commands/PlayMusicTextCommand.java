@@ -21,6 +21,9 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import java.util.List;
 import java.util.Optional;
 
+import static com.persybot.utils.URLUtil.isPlayableLink;
+import static com.persybot.utils.URLUtil.isUrl;
+
 public class PlayMusicTextCommand extends AbstractTextCommand {
     private DBService dbService;
 
@@ -37,8 +40,10 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
         }
 
         final TextChannel rspChannel = context.getEvent().getChannel();
-        if (TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.equals(validateArgs(context.getArgs()).getRejectReason())) {
-            BotUtils.sendMessage("Correct usage is `play <youtube link>`", rspChannel);
+        ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
+
+        if (!validationResult.isValid()) {
+            BotUtils.sendMessage(validationResult.rejectText(), rspChannel);
             return false;
         }
         if (!BotUtils.isMemberInVoiceChannel(requestingMember)) {
@@ -100,7 +105,13 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
     protected ValidationResult<TEXT_COMMAND_REJECT_REASON> validateArgs(List<String> args) {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = new TextCommandValidationResult();
         if (!hasMinimumArgs(args)){
-            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS.text());
+            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.NOT_ENOUGH_ARGS, "Correct usage is `play <link or title of playing track>`");
+            return validationResult;
+        }
+
+        String link = String.join(" ", args);
+        if (isUrl(link) && !isPlayableLink(link)) {
+            validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "I cannot play this url");
         }
         return validationResult;
     }
