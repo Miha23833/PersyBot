@@ -19,7 +19,8 @@ public enum TEXT_COMMAND {
     PREFIX("prefix"),
     VOLUME("volume", "vol"),
     ADDMEET("addmeet", "am"),
-    REMOVEMEET("removemeet", "rm");
+    REMOVEMEET("removemeet", "rm"),
+    EQUALIZER("equalizer", "eq");
 
     private final String[] aliases;
 

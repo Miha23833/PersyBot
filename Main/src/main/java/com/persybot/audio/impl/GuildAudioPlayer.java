@@ -1,6 +1,7 @@
 package com.persybot.audio.impl;
 
 import com.persybot.audio.audioloadreslt.impl.DefaultAudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.filter.equalizer.EqualizerFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -93,5 +94,28 @@ public class GuildAudioPlayer implements com.persybot.audio.AudioPlayer {
     @Override
     public void mixQueue() {
         this.scheduler.mixQueue();
+    }
+
+    @Override
+    public void setEqualizer(float[] bands) {
+        EqualizerFactory eq = new EqualizerFactory();
+
+        if (bands == null || bands.length != 15) {
+            throw new IllegalArgumentException("Incorrect equalizer length. It must be 15" );
+        }
+
+        for (int i = 0; i < bands.length; i++) {
+            float band = bands[i];
+            if (band > 1 || band < -0.25f) {
+                throw new IllegalArgumentException("Incorrect equalizer band value. Band index: " + i + ", band value: " + band);
+            }
+            eq.setGain(i, band);
+        }
+        this.audioPlayer.setFilterFactory(eq);
+    }
+
+    @Override
+    public void removeEqualizer() {
+        this.audioPlayer.setFilterFactory(null);
     }
 }

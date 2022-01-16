@@ -33,4 +33,8 @@ public interface AudioPlayer {
     void repeat();
 
     void mixQueue();
+
+    void setEqualizer(float[] bands);
+
+    void removeEqualizer();
 }
