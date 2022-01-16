@@ -141,27 +141,6 @@ public class Bot {
     }
 
     public static void main(String[] args) {
-        try {
-            aboba();
-        } catch (Exception e) {
-            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
-        }
-//        new Bot(getDbProperties(), getBotProperties());
-    }
-
-    private static void aboba() {
-        aboba1();
-    }
-
-    private static void aboba1() {
-        aboba2();
-    }
-
-    private static void aboba2() {
-        aboba3();
-    }
-
-    private static void aboba3() {
-        throw new RuntimeException();
+        new Bot(getDbProperties(), getBotProperties());
     }
 }
