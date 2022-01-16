@@ -37,7 +37,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
                     textCommandPool.getCommand(context.getCommand()).execute(context);
                 }
             } catch (IllegalArgumentException e) {
-                PersyBotLogger.BOT_LOGGER.error(e);
+                PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -56,7 +56,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
                 }
             }
         }  catch (IllegalArgumentException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
         }
     }
 }

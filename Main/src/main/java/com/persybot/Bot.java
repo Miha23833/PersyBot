@@ -34,7 +34,6 @@ import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.DBServiceImpl;
-import com.persybot.db.sql.sourcereader.impl.XmlSqlSource;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
@@ -106,11 +105,6 @@ public class Bot {
                 .addService(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
-
-    public static void main(String[] args) {
-        new Bot(getDbProperties(), getBotProperties());
-    }
-
     private static Properties getDbProperties() {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/dbConfig.cfg");
 
@@ -146,9 +140,28 @@ public class Bot {
                 .getProperties();
     }
 
-    private static class SqlSourceFileLoader {
-        public static XmlSqlSource loadXmlFile() throws IOException, ParserConfigurationException, SAXException {
-            return new XmlSqlSource("SQL.xml", "DB/src/main/java/com/persybot/db/sql/Data.sql");
+    public static void main(String[] args) {
+        try {
+            aboba();
+        } catch (Exception e) {
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
         }
+//        new Bot(getDbProperties(), getBotProperties());
+    }
+
+    private static void aboba() {
+        aboba1();
+    }
+
+    private static void aboba1() {
+        aboba2();
+    }
+
+    private static void aboba2() {
+        aboba3();
+    }
+
+    private static void aboba3() {
+        throw new RuntimeException();
     }
 }

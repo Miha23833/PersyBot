@@ -65,7 +65,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
                 this.spotify.setAccessToken(getAccessToken(clientId, clientSecret));
                 PersyBotLogger.BOT_LOGGER.info("New spotify api token was set");
             } catch (Exception e) {
-                PersyBotLogger.BOT_LOGGER.error(e);
+                PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
                 this.shutdown();
             }
         }, 0, 3500, TimeUnit.SECONDS);
@@ -107,7 +107,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
         } catch (MalformedURLException e) {
             return null;
         } catch (IOException | org.apache.hc.core5.http.ParseException | SpotifyWebApiException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
         }
         return null;
     }

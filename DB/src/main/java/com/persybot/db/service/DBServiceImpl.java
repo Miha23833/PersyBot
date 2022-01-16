@@ -80,7 +80,7 @@ public class DBServiceImpl implements DBService {
         try {
             return Optional.ofNullable(mapProcessor.getSingleLong(container(DiscordServerSettingsSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -92,7 +92,7 @@ public class DBServiceImpl implements DBService {
                     container(DiscordServerSettingsSqlContainer.class).getById(id).executeQuery(),
                     DiscordServerSettings.class));
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -103,7 +103,7 @@ public class DBServiceImpl implements DBService {
             container(DiscordServerSettingsSqlContainer.class).update(entity).execute();
             return true;
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return false;
         }
     }
@@ -113,7 +113,7 @@ public class DBServiceImpl implements DBService {
         try {
             return Optional.ofNullable(mapProcessor.getSingleLong(container(DiscordServerSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -125,7 +125,7 @@ public class DBServiceImpl implements DBService {
                     container(DiscordServerSqlContainer.class).getById(id).executeQuery(),
                     DiscordServer.class));
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -136,7 +136,7 @@ public class DBServiceImpl implements DBService {
             container(DiscordServerSqlContainer.class).update(entity).execute();
             return true;
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return false;
         }
     }
@@ -148,7 +148,7 @@ public class DBServiceImpl implements DBService {
                     container(PlayListSqlContainer.class).getById(id).executeQuery(),
                     PlayList.class));
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return null;
         }
     }
@@ -161,7 +161,7 @@ public class DBServiceImpl implements DBService {
                     container(PlayListSqlContainer.class).getByFields(entity).executeQuery(),
                     PlayList.class));
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return null;
         }
     }
@@ -173,7 +173,7 @@ public class DBServiceImpl implements DBService {
                     container(PlayListSqlContainer.class).getAllPlaylistForServer(serverId).executeQuery(),
                     PlayList.class));
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return null;
         }
     }
@@ -193,7 +193,7 @@ public class DBServiceImpl implements DBService {
         try {
             return mapProcessor.getSingleBoolean(container(PlayListSqlContainer.class).isPlayListExists(entity).executeQuery());
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return false;
         }
     }
@@ -203,7 +203,7 @@ public class DBServiceImpl implements DBService {
         try {
             return Optional.ofNullable(mapProcessor.getSingleLong(container(PlayListSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -213,7 +213,7 @@ public class DBServiceImpl implements DBService {
         try {
             return Optional.ofNullable(mapProcessor.getSingleLong(container(ServerAudioSettingsSqlContainer.class).insert(entity).executeQuery()));
         } catch (SQLException | IllegalArgumentException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -225,7 +225,7 @@ public class DBServiceImpl implements DBService {
                     container(ServerAudioSettingsSqlContainer.class).getById(id).executeQuery(),
                     ServerAudioSettings.class));
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -236,7 +236,7 @@ public class DBServiceImpl implements DBService {
             container(ServerAudioSettingsSqlContainer.class).update(entity).execute();
             return true;
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return false;
         }
     }
@@ -247,7 +247,7 @@ public class DBServiceImpl implements DBService {
             container(PlayListSqlContainer.class).update(entity).execute();
             return true;
         } catch (SQLException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return false;
         }
     }

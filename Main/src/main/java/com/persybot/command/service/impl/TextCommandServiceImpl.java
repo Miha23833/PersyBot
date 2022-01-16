@@ -48,4 +48,6 @@ public class TextCommandServiceImpl implements TextCommandService {
         Arrays.stream(textCommand.getAliases()).forEach(alias -> commandMap.put(alias, action));
         return this;
     }
+
+
 }

@@ -46,7 +46,7 @@ public class AudioTrackContextImpl implements AudioTrackContext {
         try {
             sourceAddress = URLUtil.getSiteDomain(info.uri);
         } catch (URISyntaxException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
         }
 
         if (info.author != null && !isDomainYoutube(sourceAddress)) {

@@ -66,7 +66,7 @@ public class XmlSqlSource implements SqlSource {
                 try {
                     query = String.join("\n", Files.readAllLines(Paths.get(sqlFileDir + filename)));
                 } catch (IOException e) {
-                    PersyBotLogger.BOT_LOGGER.error(e);
+                    PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
                 }
             } else {
                 query = queryNode.getFirstChild().getNodeValue();

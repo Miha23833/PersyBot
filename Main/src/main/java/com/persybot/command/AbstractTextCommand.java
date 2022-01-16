@@ -62,7 +62,7 @@ public abstract class AbstractTextCommand implements TextCommand {
         return true;
     }
     protected void onException(Throwable e) {
-        PersyBotLogger.BOT_LOGGER.error(e);
+        PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
     }
 
 

@@ -21,7 +21,7 @@ public class ConfigFileReader implements ConfigSource {
         try(FileInputStream fis = new FileInputStream(path)) {
             properties.load(fis);
         } catch (IOException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
         }
 
         return properties;

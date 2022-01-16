@@ -29,7 +29,7 @@ public interface URLUtil {
         try {
             domain = getSiteDomain(url);
         } catch (URISyntaxException e) {
-            PersyBotLogger.BOT_LOGGER.error(e);
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
             return false;
         }
         return AVAILABLE_PLAYING_HOSTS.contains(domain);
