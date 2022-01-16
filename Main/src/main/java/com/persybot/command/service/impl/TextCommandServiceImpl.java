@@ -3,8 +3,8 @@ package com.persybot.command.service.impl;
 import com.persybot.command.TextCommand;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.enums.TEXT_COMMAND;
-import com.persybot.utils.EnumUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,16 +31,21 @@ public class TextCommandServiceImpl implements TextCommandService {
 
     private TextCommandServiceImpl(){}
 
-    private final Map<TEXT_COMMAND, TextCommand> commandMap = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, TextCommand> commandMap = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     public TextCommand getCommand(String identifier) {
-        return commandMap.get(EnumUtils.getEnumIgnoreCase(TEXT_COMMAND.class, identifier));
+        return commandMap.get(identifier);
+    }
+
+    @Override
+    public boolean containsCommand(String command) {
+        return this.commandMap.containsKey(command);
     }
 
     @Override
     public TextCommandServiceImpl addCommand(TEXT_COMMAND textCommand, TextCommand action) {
-        commandMap.put(textCommand, action);
+        Arrays.stream(textCommand.getAliases()).forEach(alias -> commandMap.put(alias, action));
         return this;
     }
 }

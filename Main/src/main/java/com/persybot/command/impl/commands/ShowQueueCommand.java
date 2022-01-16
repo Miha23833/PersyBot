@@ -6,7 +6,6 @@ import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.TextCommand;
 import com.persybot.command.TextCommandContext;
-import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.message.service.MessageType;
 import com.persybot.message.template.impl.PagingMessage;
 import com.persybot.paginator.PageableMessage;
@@ -58,6 +57,6 @@ public class ShowQueueCommand implements TextCommand {
 
     @Override
     public String describe(TextCommandContext context) {
-        return TEXT_COMMAND.QUEUE.describeText();
+        return "Shows playing queue";
     }
 }

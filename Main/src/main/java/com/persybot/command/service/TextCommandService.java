@@ -8,4 +8,6 @@ public interface TextCommandService extends Service {
     TextCommandService addCommand(TEXT_COMMAND textCommand, TextCommand action);
 
     TextCommand getCommand(String identifier);
+
+    boolean containsCommand(String command);
 }

@@ -8,7 +8,6 @@ import com.persybot.command.impl.TextCommandContextImpl;
 import com.persybot.command.service.ButtonCommandService;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.enums.BUTTON_ID;
-import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.service.impl.ServiceAggregatorImpl;
 import com.persybot.utils.EnumUtils;
@@ -34,7 +33,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
         if (event.getMessage().getContentRaw().startsWith(prefix) && !event.getMessage().getContentRaw().equals(prefix)) {
             TextCommandContext context = new TextCommandContextImpl(event, prefix);
             try {
-                if (EnumUtils.isInEnumIgnoreCase(TEXT_COMMAND.class, context.getCommand())) {
+                if (textCommandPool.containsCommand(context.getCommand())) {
                     textCommandPool.getCommand(context.getCommand()).execute(context);
                 }
             } catch (IllegalArgumentException e) {

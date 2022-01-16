@@ -4,30 +4,30 @@ public enum TEXT_COMMAND {
 //    HELP(""),
 
     // Music
-    JOIN(""),
-    LEAVE(""),
-    PLAY("Plays music. To use write '''<prefix>play <link or name of sound>'''"),
-    SKIP(""),
-    STOP(""),
-    REPEAT(""),
-    MIX("Mixes playing queue"),
+    JOIN("join", "j"),
+    LEAVE("leave"),
+    PLAY("play", "p"),
+    SKIP("skip"),
+    STOP("stop", "s"),
+    REPEAT("repeat"),
+    MIX("mix"),
 
-    PLAYLIST(""),
-    QUEUE("Shows playing queue"),
+    PLAYLIST("playlist", "pl"),
+    QUEUE("queue"),
 
     // Channel admin
-    PREFIX(""),
-    VOLUME(""),
-    ADDMEET(""),
-    REMOVEMEET("");
+    PREFIX("prefix"),
+    VOLUME("volume", "vol"),
+    ADDMEET("addmeet", "am"),
+    REMOVEMEET("removemeet", "rm");
 
-    private final String describeText;
+    private final String[] aliases;
 
-    TEXT_COMMAND(String describeText) {
-        this.describeText = describeText;
+    TEXT_COMMAND(String... aliases) {
+        this.aliases = aliases;
     }
 
-    public String describeText() {
-        return describeText;
+    public String[] getAliases() {
+        return this.aliases;
     }
 }

@@ -6,7 +6,6 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.service.DBService;
-import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
 import com.persybot.service.impl.ServiceAggregatorImpl;
@@ -98,7 +97,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
 
     @Override
     public String describe(TextCommandContext context) {
-        return TEXT_COMMAND.PLAY.describeText();
+        return "Plays music. To use write '''<prefix>play <link or name of sound>'''";
     }
 
     @Override
