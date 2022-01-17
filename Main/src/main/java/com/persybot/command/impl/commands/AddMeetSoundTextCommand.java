@@ -62,7 +62,7 @@ public class AddMeetSoundTextCommand extends AbstractTextCommand {
         ServerAudioSettings audioSettings = dbService.getServerAudioSettings(serverId).orElse(null);
 
         if (audioSettings == null) {
-            audioSettings = new ServerAudioSettings(serverId, context.getArgs().get(0));
+            audioSettings = new ServerAudioSettings(serverId, context.getArgs().get(0), null);
             dbService.saveServerAudioSettings(audioSettings);
         } else {
             audioSettings.setMeetAudioLink(context.getArgs().get(0));

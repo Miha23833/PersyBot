@@ -33,7 +33,7 @@ public class ServerAudioSettingsSqlContainer extends AbstractSqlContainer<Server
     }
 
     @Override
-    public PreparedStatement getByFields(ServerAudioSettings entity) throws SQLException {
+    public PreparedStatement getByFields(ServerAudioSettings entity) {
         throw new RuntimeException("Not implemented");
     }
 

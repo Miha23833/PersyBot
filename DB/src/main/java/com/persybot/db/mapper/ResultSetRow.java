@@ -8,6 +8,19 @@ public interface ResultSetRow {
     // TODO: add for each type
     String getString(String key);
 
+    Boolean getBoolean(String key);
+
+    Byte getByte(String key);
+    Short getShort(String key);
+    Integer getInt(String key);
+    Long getLong(String key);
+
+    Float getFloat(String key);
+    Double getDouble(String key);
+
+    float[] getFloatArr(String key);
+
+
     void add(String key, Object val);
     void fill(Map<String, Object> row);
 }

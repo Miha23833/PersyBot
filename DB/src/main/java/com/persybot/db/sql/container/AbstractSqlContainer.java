@@ -4,6 +4,7 @@ import com.persybot.db.DbData;
 import com.persybot.db.SqlContainer;
 import com.persybot.db.sql.sourcereader.SqlSource;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -62,6 +63,18 @@ public abstract class AbstractSqlContainer<T extends DbData> implements SqlConta
         } else {
             statement.setString(index, value);
         }
+    }
+
+    protected final void nullSafeSetArray(PreparedStatement statement, int index, Array value) throws SQLException {
+        if (value == null) {
+            statement.setNull(index, Types.VARCHAR);
+        } else {
+            statement.setArray(index, value);
+        }
+    }
+
+    protected final Array toSQLArray(String type, Object[] array) throws SQLException {
+        return this.connection.createArrayOf(type, array);
     }
 
 }

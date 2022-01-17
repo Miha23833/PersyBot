@@ -74,7 +74,7 @@ public class ResultSetMapProcessorImpl implements ResultSetMapProcessor {
     }
 
     @Override
-    public <T extends DbData> ResultSetMapProcessor addMapper(ResultSetMapper<T> mapper, Class<T> entity) {
+    public <T extends DbData> ResultSetMapProcessor addMapper(Class<T> entity, ResultSetMapper<T> mapper) {
         this.mappers.put(entity, mapper);
         return this;
     }

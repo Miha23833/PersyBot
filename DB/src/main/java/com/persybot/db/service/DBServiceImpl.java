@@ -3,16 +3,19 @@ package com.persybot.db.service;
 import com.persybot.db.SqlContainer;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
+import com.persybot.db.entity.EqualizerPreset;
 import com.persybot.db.entity.PlayList;
+import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.entity.mappers.DiscordServerMapper;
 import com.persybot.db.entity.mappers.DiscordServerSettingsMapper;
+import com.persybot.db.entity.mappers.EqualizerPresetMapper;
 import com.persybot.db.entity.mappers.PlayListMapper;
-import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.entity.mappers.ServerAudioSettingsMapper;
 import com.persybot.db.mapper.ResultSetMapProcessor;
 import com.persybot.db.mapper.impl.ResultSetMapProcessorImpl;
 import com.persybot.db.sql.container.DiscordServerSettingsSqlContainer;
 import com.persybot.db.sql.container.DiscordServerSqlContainer;
+import com.persybot.db.sql.container.EqualizerPresetSqlContainer;
 import com.persybot.db.sql.container.PlayListSqlContainer;
 import com.persybot.db.sql.container.ServerAudioSettingsSqlContainer;
 import com.persybot.db.sql.master.SqlMaster;
@@ -26,6 +29,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -242,6 +246,30 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
+    public Optional<EqualizerPreset> getEqPresetByName(String name) {
+        try {
+            return Optional.ofNullable(mapProcessor.getSingle(
+                    container(EqualizerPresetSqlContainer.class).getByName(name).executeQuery(),
+                    EqualizerPreset.class));
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<List<EqualizerPreset>> getAllEqPresets() {
+        try {
+            return Optional.ofNullable(mapProcessor.asList(
+                    container(EqualizerPresetSqlContainer.class).getAll().executeQuery(),
+                    EqualizerPreset.class));
+        } catch (SQLException e) {
+            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public boolean updatePlayList(PlayList entity) {
         try {
             container(PlayListSqlContainer.class).update(entity).execute();
@@ -260,6 +288,7 @@ public class DBServiceImpl implements DBService {
                 .addContainer(DiscordServerSettingsSqlContainer.class, DiscordServerSettingsSqlContainer::new)
                 .addContainer(PlayListSqlContainer.class, PlayListSqlContainer::new)
                 .addContainer(ServerAudioSettingsSqlContainer.class, ServerAudioSettingsSqlContainer::new)
+                .addContainer(EqualizerPresetSqlContainer.class, EqualizerPresetSqlContainer::new)
                 .build();
     }
 
@@ -269,9 +298,10 @@ public class DBServiceImpl implements DBService {
 
     private ResultSetMapProcessor defaultResultSetMapProcessor() {
         return new ResultSetMapProcessorImpl()
-                .addMapper(new DiscordServerMapper(), DiscordServer.class)
-                .addMapper(new DiscordServerSettingsMapper(), DiscordServerSettings.class)
-                .addMapper(new PlayListMapper(), PlayList.class)
-                .addMapper(new ServerAudioSettingsMapper(), ServerAudioSettings.class);
+                .addMapper(DiscordServer.class, new DiscordServerMapper())
+                .addMapper(DiscordServerSettings.class, new DiscordServerSettingsMapper())
+                .addMapper(PlayList.class, new PlayListMapper())
+                .addMapper(ServerAudioSettings.class, new ServerAudioSettingsMapper())
+                .addMapper(EqualizerPreset.class, new EqualizerPresetMapper());
     }
 }

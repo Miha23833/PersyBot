@@ -67,6 +67,6 @@ public interface ResultSetMapProcessor {
         return (long) data.getObject(1);
     }
 
-    <T extends DbData> ResultSetMapProcessor addMapper(ResultSetMapper<T> mapper, Class<T> dataClass);
+    <T extends DbData> ResultSetMapProcessor addMapper(Class<T> dataClass, ResultSetMapper<T> mapper);
 
 }

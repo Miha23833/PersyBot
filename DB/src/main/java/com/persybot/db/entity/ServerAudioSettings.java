@@ -5,12 +5,18 @@ import com.persybot.db.DbData;
 public class ServerAudioSettings implements DbData {
     private final Long serverId;
     private String meetAudioLink;
+    private Long equalizerPresetId;
 
     public ServerAudioSettings(Long serverId) {this.serverId = serverId;}
 
-    public ServerAudioSettings(Long serverId, String meetAudioLink) {
+    public ServerAudioSettings(Long serverId, String meetAudioLink, Long equalizerPresetId) {
         this(serverId);
         this.meetAudioLink = meetAudioLink;
+        this.equalizerPresetId = equalizerPresetId;
+    }
+
+    public Long getEqualizerPresetId() {
+        return equalizerPresetId;
     }
 
     public void setMeetAudioLink(String link) {

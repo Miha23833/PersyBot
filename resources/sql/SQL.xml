@@ -104,4 +104,14 @@
             VALUES (?, ?)
         </SQL>
     </ServerAudioSettings>
+
+    <EqualizerPreset>
+        <SQL id="getByName">
+            SELECT * FROM equalizerpreset WHERE name = ?
+        </SQL>
+
+        <SQL id="getAll">
+            SELECT * FROM equalizerpreset
+        </SQL>
+    </EqualizerPreset>
 </root>

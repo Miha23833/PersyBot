@@ -71,6 +71,7 @@ public class PageableMessages {
 
     public enum PAGE_TYPE {
         PLAYER_QUEUE,
-        PLAYLISTS
+        PLAYLISTS,
+        EQ_PRESETS
     }
 }
