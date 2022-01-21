@@ -3,7 +3,7 @@ package com.persybot.perfomance.voiceactivity.impl;
 import com.persybot.audio.AudioPlayer;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ public class VoiceInactivityChecker {
         this.guildsLastActivity = guildsLastActivity;
         this.maxInactivityTime = maxInactivityTime;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
-        this.channelService = ServiceAggregatorImpl.getInstance().getService(ChannelService.class);
+        this.channelService = ServiceAggregator.getInstance().get(ChannelService.class);
     }
 
     public void run() {

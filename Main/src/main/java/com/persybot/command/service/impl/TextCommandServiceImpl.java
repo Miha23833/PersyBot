@@ -29,7 +29,7 @@ public class TextCommandServiceImpl implements TextCommandService {
         return INSTANCE;
     }
 
-    private TextCommandServiceImpl(){}
+    public TextCommandServiceImpl(){}
 
     private final Map<String, TextCommand> commandMap = Collections.synchronizedMap(new HashMap<>());
 

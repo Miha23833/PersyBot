@@ -3,7 +3,7 @@ package com.persybot.db.entity;
 import com.persybot.db.DbData;
 
 public class DiscordServerSettings implements DbData {
-    private Long serverId;
+    private final Long serverId;
 
     private int volume = 100;
 

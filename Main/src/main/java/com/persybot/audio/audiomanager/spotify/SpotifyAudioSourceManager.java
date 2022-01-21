@@ -46,13 +46,11 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
 
     private final SpotifyApi spotify;
     private final ScheduledExecutorService tokenUpdater;
-    
-    private final YoutubeAudioSourceManager yt;
+
     private final AudioTrackFactory audioTrackFactory;
 
     public SpotifyAudioSourceManager(String clientId, String clientSecret) throws ParseException {
-        yt = new YoutubeAudioSourceManager();
-        this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), yt);
+        this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), new YoutubeAudioSourceManager());
 
         spotify = SpotifyApi.builder()
                 .setClientId(clientId)

@@ -19,6 +19,6 @@ public class InfoMessage implements MessageTemplate {
     @Override
     public Message template() {
         MessageEmbed embedMessage = new EmbedBuilder().setColor(BotColor.EMBED.color()).setTitle(title).setDescription(content) .build();
-        return new MessageBuilder().setEmbed(embedMessage).build();
+        return new MessageBuilder().setEmbeds(embedMessage).build();
     }
 }

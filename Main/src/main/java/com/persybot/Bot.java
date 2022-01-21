@@ -4,6 +4,8 @@ import com.persybot.adapters.DefaultListenerAdapter;
 import com.persybot.adapters.JDAStateListenerAdapter;
 import com.persybot.adapters.SelfMessagesListener;
 import com.persybot.adapters.ServiceUpdaterAdapter;
+import com.persybot.cache.service.CacheService;
+import com.persybot.cache.service.CacheServiceImpl;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.channel.service.impl.ChannelServiceImpl;
 import com.persybot.command.button.impl.commands.NextPageCommand;
@@ -26,8 +28,7 @@ import com.persybot.command.impl.commands.SetVolumeTextCommand;
 import com.persybot.command.impl.commands.ShowQueueCommand;
 import com.persybot.command.impl.commands.SkipSongTextCommand;
 import com.persybot.command.impl.commands.StopPlayingTextCommand;
-import com.persybot.command.service.TextCommandService;
-import com.persybot.command.service.impl.ButtonCommandServiceImpl;
+import com.persybot.command.service.impl.ButtonCommandContainerImpl;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
 import com.persybot.config.MasterConfig;
 import com.persybot.config.impl.ConfigFileReader;
@@ -38,9 +39,8 @@ import com.persybot.db.service.DBServiceImpl;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
-import com.persybot.message.service.MessageAggregatorService;
-import com.persybot.message.service.impl.MessageAggregatorServiceImpl;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.message.cache.PageableMessageCache;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.staticdata.StaticData;
 import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -55,7 +55,6 @@ import java.util.Properties;
 public class Bot {
     private Bot(Properties dbProperties, Properties botProperties) {
         try {
-            
             populateServicesBeforeLaunch(dbProperties, botProperties);
             DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
                     .addEventListeners(
@@ -71,7 +70,7 @@ public class Bot {
     }
 
     private TextCommandServiceImpl defaultTextCommandAggregator(Properties properties) {
-        return TextCommandServiceImpl.getInstance()
+        return new TextCommandServiceImpl()
                 .addCommand(TEXT_COMMAND.JOIN, new JoinToVoiceChannelCommand())
                 .addCommand(TEXT_COMMAND.PLAY, new PlayMusicTextCommand())
                 .addCommand(TEXT_COMMAND.SKIP, new SkipSongTextCommand())
@@ -88,8 +87,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand());
     }
 
-    private ButtonCommandServiceImpl defaultButtonCommandAggregator() {
-        return ButtonCommandServiceImpl.getInstance()
+    private ButtonCommandContainerImpl defaultButtonCommandAggregator() {
+        return new ButtonCommandContainerImpl()
                 .addCommand(BUTTON_ID.PLAYER_PAUSE, new PauseButtonCommand())
                 .addCommand(BUTTON_ID.PLAYER_RESUME, new ResumeButtonCommand())
                 .addCommand(BUTTON_ID.PLAYER_SKIP, new SkipSongButtonCommand())
@@ -99,12 +98,11 @@ public class Bot {
     }
 
     private void populateServicesBeforeLaunch(Properties dbProperties, Properties botProperties) throws SQLException, IOException, SAXException, ParserConfigurationException {
-        ServiceAggregatorImpl.getInstance()
-                .addService(MessageAggregatorService.class, MessageAggregatorServiceImpl.getInstance())
-                .addService(DBService.class, DBServiceImpl.getInstance(dbProperties))
-                .addService(StaticData.class, StaticDataImpl.getInstance())
-                .addService(TextCommandService.class, defaultTextCommandAggregator(botProperties))
-                .addService(ChannelService.class, ChannelServiceImpl.getInstance());
+        ServiceAggregator.getInstance()
+                .add(DBService.class, new DBServiceImpl(dbProperties))
+                .add(CacheService.class, createCacheService())
+                .add(StaticData.class, new StaticDataImpl())
+                .add(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
     private static Properties getDbProperties() {
@@ -140,6 +138,12 @@ public class Bot {
                 .addConfigSource(fileConfig)
                 .addConfigSource(envConfig)
                 .getProperties();
+    }
+
+    private static CacheService createCacheService() {
+        CacheService cacheService = new CacheServiceImpl();
+        cacheService.add(PageableMessageCache.class, new PageableMessageCache());
+        return cacheService;
     }
 
     public static void main(String[] args) {

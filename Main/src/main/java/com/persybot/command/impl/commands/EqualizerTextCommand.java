@@ -4,7 +4,7 @@ import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
@@ -46,7 +46,7 @@ public class EqualizerTextCommand extends AbstractTextCommand {
 
     public EqualizerTextCommand() {
         super(0);
-        this.channelService = ServiceAggregatorImpl.getInstance().getService(ChannelService.class);
+        this.channelService = ServiceAggregator.getInstance().get(ChannelService.class);
     }
 
 

@@ -23,12 +23,9 @@ public class SelfMessagesListener extends ListenerAdapter {
     private final Set<String> playerButtonIds;
     private final Set<String> paginationButtons;
 
-    private final int messageLimitInHistory;
-
     public SelfMessagesListener(int messageLimitInHistory) {
         this.playerButtonIds = Set.of(BUTTON_ID.PLAYER_PAUSE, BUTTON_ID.PLAYER_RESUME, BUTTON_ID.PLAYER_SKIP, BUTTON_ID.PLAYER_STOP).stream().map(BUTTON_ID::getId).collect(Collectors.toSet());
         this.paginationButtons = Set.of(BUTTON_ID.PREV_PAGE, BUTTON_ID.NEXT_PAGE).stream().map(BUTTON_ID::getId).collect(Collectors.toSet());
-        this.messageLimitInHistory = messageLimitInHistory;
         this.guild_textChannel_messagesWithButtons = new ConcurrentHashMap<>();
     }
 

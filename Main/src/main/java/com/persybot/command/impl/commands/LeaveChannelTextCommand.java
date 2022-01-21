@@ -5,7 +5,7 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -24,6 +24,8 @@ public class LeaveChannelTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runBefore(TextCommandContext context) {
+        if (context.getEvent().getMember() == null) return false;
+
         if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember())) {
             BotUtils.sendMessage("I am not connected to a voice channel", context.getEvent().getChannel());
             return false;
@@ -38,7 +40,7 @@ public class LeaveChannelTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
+        ServiceAggregator.getInstance().get(ChannelService.class)
                 .getChannel(context.getGuildId())
                 .voiceChannelAction().leaveChannel();
         return true;

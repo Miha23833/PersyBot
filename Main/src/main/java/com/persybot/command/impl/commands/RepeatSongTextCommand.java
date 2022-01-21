@@ -5,7 +5,7 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -24,7 +24,7 @@ public class RepeatSongTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId()).playerAction().repeat();
+        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId()).playerAction().repeat();
         return true;
     }
 

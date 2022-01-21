@@ -4,10 +4,11 @@ import com.persybot.audio.TrackScheduler;
 import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.audioloadreslt.impl.AudioTrackContextImpl;
-import com.persybot.callback.consumer.MessageSendSuccess;
 import com.persybot.message.PLAYER_BUTTON;
 import com.persybot.message.service.MessageType;
+import com.persybot.message.service.SelfFloodController;
 import com.persybot.message.template.impl.InfoMessage;
+import com.persybot.service.impl.ServiceAggregator;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -42,7 +43,8 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
             this.queue.offer(context);
         } else {
             context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrackPresent()))
-                    .queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_NOW_PLAYING, x).accept(x));
+                    .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class)
+                            .addMessage(MessageType.PLAYER_NOW_PLAYING, x.getTextChannel().getIdLong(), x.getIdLong()));
         }
     }
 
@@ -108,7 +110,7 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
             AudioTrackContext context = this.queue.poll();
             this.player.startTrack(context.getTrack(), false);
             context.getRequestingChannel().sendMessage(getPlayingTrackMessage(context.getTrackPresent()))
-                    .queue(x -> new MessageSendSuccess<>(MessageType.PLAYER_NOW_PLAYING, x).accept(x));
+                    .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class).addMessage(MessageType.PLAYER_NOW_PLAYING, x.getTextChannel().getIdLong(), x.getIdLong()));
         }
     }
 

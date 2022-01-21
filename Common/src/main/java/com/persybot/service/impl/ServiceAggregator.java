@@ -1,23 +1,23 @@
 package com.persybot.service.impl;
 
+import com.persybot.service.Aggregator;
 import com.persybot.service.Service;
-import com.persybot.service.ServiceAggregator;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ServiceAggregatorImpl implements ServiceAggregator {
-    private static ServiceAggregatorImpl INSTANCE;
+public class ServiceAggregator implements Aggregator<Service> {
+    private static ServiceAggregator INSTANCE;
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    public static ServiceAggregatorImpl getInstance() {
+    public static ServiceAggregator getInstance() {
         if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
-                    INSTANCE = new ServiceAggregatorImpl();
+                    INSTANCE = new ServiceAggregator();
                 }
             } finally {
                 rwLock.writeLock().unlock();
@@ -26,12 +26,12 @@ public class ServiceAggregatorImpl implements ServiceAggregator {
         return INSTANCE;
     }
 
-    private ServiceAggregatorImpl(){}
+    private ServiceAggregator(){}
 
     Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     @Override
-    public <T extends Service> T getService(Class<T> serviceClass) {
+    public <T extends Service> T get(Class<T> serviceClass) {
         Service service = services.get(serviceClass);
         if (service != null) {
             return serviceClass.cast(service);
@@ -40,8 +40,8 @@ public class ServiceAggregatorImpl implements ServiceAggregator {
     }
 
     @Override
-    public ServiceAggregator addService(Class<? extends Service> serviceClass, Service service) {
-        services.put(serviceClass, service);
+    public Aggregator<Service> add(Class<? extends Service> type, Service value) {
+        services.put(type, value);
         return this;
     }
 }
