@@ -6,7 +6,7 @@ import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.InfoMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
@@ -16,11 +16,11 @@ import static com.persybot.utils.URLUtil.isPlayableLink;
 import static com.persybot.utils.URLUtil.isUrl;
 
 public class AddMeetSoundTextCommand extends AbstractTextCommand {
-    private DBService dbService;
+    private final DBService dbService;
 
     public AddMeetSoundTextCommand() {
         super(1);
-        this.dbService = ServiceAggregatorImpl.getInstance().getService(DBService.class);
+        this.dbService = ServiceAggregator.getInstance().get(DBService.class);
     }
 
     @Override

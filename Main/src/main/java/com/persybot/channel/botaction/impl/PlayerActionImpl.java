@@ -3,7 +3,7 @@ package com.persybot.channel.botaction.impl;
 import com.persybot.channel.Channel;
 import com.persybot.channel.botaction.PlayerAction;
 import com.persybot.db.service.DBService;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import static com.persybot.utils.URLUtil.isUrl;
@@ -42,7 +42,7 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         actingChannel.getAudioPlayer().setVolume(volume);
 
         actingChannel.getServerSettings().setVolume(volume);
-        ServiceAggregatorImpl.getInstance().getService(DBService.class).updateDiscordServerSettings(actingChannel.getServerSettings());
+        ServiceAggregator.getInstance().get(DBService.class).updateDiscordServerSettings(actingChannel.getServerSettings());
     }
 
     @Override

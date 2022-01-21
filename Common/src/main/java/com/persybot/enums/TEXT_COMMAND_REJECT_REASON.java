@@ -7,7 +7,7 @@ public enum TEXT_COMMAND_REJECT_REASON {
 
     OTHER("Command rejected");
 
-    private String reasonText;
+    private final String reasonText;
 
     TEXT_COMMAND_REJECT_REASON(String reasonText) {
         this.reasonText = reasonText;

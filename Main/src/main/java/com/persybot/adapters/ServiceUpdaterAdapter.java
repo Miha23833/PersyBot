@@ -5,8 +5,7 @@ import com.persybot.channel.service.ChannelService;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
-import com.persybot.service.ServiceAggregator;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.staticdata.StaticData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -31,10 +30,10 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
     private final String defaultPrefix;
 
     public ServiceUpdaterAdapter(Properties botConfig) {
-        ServiceAggregator serviceAggregator = ServiceAggregatorImpl.getInstance();
-        channelService = serviceAggregator.getService(ChannelService.class);
-        dbService = serviceAggregator.getService(DBService.class);
-        staticData = serviceAggregator.getService(StaticData.class);
+        ServiceAggregator serviceAggregator = ServiceAggregator.getInstance();
+        channelService = serviceAggregator.get(ChannelService.class);
+        dbService = serviceAggregator.get(DBService.class);
+        staticData = serviceAggregator.get(StaticData.class);
 
         this.defaultPrefix = botConfig.getProperty("bot.prefix.default");
     }

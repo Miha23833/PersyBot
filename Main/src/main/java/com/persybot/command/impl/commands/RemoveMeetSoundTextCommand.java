@@ -6,17 +6,17 @@ import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
 
 public class RemoveMeetSoundTextCommand extends AbstractTextCommand {
-    private DBService dbService;
+    private final DBService dbService;
     public RemoveMeetSoundTextCommand() {
         super(0);
-        this.dbService = ServiceAggregatorImpl.getInstance().getService(DBService.class);
+        this.dbService = ServiceAggregator.getInstance().get(DBService.class);
     }
 
     @Override

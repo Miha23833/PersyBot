@@ -8,7 +8,7 @@ import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -52,12 +52,12 @@ public class ChangePrefixCommand extends AbstractTextCommand {
     protected boolean runCommand(TextCommandContext context) {
         String prefix = context.getArgs().get(0);
 
-        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getEvent().getGuild().getIdLong());
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getEvent().getGuild().getIdLong());
 
         DiscordServerSettings serverSettings = channel.getServerSettings();
         serverSettings.setPrefix(prefix);
 
-        ServiceAggregatorImpl.getInstance().getService(DBService.class).updateDiscordServerSettings(serverSettings);
+        ServiceAggregator.getInstance().get(DBService.class).updateDiscordServerSettings(serverSettings);
 
         BotUtils.sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template(), context.getEvent().getChannel());
         return true;

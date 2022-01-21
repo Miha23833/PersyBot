@@ -11,7 +11,7 @@ public class PlayListSqlContainer extends AbstractSqlContainer<PlayList> {
     private enum PlayListQueryId {
         GET_BY_SERVER_ID("getByServerId");
 
-        private String queryId;
+        private final String queryId;
         PlayListQueryId(String queryId) {
             this.queryId = queryId;
         }

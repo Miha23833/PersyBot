@@ -1,6 +1,12 @@
 package com.persybot.utils;
 
+import com.persybot.cache.service.CacheService;
 import com.persybot.logger.impl.PersyBotLogger;
+import com.persybot.message.PAGEABLE_MESSAGE_TYPE;
+import com.persybot.message.cache.PageableMessageCache;
+import com.persybot.message.template.impl.PagingMessage;
+import com.persybot.paginator.PageableMessage;
+import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -56,6 +62,23 @@ public interface BotUtils {
 
     static void sendPersonalMessage(@NotNull String text, @NotNull User user) {
         user.openPrivateChannel().queue((channel) -> channel.sendMessage(text).queue());
+    }
+
+    static void sendPageableMessage(PageableMessage.Builder message, TextChannel channel, PAGEABLE_MESSAGE_TYPE type) {
+        sendPageableMessage(
+                message,
+                channel,
+                type,
+                ServiceAggregator.getInstance().get(CacheService.class).get(PageableMessageCache.class));
+    }
+
+    static void sendPageableMessage(PageableMessage.Builder message, TextChannel channel, PAGEABLE_MESSAGE_TYPE type, PageableMessageCache cache) {
+        if (message.size() == 1) {
+            sendMessage(new PagingMessage(message.get(0), false, false).template(), channel);
+        } else {
+            channel.sendMessage(new PagingMessage(message.get(0), false, true).template())
+                    .queue(success -> cache.add(success.getTextChannel().getIdLong(), PAGEABLE_MESSAGE_TYPE.PLAYLISTS, message.build(success.getIdLong())));
+        }
     }
 
     static String toHypertext(String text, String link) {

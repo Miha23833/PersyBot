@@ -5,5 +5,5 @@ public interface EventListener {
 
     default void emitEvent(Event event) {
         this.onEvent(event);
-    };
+    }
 }

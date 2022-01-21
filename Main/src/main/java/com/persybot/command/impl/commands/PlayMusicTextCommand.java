@@ -8,7 +8,7 @@ import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -24,11 +24,11 @@ import static com.persybot.utils.URLUtil.isPlayableLink;
 import static com.persybot.utils.URLUtil.isUrl;
 
 public class PlayMusicTextCommand extends AbstractTextCommand {
-    private DBService dbService;
+    private final DBService dbService;
 
     public PlayMusicTextCommand() {
         super(1);
-        this.dbService = ServiceAggregatorImpl.getInstance().getService(DBService.class);
+        this.dbService = ServiceAggregator.getInstance().get(DBService.class);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(context.getGuildId());
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
 
         Optional<ServerAudioSettings> audioSettings = dbService.getServerAudioSettings(context.getGuildId());
 
@@ -79,7 +79,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
         String link = String.join(" ", context.getArgs());
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
-            ServiceAggregatorImpl.getInstance().getService(ChannelService.class)
+            ServiceAggregator.getInstance().get(ChannelService.class)
                     .getChannel(context.getGuildId())
                     .voiceChannelAction().joinChannel(voiceChannel);
             BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel());

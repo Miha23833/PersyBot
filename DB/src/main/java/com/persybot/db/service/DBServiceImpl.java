@@ -33,20 +33,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBServiceImpl implements DBService {
-    private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
-    private static volatile DBServiceImpl INSTANCE;
-
     private final ResultSetMapProcessor mapProcessor;
 
     private final SqlMaster sqlMaster;
     private final HikariDataSource dataSource;
     private final SqlSource source;
 
-    private DBServiceImpl(Properties properties, SqlSource source) throws SQLException {
+    public DBServiceImpl(Properties properties) throws SQLException, IOException, SAXException, ParserConfigurationException {
+        String SQLXmlPath = properties.getProperty("db.query.source.SqlXmlPath");
+        String sqlFileDir = properties.getProperty("db.query.source.sqlFileDir");
+
+        SqlSource source = new XmlSqlSource(SQLXmlPath, sqlFileDir);
+
         HikariConfig configuration = new HikariConfig();
         this.source = source;
 
@@ -59,24 +59,6 @@ public class DBServiceImpl implements DBService {
 
         this.sqlMaster = defaultSQLMaster();
         this.mapProcessor = defaultResultSetMapProcessor();
-    }
-
-    public static DBServiceImpl getInstance(Properties properties) throws SQLException, IOException, SAXException, ParserConfigurationException {
-        if (INSTANCE == null) {
-            try {
-                rwLock.writeLock().lock();
-                if (INSTANCE == null) {
-                    String SQLXmlPath = properties.getProperty("db.query.source.SqlXmlPath");
-                    String sqlFileDir = properties.getProperty("db.query.source.sqlFileDir");
-
-                    SqlSource source = new XmlSqlSource(SQLXmlPath, sqlFileDir);
-                    INSTANCE = new DBServiceImpl(properties, source);
-                }
-            } finally {
-                rwLock.writeLock().unlock();
-            }
-        }
-        return INSTANCE;
     }
 
     @Override
@@ -153,7 +135,7 @@ public class DBServiceImpl implements DBService {
                     PlayList.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -166,7 +148,7 @@ public class DBServiceImpl implements DBService {
                     PlayList.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -178,7 +160,7 @@ public class DBServiceImpl implements DBService {
                     PlayList.class));
         } catch (SQLException e) {
             PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
-            return null;
+            return Optional.empty();
         }
     }
 

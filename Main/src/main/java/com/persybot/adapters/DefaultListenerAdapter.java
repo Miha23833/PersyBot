@@ -9,7 +9,7 @@ import com.persybot.command.service.ButtonCommandService;
 import com.persybot.command.service.TextCommandService;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.logger.impl.PersyBotLogger;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.EnumUtils;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -24,7 +24,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
     public DefaultListenerAdapter(TextCommandService textCommandPool, ButtonCommandService buttonCommandPool) {
         this.textCommandPool = textCommandPool;
         this.buttonCommandPool = buttonCommandPool;
-        this.channelService = ServiceAggregatorImpl.getInstance().getService(ChannelService.class);
+        this.channelService = ServiceAggregator.getInstance().get(ChannelService.class);
     }
 
     @Override

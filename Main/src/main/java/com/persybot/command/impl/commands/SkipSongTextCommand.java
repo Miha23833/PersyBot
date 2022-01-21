@@ -5,7 +5,7 @@ import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -34,6 +34,7 @@ public class SkipSongTextCommand extends AbstractTextCommand {
                 return false;
             }
         }
+        if (context.getEvent().getMember() == null) return false;
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
             BotUtils.sendMessage(new DefaultTextMessage("You must be in the same channel as me to skip song").template(), context.getEvent().getChannel());
@@ -50,7 +51,7 @@ public class SkipSongTextCommand extends AbstractTextCommand {
         }
         Long channelId = context.getEvent().getGuild().getIdLong();
 
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId)
+        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(channelId)
                 .playerAction().skipSong(skipCount);
         return true;
     }

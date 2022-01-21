@@ -8,7 +8,7 @@ import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
-import com.persybot.service.impl.ServiceAggregatorImpl;
+import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
@@ -17,11 +17,8 @@ import java.util.List;
 
 public class SetVolumeTextCommand extends AbstractTextCommand {
 
-    private final ServiceAggregatorImpl serviceAggregator;
-
     public SetVolumeTextCommand() {
         super(1);
-        this.serviceAggregator = ServiceAggregatorImpl.getInstance();
     }
 
     @Override
@@ -60,15 +57,15 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
     @Override
     protected boolean runCommand(TextCommandContext context) {
         long channelId = context.getEvent().getGuild().getIdLong();
-        Channel channel = ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId);
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(channelId);
 
         int volume = Integer.parseInt(context.getArgs().get(0));
 
         DiscordServerSettings serverSettings = channel.getServerSettings();
         serverSettings.setVolume(volume);
 
-        ServiceAggregatorImpl.getInstance().getService(DBService.class).updateDiscordServerSettings(serverSettings);
-        ServiceAggregatorImpl.getInstance().getService(ChannelService.class).getChannel(channelId).playerAction().setVolume(volume);
+        ServiceAggregator.getInstance().get(DBService.class).updateDiscordServerSettings(serverSettings);
+        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(channelId).playerAction().setVolume(volume);
 
         BotUtils.sendMessage(
                 new DefaultTextMessage(String.join("","Volume updated to ", "'", BotUtils.bold(String.valueOf(volume)), "'")).template(),
