@@ -64,7 +64,7 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
         initializeDiscordServer(event.getGuild());
-        ServiceAggregatorImpl.getInstance().getService(DBService.class)
+        ServiceAggregator.getInstance().get(DBService.class)
                 .getAllEqPresets().orElseThrow( () -> new RuntimeException("Cannot get presets."))
                 .forEach(this.staticData::addPreset);
     }

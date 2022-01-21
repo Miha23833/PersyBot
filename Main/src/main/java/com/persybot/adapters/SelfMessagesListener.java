@@ -23,7 +23,7 @@ public class SelfMessagesListener extends ListenerAdapter {
     private final Set<String> playerButtonIds;
     private final Set<String> paginationButtons;
 
-    public SelfMessagesListener(int messageLimitInHistory) {
+    public SelfMessagesListener() {
         this.playerButtonIds = Set.of(BUTTON_ID.PLAYER_PAUSE, BUTTON_ID.PLAYER_RESUME, BUTTON_ID.PLAYER_SKIP, BUTTON_ID.PLAYER_STOP).stream().map(BUTTON_ID::getId).collect(Collectors.toSet());
         this.paginationButtons = Set.of(BUTTON_ID.PREV_PAGE, BUTTON_ID.NEXT_PAGE).stream().map(BUTTON_ID::getId).collect(Collectors.toSet());
         this.guild_textChannel_messagesWithButtons = new ConcurrentHashMap<>();
@@ -39,10 +39,10 @@ public class SelfMessagesListener extends ListenerAdapter {
         long textChannelId = event.getChannel().getIdLong();
 
         if (event.getMessage().getActionRows().size() > 0) {
-            if (containsExactlyPlayerButtons(event.getMessage())) {
-                removeSelfPreviousMessagesButtons(event, this::containsExactlyPlayerButtons);
-                addToMessages(guild_textChannel_messagesWithButtons, guildId, textChannelId, event.getMessage());
-            } else if (containsExactlyPaginationButtons(event.getMessage())) {
+//            if (containsExactlyPlayerButtons(event.getMessage())) {
+//                removeSelfPreviousMessagesButtons(event, this::containsExactlyPlayerButtons);
+//                addToMessages(guild_textChannel_messagesWithButtons, guildId, textChannelId, event.getMessage());
+            if (containsExactlyPaginationButtons(event.getMessage())) {
                 removeSelfPreviousMessagesButtons(event, this::containsExactlyPaginationButtons);
                 addToMessages(guild_textChannel_messagesWithButtons, guildId, textChannelId, event.getMessage());
             }

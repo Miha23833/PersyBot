@@ -4,6 +4,7 @@ import com.persybot.audio.TrackScheduler;
 import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.audioloadreslt.impl.AudioTrackContextImpl;
+import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.PLAYER_BUTTON;
 import com.persybot.message.service.MessageType;
 import com.persybot.message.service.SelfFloodController;
@@ -11,6 +12,7 @@ import com.persybot.message.template.impl.InfoMessage;
 import com.persybot.service.impl.ServiceAggregator;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -122,8 +124,10 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if (endReason.mayStartNext) {
+        if (!endReason.equals(AudioTrackEndReason.LOAD_FAILED) && endReason.mayStartNext) {
             nextTrack();
+        } else {
+            this.queue.clear();
         }
     }
 
@@ -163,5 +167,15 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     @Override
     public List<String> getQueuedTracks() {
         return this.queue.stream().map(AudioTrackContext::getTrackPresent).collect(Collectors.toList());
+    }
+
+    @Override
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        PersyBotLogger.BOT_LOGGER.error(exception.getMessage());
+    }
+
+    @Override
+    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
+        super.onTrackStuck(player, track, thresholdMs);
     }
 }

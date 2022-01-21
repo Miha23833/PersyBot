@@ -34,6 +34,6 @@ public class StaticDataImpl implements StaticData {
         this.equalizerPresets.add(preset);
     }
 
-    private StaticDataImpl(){
+    public StaticDataImpl(){
     }
 }

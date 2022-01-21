@@ -60,7 +60,7 @@ public class Bot {
                     .addEventListeners(
                             new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties), defaultButtonCommandAggregator()),
                             new ServiceUpdaterAdapter(botProperties),
-                            new SelfMessagesListener(Integer.parseInt(botProperties.getProperty("bot.selfmessageslimit"))),
+                            new SelfMessagesListener(),
                             new JDAStateListenerAdapter(botProperties))
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .build();
