@@ -4,6 +4,7 @@ import com.persybot.audio.TrackScheduler;
 import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.audioloadreslt.impl.AudioTrackContextImpl;
+import com.persybot.audio.audiomanager.youtube.LazyYoutubeAudioTrack;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.PLAYER_BUTTON;
 import com.persybot.message.service.MessageType;
@@ -12,6 +13,7 @@ import com.persybot.message.template.impl.InfoMessage;
 import com.persybot.service.impl.ServiceAggregator;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
@@ -19,7 +21,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -124,10 +125,16 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if (!endReason.equals(AudioTrackEndReason.LOAD_FAILED) && endReason.mayStartNext) {
-            nextTrack();
-        } else {
+        if (endReason.equals(AudioTrackEndReason.LOAD_FAILED)
+                && (track instanceof YoutubeAudioTrack || track instanceof LazyYoutubeAudioTrack)) {
+            PersyBotLogger.BOT_LOGGER.error("Cannot load track with uri = " + track.getInfo().uri);
+            stopRepeating();
+            this.player.stopTrack();
             this.queue.clear();
+            return;
+        }
+        if (endReason.mayStartNext) {
+            nextTrack();
         }
     }
 
@@ -157,11 +164,9 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
     }
 
     private ActionRow createPlayerButtons(boolean isOnPause) {
-        return ActionRow.of(Arrays.asList(
-                PLAYER_BUTTON.STOP.button(false),
+        return ActionRow.of(PLAYER_BUTTON.STOP.button(false),
                 isOnPause ? PLAYER_BUTTON.RESUME.button(false) : PLAYER_BUTTON.PAUSE.button(false),
-                PLAYER_BUTTON.SKIP.button(false)
-        ));
+                PLAYER_BUTTON.SKIP.button(false));
     }
 
     @Override
@@ -171,11 +176,6 @@ public class TrackSchedulerImpl extends AudioEventAdapter implements TrackSchedu
 
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
-        PersyBotLogger.BOT_LOGGER.error(exception.getMessage());
-    }
-
-    @Override
-    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
-        super.onTrackStuck(player, track, thresholdMs);
+        PersyBotLogger.BOT_LOGGER.error(exception.getMessage(), "Track uri: " + track.getInfo().uri);
     }
 }

@@ -16,6 +16,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity.COMMON;
+import static com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity.SUSPICIOUS;
+
 public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
     private final TrackSchedulerImpl scheduler;
     private final TextChannel requestingChannel;
@@ -49,8 +52,11 @@ public class DefaultAudioLoadResultHandler implements AudioLoadResultHandler {
     @Override
     public void loadFailed(FriendlyException exception) {
         PersyBotLogger.BOT_LOGGER.error(exception);
-        requestingChannel.sendMessage(new InfoMessage("Error", "Failed to load track").template())
-                .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class)
-                        .addMessage(MessageType.ERROR, x.getTextChannel().getIdLong(), x.getIdLong()));
+
+        if (exception.severity.equals(COMMON) || exception.severity.equals(SUSPICIOUS)) {
+            requestingChannel.sendMessage(new InfoMessage("Error", "Failed to load track").template())
+                    .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class)
+                            .addMessage(MessageType.ERROR, x.getTextChannel().getIdLong(), x.getIdLong()));
+        }
     }
 }
