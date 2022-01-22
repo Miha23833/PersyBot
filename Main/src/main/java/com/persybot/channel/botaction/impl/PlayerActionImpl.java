@@ -18,6 +18,7 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         if (!isUrl(songLink)) {
             songLink = "ytsearch:" + songLink;
         }
+        resumePlayer();
 
         actingChannel.getAudioPlayer().loadAndPlay(songLink, requestingChannel);
     }
