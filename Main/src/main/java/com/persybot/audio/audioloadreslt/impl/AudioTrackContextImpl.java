@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.net.URISyntaxException;
 
 import static com.persybot.utils.DateTimeUtils.toTimeDuration;
-import static com.persybot.utils.URLUtil.isDomainYoutube;
+import static com.persybot.utils.URLUtil.isYoutubeDomain;
 
 public class AudioTrackContextImpl implements AudioTrackContext {
     private final AudioTrack track;
@@ -49,7 +49,7 @@ public class AudioTrackContextImpl implements AudioTrackContext {
             PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
         }
 
-        if (info.author != null && !isDomainYoutube(sourceAddress)) {
+        if ((info.author != null && !isYoutubeDomain(sourceAddress)) || !info.title.contains("-")) {
             builder.append(info.author).append(" - ");
         }
         builder.append(info.title);

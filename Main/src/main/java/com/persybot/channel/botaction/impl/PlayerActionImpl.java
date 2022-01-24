@@ -20,7 +20,7 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
         }
         resumePlayer();
 
-        actingChannel.getAudioPlayer().loadAndPlay(songLink, requestingChannel);
+        actingChannel.getAudioPlayer().scheduleTrack(songLink, requestingChannel);
     }
 
     @Override

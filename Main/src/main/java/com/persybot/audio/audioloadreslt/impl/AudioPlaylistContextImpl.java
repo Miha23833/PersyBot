@@ -2,26 +2,21 @@ package com.persybot.audio.audioloadreslt.impl;
 
 import com.persybot.audio.audioloadreslt.AudioPlaylistContext;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AudioPlaylistContextImpl implements AudioPlaylistContext {
     private final List<AudioTrackContext> tracks;
-    private final TextChannel reqChannel;
 
-    public AudioPlaylistContextImpl(List<AudioTrackContext> tracks, TextChannel reqChannel) {
-        this.tracks = tracks;
-        this.reqChannel = reqChannel;
+    public AudioPlaylistContextImpl(List<AudioTrack> trackList, TextChannel rspChannel) {
+        this.tracks = trackList.stream().map(tr -> new AudioTrackContextImpl(tr, rspChannel)).collect(Collectors.toList());
     }
 
     @Override
     public List<AudioTrackContext> getTracks() {
         return this.tracks;
-    }
-
-    @Override
-    public TextChannel getRequestingChannel() {
-        return this.reqChannel;
     }
 }

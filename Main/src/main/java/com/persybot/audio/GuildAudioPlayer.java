@@ -1,22 +1,23 @@
 package com.persybot.audio;
 
 import com.persybot.audio.impl.AudioPlayerSendHandler;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 
-public interface AudioPlayer {
+public interface GuildAudioPlayer {
     AudioPlayerSendHandler getSendHandler();
 
     void setVolume(int volume);
-
-    boolean hasNextTrack();
 
     boolean isPaused();
 
     boolean isPlaying();
 
-    void loadAndPlay(String trackUrl, TextChannel requestingChannel);
+    void scheduleTrack(String trackUrl, TextChannel requestingChannel);
+
+    void playTrack(AudioTrack track);
 
     void resume();
 
@@ -35,6 +36,4 @@ public interface AudioPlayer {
     void mixQueue();
 
     void setEqualizer(float[] bands);
-
-    void removeEqualizer();
 }

@@ -49,7 +49,7 @@ public interface URLUtil {
         return domain.startsWith("www.") ? domain.substring(4) : domain;
     }
 
-    static boolean isDomainYoutube(String domain) {
+    static boolean isYoutubeDomain(String domain) {
         return Stream.of("youtube.com", "youtu.be").anyMatch(domain::equalsIgnoreCase);
     }
 }

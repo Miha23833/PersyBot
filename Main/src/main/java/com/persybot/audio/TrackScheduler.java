@@ -12,17 +12,13 @@ public interface TrackScheduler {
 
     boolean isEmpty();
 
-    void skipMultiple(int countOfSkips);
+    AudioTrackContext skipMultiple(int countOfSkips);
 
-    void nextTrack();
+    AudioTrackContext nextTrack();
 
-    void clearQueue();
+    void clear();
 
-    void repeatTrack();
+    void shuffle();
 
-    void stopRepeating();
-
-    void mixQueue();
-
-    List<String> getQueuedTracks();
+    List<String> queuedTracksTitles();
 }

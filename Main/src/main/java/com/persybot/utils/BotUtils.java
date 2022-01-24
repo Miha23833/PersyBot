@@ -88,8 +88,4 @@ public interface BotUtils {
     static String bold(@NotNull String text) {
         return String.join("", "**", text, "**");
     }
-
-    static int countOfLines(String text) {
-        return text.split("\r\n|\r|\n").length;
-    }
 }
