@@ -12,14 +12,16 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class ChannelImpl implements Channel {
-    private final GuildAudioPlayer audioPlayer;
+    private GuildAudioPlayer audioPlayer;
     private final DiscordServerSettings serverSettings;
     private final Guild discordServer;
+    private final AudioPlayerManager manager;
 
     private final PlayerAction playerAction = new PlayerActionImpl(this);
     private final VoiceChannelAction voiceChannelAction = new VoiceChannelActionImpl(this);
 
     public ChannelImpl(AudioPlayerManager playerManager, DiscordServerSettings serverSettings, Guild discordServer) {
+        this.manager = playerManager;
         this.audioPlayer = new GuildAudioPlayerImpl(playerManager);
         audioPlayer.setVolume(serverSettings.getVolume());
         this.serverSettings = serverSettings;
@@ -29,6 +31,11 @@ public class ChannelImpl implements Channel {
     @Override
     public GuildAudioPlayer getAudioPlayer() {
         return this.audioPlayer;
+    }
+
+    public void resetAudioPlayer() {
+        this.audioPlayer.stop();
+        this.audioPlayer = new GuildAudioPlayerImpl(this.manager);
     }
 
     @Override
