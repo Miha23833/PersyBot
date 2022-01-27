@@ -25,6 +25,7 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
     private final AudioPlayer audioPlayer;
     private final AudioPlayerSendHandler sendHandler;
     private boolean loop = false;
+    private byte trackExceptionToDropPlaylistDown = 0;
 
     private final TrackSchedulerImpl trackScheduler;
 
@@ -160,7 +161,18 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
     }
 
     @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        this.trackExceptionToDropPlaylistDown = 0;
+    }
+
+    @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        this.trackExceptionToDropPlaylistDown++;
+
+        if (this.trackExceptionToDropPlaylistDown >= 3) {
+            this.stop();
+        }
+
         PersyBotLogger.BOT_LOGGER.error("Track identifier: " + track.getIdentifier(), exception);
     }
 
