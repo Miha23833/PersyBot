@@ -1,5 +1,6 @@
 package com.persybot.command.button.impl.commands;
 
+import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.ButtonCommand;
 import com.persybot.command.ButtonCommandContext;
@@ -15,7 +16,11 @@ public class PauseButtonCommand implements ButtonCommand {
 
     @Override
     public void execute(ButtonCommandContext context) {
-        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId()).playerAction().pauseSong();
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
+        if (!channel.hasInitiatedAudioPlayer()) {
+            return;
+        }
+        channel.playerAction().pauseSong();
         context.getEvent().getInteraction().editButton(PLAYER_BUTTON.RESUME.button(false)).queue();
 
         context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player paused").template())

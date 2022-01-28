@@ -20,9 +20,7 @@ public enum TEXT_COMMAND {
     VOLUME("volume", "vol"),
     ADDMEET("addmeet", "am"),
     REMOVEMEET("removemeet", "rm"),
-    EQUALIZER("equalizer", "eq"),
-
-    RESETAUDIO("ra");
+    EQUALIZER("equalizer", "eq");
 
     private final String[] aliases;
 

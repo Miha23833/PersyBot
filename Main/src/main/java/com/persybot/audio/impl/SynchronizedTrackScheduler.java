@@ -51,8 +51,8 @@ public class SynchronizedTrackScheduler implements TrackScheduler, PlayerStateSe
         boolean startFirst = this.player.getPlayingTrack() == null;
         if (startFirst) {
             addTrack(playlist.getTracks().remove(0));
-            this.trackQueue.addAll(playlist.getTracks());
         }
+        this.trackQueue.addAll(playlist.getTracks());
         if (!playlist.getTracks().isEmpty()) {
             playlist.getTracks().get(0).getRequestingChannel().sendMessage(getQueuedTrackMessage(playlist)).queue();
         }
@@ -65,7 +65,7 @@ public class SynchronizedTrackScheduler implements TrackScheduler, PlayerStateSe
 
     @Override
     public AudioTrackContext skipMultiple(int countOfSkips) {
-        if (isEmpty() || this.trackQueue.size() <= countOfSkips) {
+        if (isEmpty() || this.trackQueue.size() < countOfSkips) {
             this.trackQueue.clear();
             return null;
         }

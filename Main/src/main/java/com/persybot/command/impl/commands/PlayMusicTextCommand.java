@@ -15,7 +15,6 @@ import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,12 +67,6 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
         Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
 
         Optional<ServerAudioSettings> audioSettings = dbService.getServerAudioSettings(context.getGuildId());
-
-        AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
-
-        if (audioManager.getSendingHandler() == null) {
-            audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
-        }
 
         VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();
         String link = String.join(" ", context.getArgs());

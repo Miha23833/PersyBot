@@ -1,5 +1,6 @@
 package com.persybot.command.impl.commands;
 
+import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
@@ -24,7 +25,11 @@ public class MixPlayingTracksCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId()).playerAction().mixQueue();
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
+        if (!channel.hasInitiatedAudioPlayer()) {
+            return false;
+        }
+        channel.playerAction().mixQueue();
         return true;
     }
 

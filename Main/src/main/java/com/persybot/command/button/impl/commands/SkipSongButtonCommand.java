@@ -1,6 +1,5 @@
 package com.persybot.command.button.impl.commands;
 
-import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.ButtonCommand;
 import com.persybot.command.ButtonCommandContext;
@@ -11,8 +10,6 @@ import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.util.Objects;
-
 public class SkipSongButtonCommand implements ButtonCommand {
 
     public SkipSongButtonCommand() {
@@ -21,13 +18,12 @@ public class SkipSongButtonCommand implements ButtonCommand {
 
     @Override
     public void execute(ButtonCommandContext context) {
-        GuildVoiceState voiceState = Objects.requireNonNull(context.getEvent().getMember()).getVoiceState();
         AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
 
         if (audioManager.getSendingHandler() == null) {
-            Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
-            audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
+            return;
         }
+        GuildVoiceState voiceState = context.getEvent().getMember().getVoiceState();
 
         if (!isExecutorAndBotAreInSameVoiceChannel(voiceState, audioManager)) {
             context.getEvent().getChannel().sendMessage(new InfoMessage(null, "You must be in the same channel as me to skip song").template())

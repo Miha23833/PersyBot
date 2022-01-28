@@ -7,6 +7,7 @@ import com.persybot.db.entity.DiscordServerSettings;
 import net.dv8tion.jda.api.entities.Guild;
 
 public interface Channel {
+    boolean hasInitiatedAudioPlayer();
     GuildAudioPlayer getAudioPlayer();
 
     DiscordServerSettings getServerSettings();
@@ -16,4 +17,6 @@ public interface Channel {
     VoiceChannelAction voiceChannelAction();
 
     Guild getGuild();
+
+    void destroyAudioPlayer();
 }

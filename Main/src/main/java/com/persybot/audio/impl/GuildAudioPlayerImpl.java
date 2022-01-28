@@ -5,6 +5,7 @@ import com.persybot.audio.PlayerStateSender;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
 import com.persybot.audio.loader.AudioLoader;
 import com.persybot.audio.loader.AudioLoaderImpl;
+import com.persybot.channel.Channel;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.service.MessageType;
 import com.persybot.utils.QueueSuccessActionTemplates;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudioPlayer, PlayerStateSender {
+    private final Channel selfChannel;
+
     private final AudioPlayer audioPlayer;
     private final AudioLoader audioLoader;
     private final AudioPlayerSendHandler sendHandler;
@@ -29,7 +32,8 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     private final SynchronizedTrackScheduler trackScheduler;
 
-    public GuildAudioPlayerImpl(AudioPlayerManager manager) {
+    public GuildAudioPlayerImpl(Channel selfChannel, AudioPlayerManager manager) {
+        this.selfChannel = selfChannel;
         this.audioPlayer = manager.createPlayer();
 
         this.trackScheduler = new SynchronizedTrackScheduler(this.audioPlayer);
@@ -86,6 +90,7 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
         this.trackScheduler.clear();
         this.audioPlayer.destroy();
         this.resume();
+        this.selfChannel.destroyAudioPlayer();
     }
 
     @Override

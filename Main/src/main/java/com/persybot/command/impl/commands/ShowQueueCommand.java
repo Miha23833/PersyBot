@@ -32,6 +32,9 @@ public class ShowQueueCommand implements TextCommand {
         Optional<Channel> channel = Optional.ofNullable(channelService.getChannel(context.getGuildId()));
         List<String> queue = new LinkedList<>();
         if (channel.isPresent()) {
+            if (!channel.get().hasInitiatedAudioPlayer()) {
+                return;
+            }
             queue = channel.get().getAudioPlayer().getQueuedTracks();
         }
         if (queue.isEmpty()) {

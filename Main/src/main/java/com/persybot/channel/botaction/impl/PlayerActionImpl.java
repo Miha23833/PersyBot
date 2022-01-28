@@ -35,7 +35,9 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
 
     @Override
     public void stopMusic() {
-        actingChannel.getAudioPlayer().stop();
+        if (this.actingChannel.hasInitiatedAudioPlayer()) {
+            actingChannel.getAudioPlayer().stop();
+        }
     }
 
     @Override

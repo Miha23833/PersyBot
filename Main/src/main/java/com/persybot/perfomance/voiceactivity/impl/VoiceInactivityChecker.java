@@ -38,12 +38,13 @@ public class VoiceInactivityChecker {
 
         if (channel != null) {
             long currentTime = System.currentTimeMillis();
-            GuildAudioPlayer audioPlayer = channel.getAudioPlayer();
             VoiceChannel connectedChannel = channel.getGuild().getAudioManager().getConnectedChannel();
 
-            if (connectedChannel == null) {
+            if (connectedChannel == null || !channel.hasInitiatedAudioPlayer()) {
                 return;
             }
+
+            GuildAudioPlayer audioPlayer = channel.getAudioPlayer();
 
             if (connectedChannel.getMembers().size() < 2 || !audioPlayer.isPlaying()) {
                 if (currentTime - guildsLastActivity.get(channelId) > maxInactivityTime) {

@@ -2,6 +2,7 @@ package com.persybot.command.impl.commands;
 
 import com.google.common.collect.Lists;
 import com.persybot.cache.service.CacheService;
+import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
@@ -87,7 +88,11 @@ public class EqualizerTextCommand extends AbstractTextCommand {
         EqualizerPreset preset = ServiceAggregator.getInstance().get(StaticData.class).getPreset(presetName);
 
         if (preset != null) {
-            channelService.getChannel(context.getGuildId()).getAudioPlayer().setEqualizer(preset.getBands());
+            Channel channel = channelService.getChannel(context.getGuildId());
+            if (!channel.hasInitiatedAudioPlayer()) {
+                return false;
+            }
+            channel.getAudioPlayer().setEqualizer(preset.getBands());
             return true;
         } else {
             List<String> presetNames = ServiceAggregator.getInstance().get(StaticData.class).getEqualizerPresetNames();

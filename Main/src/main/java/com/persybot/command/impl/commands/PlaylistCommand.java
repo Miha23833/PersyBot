@@ -22,7 +22,6 @@ import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,7 +40,7 @@ public class PlaylistCommand extends AbstractTextCommand {
     private final PageableMessageCache pageableMessageCache;
 
     private final int maxPlaylistNameSize;
-    private final String SHOW_PLAYLIST_LIST_KEYWORD = "list";
+    private static final String SHOW_PLAYLIST_LIST_KEYWORD = "list";
 
     public PlaylistCommand(int maxPlaylistNameSize) {
         super(1);
@@ -131,7 +130,7 @@ public class PlaylistCommand extends AbstractTextCommand {
                     Optional<ServerAudioSettings> audioSettings = dbService.getServerAudioSettings(context.getGuildId());
                     audioSettings.ifPresent(as -> {
                         Channel channel = this.serviceAggregator.get(ChannelService.class).getChannel(context.getGuildId());
-                        if (as.getMeetAudioLink() != null && !channel.getAudioPlayer().isPlaying()) {
+                        if (as.getMeetAudioLink() != null && !channel.hasInitiatedAudioPlayer()) {
                             channel.playerAction().playSong(as.getMeetAudioLink(), context.getEvent().getChannel());
                         }
                     });
@@ -191,14 +190,6 @@ public class PlaylistCommand extends AbstractTextCommand {
         if (playList == null) {
             BotUtils.sendMessage("Playlist \"" + playlistName + "\" not found", rspChannel);
             return;
-        }
-
-        Channel channel = this.serviceAggregator.get(ChannelService.class).getChannel(context.getGuildId());
-
-        AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
-
-        if (audioManager.getSendingHandler() == null) {
-            audioManager.setSendingHandler(channel.getAudioPlayer().getSendHandler());
         }
 
         VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();

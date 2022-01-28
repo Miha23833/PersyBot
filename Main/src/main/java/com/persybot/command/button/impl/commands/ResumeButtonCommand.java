@@ -1,5 +1,6 @@
 package com.persybot.command.button.impl.commands;
 
+import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.ButtonCommand;
 import com.persybot.command.ButtonCommandContext;
@@ -16,7 +17,11 @@ public class ResumeButtonCommand implements ButtonCommand {
 
     @Override
     public void execute(ButtonCommandContext context) {
-        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId()).playerAction().resumePlayer();
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
+        if (!channel.hasInitiatedAudioPlayer()) {
+            return;
+        }
+        channel.playerAction().resumePlayer();
         context.getEvent().getInteraction().editButton(PLAYER_BUTTON.PAUSE.button(false)).queue();
 
         context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player resumed").template())

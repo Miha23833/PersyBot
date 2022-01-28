@@ -1,5 +1,6 @@
 package com.persybot.command.impl.commands;
 
+import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
@@ -51,8 +52,10 @@ public class SkipSongTextCommand extends AbstractTextCommand {
         }
         Long channelId = context.getEvent().getGuild().getIdLong();
 
-        ServiceAggregator.getInstance().get(ChannelService.class).getChannel(channelId)
-                .playerAction().skipSong(skipCount);
+        Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(channelId);
+        if (channel.hasInitiatedAudioPlayer()) {
+            channel.playerAction().skipSong(skipCount);
+        }
         return true;
     }
 
