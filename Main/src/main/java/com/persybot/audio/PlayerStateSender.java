@@ -11,15 +11,11 @@ import java.util.Arrays;
 public interface PlayerStateSender {
     default Message getPlayingTrackMessage(String trackTitle, boolean isPaused) {
         return new MessageBuilder(new InfoMessage("Now playing:", trackTitle).template())
-                .setActionRows(createPlayerButtons(isPaused))
+                .setActionRows(
+                        ActionRow.of(Arrays.asList(
+                        PLAYER_BUTTON.STOP.button(false),
+                        isPaused ? PLAYER_BUTTON.RESUME.button(false) : PLAYER_BUTTON.PAUSE.button(false),
+                        PLAYER_BUTTON.SKIP.button(false))))
                 .build();
-    }
-
-    default ActionRow createPlayerButtons(boolean isOnPause) {
-        return ActionRow.of(Arrays.asList(
-                PLAYER_BUTTON.STOP.button(false),
-                isOnPause ? PLAYER_BUTTON.RESUME.button(false) : PLAYER_BUTTON.PAUSE.button(false),
-                PLAYER_BUTTON.SKIP.button(false)
-        ));
     }
 }

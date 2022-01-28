@@ -3,7 +3,8 @@ package com.persybot.audio.impl;
 import com.persybot.audio.GuildAudioPlayer;
 import com.persybot.audio.PlayerStateSender;
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
-import com.persybot.audio.audioloadreslt.impl.DefaultAudioLoadResultHandler;
+import com.persybot.audio.loader.AudioLoader;
+import com.persybot.audio.loader.AudioLoaderImpl;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.service.MessageType;
 import com.persybot.utils.QueueSuccessActionTemplates;
@@ -21,19 +22,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudioPlayer, PlayerStateSender {
-    private final AudioPlayerManager musicManager;
     private final AudioPlayer audioPlayer;
+    private final AudioLoader audioLoader;
     private final AudioPlayerSendHandler sendHandler;
     private boolean loop = false;
-    private byte trackExceptionToDropPlaylistDown = 0;
 
-    private final TrackSchedulerImpl trackScheduler;
+    private final SynchronizedTrackScheduler trackScheduler;
 
     public GuildAudioPlayerImpl(AudioPlayerManager manager) {
-        this.musicManager = manager;
         this.audioPlayer = manager.createPlayer();
 
-        this.trackScheduler = new TrackSchedulerImpl();
+        this.trackScheduler = new SynchronizedTrackScheduler(this.audioPlayer);
+        this.audioLoader = new AudioLoaderImpl(manager, this.trackScheduler);
+
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
 
         this.audioPlayer.addListener(this);
@@ -62,7 +63,7 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     @Override
     public void scheduleTrack(String trackUrl, TextChannel requestingChannel) {
-        this.musicManager.loadItemOrdered(this, trackUrl, new DefaultAudioLoadResultHandler(this, this.trackScheduler, requestingChannel, trackUrl));
+        this.audioLoader.load(trackUrl, requestingChannel);
     }
 
     @Override
@@ -162,18 +163,11 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     @Override
     public void onTrackStart(AudioPlayer player, AudioTrack track) {
-        this.trackExceptionToDropPlaylistDown = 0;
     }
 
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
-        this.trackExceptionToDropPlaylistDown++;
-
-        if (this.trackExceptionToDropPlaylistDown >= 3) {
-            this.stop();
-        }
-
-        PersyBotLogger.BOT_LOGGER.error("Track identifier: " + track.getIdentifier(), exception);
+        PersyBotLogger.BOT_LOGGER.error("Track uri: " + track.getInfo().uri, exception);
     }
 
     @Override
