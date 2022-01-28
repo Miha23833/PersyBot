@@ -32,6 +32,9 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     private final SynchronizedTrackScheduler trackScheduler;
 
+    private final int MAX_RETRIES = 3;
+    private int currentRetry = 0;
+
     public GuildAudioPlayerImpl(Channel selfChannel, AudioPlayerManager manager) {
         this.selfChannel = selfChannel;
         this.audioPlayer = manager.createPlayer();
@@ -148,7 +151,11 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
-            if (this.loop) {
+            if (endReason.equals(AudioTrackEndReason.LOAD_FAILED) && currentRetry < MAX_RETRIES) {
+                currentRetry++;
+                player.playTrack(track.makeClone());
+            }
+            else if (this.loop) {
                 this.audioPlayer.playTrack(track.makeClone());
             }
             else {
@@ -168,6 +175,7 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     @Override
     public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        this.currentRetry = 0;
     }
 
     @Override

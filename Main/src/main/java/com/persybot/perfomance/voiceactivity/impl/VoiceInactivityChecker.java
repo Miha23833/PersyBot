@@ -40,7 +40,11 @@ public class VoiceInactivityChecker {
             long currentTime = System.currentTimeMillis();
             VoiceChannel connectedChannel = channel.getGuild().getAudioManager().getConnectedChannel();
 
-            if (connectedChannel == null || !channel.hasInitiatedAudioPlayer()) {
+            if (connectedChannel == null) {
+                return;
+            }
+            else if (!channel.hasInitiatedAudioPlayer()) {
+                channel.voiceChannelAction().leaveChannel();
                 return;
             }
 
