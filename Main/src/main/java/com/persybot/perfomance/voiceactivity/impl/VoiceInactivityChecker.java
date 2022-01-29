@@ -1,6 +1,5 @@
 package com.persybot.perfomance.voiceactivity.impl;
 
-import com.persybot.audio.GuildAudioPlayer;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.service.impl.ServiceAggregator;
@@ -43,16 +42,14 @@ public class VoiceInactivityChecker {
             if (connectedChannel == null) {
                 return;
             }
-            else if (!channel.hasInitiatedAudioPlayer()) {
-                channel.voiceChannelAction().leaveChannel();
-                return;
-            }
 
-            GuildAudioPlayer audioPlayer = channel.getAudioPlayer();
+            boolean isPlaying = channel.hasInitiatedAudioPlayer() && channel.getAudioPlayer().isPlaying();
 
-            if (connectedChannel.getMembers().size() < 2 || !audioPlayer.isPlaying()) {
+            if (connectedChannel.getMembers().size() < 2 || !isPlaying) {
                 if (currentTime - guildsLastActivity.get(channelId) > maxInactivityTime) {
-                    channel.playerAction().stopMusic();
+                    if (isPlaying) {
+                        channel.playerAction().stopMusic();
+                    }
                     channel.voiceChannelAction().leaveChannel();
                 }
             }
