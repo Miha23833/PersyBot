@@ -1,5 +1,6 @@
 package com.persybot.audio.audiomanager.spotify;
 
+import com.google.common.collect.Lists;
 import com.persybot.audio.audiomanager.AudioTrackFactory;
 import com.persybot.audio.audiomanager.SongMetadata;
 import com.persybot.audio.audiomanager.youtube.LazyYoutubeAudioTrackFactory;
@@ -29,6 +30,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -135,14 +137,17 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
 
         if (playlist == null || playlist.getTracks().getTotal() == 0) return null;
 
-        String[] trackIds = Arrays.stream(playlist.getTracks().getItems())
+        List<String> trackIds = Arrays.stream(playlist.getTracks().getItems())
                 .map(playlistTrack -> playlistTrack.getTrack().getId())
-                .limit(50)
-                .toArray(String[]::new);
+                .collect(Collectors.toList());
 
-        Track[] spotifyTracks = spotify.getSeveralTracks(trackIds).build().execute();
+        List<AudioTrack> result = new ArrayList<>();
 
-        List<AudioTrack> result = Arrays.stream(spotifyTracks).parallel().map(track -> loadFromYT(manager, track)).collect(Collectors.toList());
+        for (List<String> trackIdSubList: Lists.partition(trackIds, 50)) {
+            Track[] spotifyTracks = spotify.getSeveralTracks(trackIdSubList.toArray(new String[0])).build().execute();
+
+            result.addAll(Arrays.stream(spotifyTracks).parallel().map(track -> loadFromYT(manager, track)).collect(Collectors.toList()));
+        }
 
         return new BasicAudioPlaylist(playlist.getName(), result, null, false);
     }
