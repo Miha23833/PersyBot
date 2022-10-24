@@ -4,3 +4,7 @@ phases:
   install:
     runtime-versions:
       java: corretto11
+artifacts:
+  files:
+    - '**/*'
+  name: builds/$CODEBUILD_BUILD_NUMBER/persybot
