@@ -150,6 +150,9 @@ public class Bot {
         //TODO: remove
         System.out.println("_________");
         System.getenv().entrySet().forEach(System.out::println);
+
+        System.out.println("FROM System.getProperties():");
+
         System.getProperties().entrySet().forEach(System.out::println);
         System.out.println("_________");
 
