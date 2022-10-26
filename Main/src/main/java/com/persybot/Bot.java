@@ -147,6 +147,12 @@ public class Bot {
     }
 
     public static void main(String[] args) {
+        //TODO: remove
+        System.out.println("_________");
+        System.getenv().entrySet().forEach(System.out::println);
+        System.getProperties().entrySet().forEach(System.out::println);
+        System.out.println("_________");
+
         new Bot(getDbProperties(), getBotProperties());
     }
 }
