@@ -56,7 +56,7 @@ public class Bot {
     private Bot(Properties dbProperties, Properties botProperties) {
         try {
             populateServicesBeforeLaunch(dbProperties, botProperties);
-            DefaultShardManagerBuilder.createDefault(botProperties.getProperty("bot.token"))
+            DefaultShardManagerBuilder.createDefault(botProperties.getProperty("BOT_TOKEN"))
                     .addEventListeners(
                             new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties), defaultButtonCommandAggregator()),
                             new ServiceUpdaterAdapter(botProperties),
@@ -77,7 +77,7 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
-                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("bot.prefix.maxlen"))))
+                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("BOT_PREFIX_MAXLEN"))))
                 .addCommand(TEXT_COMMAND.REPEAT, new RepeatSongTextCommand())
                 .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand())
                 .addCommand(TEXT_COMMAND.PLAYLIST, new PlaylistCommand(10))
@@ -109,12 +109,12 @@ public class Bot {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/dbConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("db.url")
-                .requireProperty("characterEncoding")
-                .requireProperty("db.username")
-                .requireProperty("db.password")
-                .requireProperty("db.query.source.SqlXmlPath")
-                .requireProperty("db.query.source.sqlFileDir");
+                .requireProperty("DB_URL")
+                .requireProperty("CHARACTER_ENCODING")
+                .requireProperty("DB_USERNAME")
+                .requireProperty("DB_PASSWORD")
+                .requireProperty("SQL_XML_PATH")
+                .requireProperty("SQL_FILE_DIR");
 
         MasterConfig dbConfig = new MasterConfigImpl();
         return dbConfig
@@ -127,11 +127,12 @@ public class Bot {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("bot.activityChecker.checkPause")
-                .requireProperty("bot.activityChecker.maxInactivityTime")
-                .requireProperty("bot.token")
-                .requireProperty("bot.selfmessageslimit")
-                .requireProperty("bot.prefix.maxlen");
+                .requireProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE")
+                .requireProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME")
+                .requireProperty("BOT_TOKEN")
+                .requireProperty("BOT_SELF_MESSAGES_LIMIT")
+                .requireProperty("BOT_PREFIX_DEFAULT")
+                .requireProperty("BOT_PREFIX_MAXLEN");
 
         MasterConfig botConfig = new MasterConfigImpl();
         return botConfig

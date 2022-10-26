@@ -35,7 +35,7 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         dbService = serviceAggregator.get(DBService.class);
         staticData = serviceAggregator.get(StaticData.class);
 
-        this.defaultPrefix = botConfig.getProperty("bot.prefix.default");
+        this.defaultPrefix = botConfig.getProperty("BOT_PREFIX_DEFAULT");
     }
 
     @Override

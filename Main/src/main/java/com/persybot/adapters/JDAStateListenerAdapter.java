@@ -32,10 +32,10 @@ public class JDAStateListenerAdapter extends ListenerAdapter {
     }
 
     private void runVoiceActivityChecker(Properties botProperties) {
-        long checkPause = Long.parseLong(botProperties.getProperty("bot.activityChecker.checkPause"));
+        long checkPause = Long.parseLong(botProperties.getProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE"));
         Map<Long, Long> activeChannels = ServiceAggregator.getInstance().get(StaticData.class).getGuildsWithActiveVoiceChannel();
 
-        long maxInactivityTime = Long.parseLong(botProperties.getProperty("bot.activityChecker.maxInactivityTime"));
+        long maxInactivityTime = Long.parseLong(botProperties.getProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME"));
 
         VoiceInactivityChecker activityChecker = new VoiceInactivityChecker(activeChannels, checkPause, maxInactivityTime);
 
