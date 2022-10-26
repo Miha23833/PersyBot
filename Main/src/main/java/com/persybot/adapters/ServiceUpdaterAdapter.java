@@ -8,7 +8,9 @@ import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.staticdata.StaticData;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -62,11 +64,13 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
     }
 
     @Override
+    public void onGuildReady(@NotNull GuildReadyEvent event) {
+        loadServerToDbIfAbsent(event);
+    }
+
+    @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        initializeDiscordServer(event.getGuild());
-        ServiceAggregator.getInstance().get(DBService.class)
-                .getAllEqPresets().orElseThrow( () -> new RuntimeException("Cannot get presets."))
-                .forEach(this.staticData::addPreset);
+        loadServerToDbIfAbsent(event);
     }
 
     private DiscordServer getDefaultDiscordServer(Long serverId) {
@@ -75,6 +79,13 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     private DiscordServerSettings getDefaultDiscordServerSettings(long serverId) {
         return new DiscordServerSettings(serverId, 100, defaultPrefix);
+    }
+
+    private void loadServerToDbIfAbsent(@NotNull GenericGuildEvent event) {
+        initializeDiscordServer(event.getGuild());
+        ServiceAggregator.getInstance().get(DBService.class)
+                .getAllEqPresets().orElseThrow( () -> new RuntimeException("Cannot get presets."))
+                .forEach(this.staticData::addPreset);
     }
 
     private void initializeDiscordServer(Guild guild) {
