@@ -1,6 +1,7 @@
 package com.persybot.config.impl;
 
 import com.persybot.config.ConfigSource;
+import com.persybot.logger.impl.PersyBotLogger;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -21,6 +22,8 @@ public class EnvironmentVariableReader implements ConfigSource {
         for (String propName : propNames) {
             if (System.getenv().containsKey(propName)) {
                 properties.put(propName, System.getenv(propName));
+            } else {
+                PersyBotLogger.BOT_LOGGER.info("Could not find environment variable: " + propName);
             }
         }
 

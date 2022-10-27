@@ -8,6 +8,8 @@ import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.staticdata.StaticData;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -35,7 +37,7 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         dbService = serviceAggregator.get(DBService.class);
         staticData = serviceAggregator.get(StaticData.class);
 
-        this.defaultPrefix = botConfig.getProperty("bot.prefix.default");
+        this.defaultPrefix = botConfig.getProperty("BOT_PREFIX_DEFAULT");
     }
 
     @Override
@@ -63,10 +65,12 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
-        initializeDiscordServer(event.getGuild());
-        ServiceAggregator.getInstance().get(DBService.class)
-                .getAllEqPresets().orElseThrow( () -> new RuntimeException("Cannot get presets."))
-                .forEach(this.staticData::addPreset);
+        loadServerToDbIfAbsent(event);
+    }
+
+    @Override
+    public void onGuildJoin(@NotNull GuildJoinEvent event) {
+        loadServerToDbIfAbsent(event);
     }
 
     private DiscordServer getDefaultDiscordServer(Long serverId) {
@@ -75,6 +79,13 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     private DiscordServerSettings getDefaultDiscordServerSettings(long serverId) {
         return new DiscordServerSettings(serverId, 100, defaultPrefix);
+    }
+
+    private void loadServerToDbIfAbsent(@NotNull GenericGuildEvent event) {
+        initializeDiscordServer(event.getGuild());
+        ServiceAggregator.getInstance().get(DBService.class)
+                .getAllEqPresets().orElseThrow( () -> new RuntimeException("Cannot get presets."))
+                .forEach(this.staticData::addPreset);
     }
 
     private void initializeDiscordServer(Guild guild) {

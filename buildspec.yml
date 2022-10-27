@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+  build:
+    commands:
+      - echo Building project
+      - ./gradlew build
+      - echo Building jar file
+      - ./gradlew Main:shadowJar
+artifacts:
+  files:
+    - '**/*'

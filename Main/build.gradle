@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
     dependencies {
         // JDA discord API
         implementation("net.dv8tion:JDA:4.4.0_350")
@@ -33,11 +33,15 @@ dependencies {
         implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
         implementation("com.google.guava:guava:31.0.1-jre")
         implementation 'com.konghq:unirest-java:3.11.09'
-        compile group: 'org.apache.tika', name: 'tika-parsers', version: '1.2'
+        implementation group: 'org.apache.tika', name: 'tika-parsers', version: '1.2'
+
+        // Log4J
+        implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+        implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
     }
 
-    compile project(':Common')
-    compile project(':DB')
+    implementation project(':Common')
+    implementation project(':DB')
 }
 
 shadowJar {

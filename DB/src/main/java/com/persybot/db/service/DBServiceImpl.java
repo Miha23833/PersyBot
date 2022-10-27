@@ -42,17 +42,17 @@ public class DBServiceImpl implements DBService {
     private final SqlSource source;
 
     public DBServiceImpl(Properties properties) throws SQLException, IOException, SAXException, ParserConfigurationException {
-        String SQLXmlPath = properties.getProperty("db.query.source.SqlXmlPath");
-        String sqlFileDir = properties.getProperty("db.query.source.sqlFileDir");
+        String SQLXmlPath = properties.getProperty("SQL_XML_PATH");
+        String sqlFileDir = properties.getProperty("SQL_FILE_DIR");
 
         SqlSource source = new XmlSqlSource(SQLXmlPath, sqlFileDir);
 
         HikariConfig configuration = new HikariConfig();
         this.source = source;
 
-        configuration.setJdbcUrl(properties.getProperty("db.url"));
-        configuration.setUsername(properties.getProperty("db.username"));
-        configuration.setPassword(properties.getProperty("db.password"));
+        configuration.setJdbcUrl(properties.getProperty("DB_URL"));
+        configuration.setUsername(properties.getProperty("DB_USERNAME"));
+        configuration.setPassword(properties.getProperty("DB_PASSWORD"));
         configuration.setMinimumIdle(5);
 
         this.dataSource = new HikariDataSource(configuration);
