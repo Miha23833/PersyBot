@@ -1,46 +1,85 @@
 package com.persybot.db.entity;
 
-import com.persybot.db.DbData;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import org.jetbrains.annotations.Range;
 
-public class DiscordServerSettings implements DbData {
-    private final Long serverId;
+import java.util.Objects;
 
-    private int volume = 100;
+@Entity
+public class DiscordServerSettings implements DBEntity {
 
-    private String prefix = "..";
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long settingsId;
 
-    public DiscordServerSettings(Long serverId, int volume, String prefix) {
-        this.serverId = serverId;
+    @Column(nullable = false)
+    @Range(from = 0, to = 100)
+    private byte volume;
+
+    @Column(nullable = false, length = 2)
+    private String prefix;
+
+    @Column(columnDefinition = "TEXT")
+    private String meetAudioLink;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "preset_id")
+    private EqualizerPreset preset;
+
+    public DiscordServerSettings(byte volume, String prefix, EqualizerPreset preset) {
         this.volume = volume;
         this.prefix = prefix;
+        this.preset = preset;
     }
 
-    public DiscordServerSettings(Long serverId) {
-        this.serverId = serverId;
+    public DiscordServerSettings(byte volume, String prefix) {
+        this.volume = volume;
+        this.prefix = prefix;
+        this.preset = null;
     }
 
-    public int getVolume() {
+    public DiscordServerSettings() {}
+
+    public byte getVolume() {
         return volume;
     }
-
-    public void setVolume(int volume) {
+    public void setVolume(byte volume) {
         this.volume = volume;
     }
 
     public String getPrefix() {
         return prefix;
     }
-
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
-    public Long getServerId() {
-        return serverId;
+    public long getSettingsId() {
+        return settingsId;
+    }
+
+    public String getMeetAudioLink() {
+        return meetAudioLink;
+    }
+
+    public void setMeetAudioLink(String meetAudioLink) {
+        this.meetAudioLink = meetAudioLink;
+    }
+
+    public EqualizerPreset getPreset() {
+        return preset;
     }
 
     @Override
-    public Long getIdentifier() {
-        return serverId;
+    public long getId() {
+        return Objects.requireNonNull(settingsId);
     }
 }

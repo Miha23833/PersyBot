@@ -6,8 +6,9 @@ import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
+import com.persybot.db.entity.DiscordServer;
+import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.entity.PlayList;
-import com.persybot.db.entity.ServerAudioSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.PAGEABLE_MESSAGE_TYPE;
@@ -25,22 +26,19 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.persybot.utils.URLUtil.isPlayableLink;
 import static com.persybot.utils.URLUtil.isUrl;
 
 public class PlaylistCommand extends AbstractTextCommand {
+    private static final String SHOW_PLAYLIST_LIST_KEYWORD = "list";
     private final DBService dbService;
     private final ServiceAggregator serviceAggregator;
     private final PageableMessageCache pageableMessageCache;
-
     private final int maxPlaylistNameSize;
-    private static final String SHOW_PLAYLIST_LIST_KEYWORD = "list";
 
     public PlaylistCommand(int maxPlaylistNameSize) {
         super(1);
@@ -94,7 +92,8 @@ public class PlaylistCommand extends AbstractTextCommand {
                 BotUtils.sendMessage("Please provide correct playlist name", rspChannel);
                 return false;
             }
-        } else if (context.getArgs().size() > 2) {
+        }
+        else if (context.getArgs().size() > 2) {
             String playlistName = context.getArgs().get(0);
             if (playlistName.length() > this.maxPlaylistNameSize) {
                 BotUtils.sendMessage("Max length of playlist name is " + maxPlaylistNameSize, rspChannel);
@@ -115,25 +114,27 @@ public class PlaylistCommand extends AbstractTextCommand {
     protected boolean runCommand(TextCommandContext context) {
         if (context.getArgs().size() == 1) {
             if (context.getArgs().get(0).equals(SHOW_PLAYLIST_LIST_KEYWORD)) {
-                Map<Long, PlayList> playlists = getPlaylists(context.getGuildId());
+                Map<String, PlayList> playlists = getPlaylists(context.getGuildId());
                 if (playlists.isEmpty()) {
                     BotUtils.sendMessage("There is no playlists", context.getEvent().getChannel());
                 }
                 sendListOfPlaylists(context.getGuildId(), context.getEvent().getChannel());
                 return true;
-            } else {
+            }
+            else {
                 String playListName = context.getArgs().get(0);
 
                 if (context.getEvent().getMember() == null) return false;
 
                 if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
-                    Optional<ServerAudioSettings> audioSettings = dbService.getServerAudioSettings(context.getGuildId());
-                    audioSettings.ifPresent(as -> {
-                        Channel channel = this.serviceAggregator.get(ChannelService.class).getChannel(context.getGuildId());
-                        if (as.getMeetAudioLink() != null && !channel.hasInitiatedAudioPlayer()) {
-                            channel.playerAction().playSong(as.getMeetAudioLink(), context.getEvent().getChannel());
-                        }
-                    });
+                    DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
+                            .read(context.getGuildId(), DiscordServer.class)
+                            .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + context.getGuildId()));
+                    DiscordServerSettings audioSettings = discordServer.getSettings();
+                    Channel channel = this.serviceAggregator.get(ChannelService.class).getChannel(context.getGuildId());
+                    if (audioSettings.getMeetAudioLink() != null && !channel.hasInitiatedAudioPlayer()) {
+                        channel.playerAction().playSong(audioSettings.getMeetAudioLink(), context.getEvent().getChannel());
+                    }
                 }
                 playPlaylist(playListName, context.getGuildId(), context.getEvent().getChannel(), context);
             }
@@ -171,21 +172,29 @@ public class PlaylistCommand extends AbstractTextCommand {
     }
 
     private void savePlaylist(String playListName, Long guildId, String playlistLink, TextChannel rspChanel) {
-        PlayList playlist = this.serviceAggregator.get(DBService.class).getPlaylistByName(playListName, guildId).orElse(null);
+        DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
+                .read(guildId, DiscordServer.class)
+                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + guildId));
 
-        if (playlist == null) {
-            playlist = new PlayList(guildId, playListName, playlistLink);
-            this.serviceAggregator.get(DBService.class).savePlayList(playlist);
-        } else {
-            playlist.setUrl(playlistLink);
-            this.serviceAggregator.get(DBService.class).updatePlayList(playlist);
+        PlayList playList = discordServer.getPlayLists().get(playListName);
+        if (playList == null) {
+            playList = new PlayList(guildId, playListName, playlistLink);
         }
+        else {
+            playList.setUrl(playlistLink);
+        }
+        discordServer.getPlayLists().put(playList.getName(), playList);
+        this.serviceAggregator.get(DBService.class).update(discordServer);
 
         rspChanel.sendMessage(new InfoMessage(null, "Playlist was saved").template()).queue();
     }
 
     private void playPlaylist(String playlistName, Long guildId, TextChannel rspChannel, TextCommandContext context) {
-        PlayList playList = this.serviceAggregator.get(DBService.class).getPlaylistByName(playlistName, guildId).orElse(null);
+        DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
+                .read(guildId, DiscordServer.class)
+                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + guildId));
+
+        PlayList playList = discordServer.getPlayLists().get(playlistName);
 
         if (playList == null) {
             BotUtils.sendMessage("Playlist \"" + playlistName + "\" not found", rspChannel);
@@ -205,7 +214,7 @@ public class PlaylistCommand extends AbstractTextCommand {
     }
 
     private void sendListOfPlaylists(long serverId, TextChannel rspChannel) {
-        Map<Long, PlayList> playlists = getPlaylists(serverId);
+        Map<String, PlayList> playlists = getPlaylists(serverId);
         List<String> data = new LinkedList<>();
 
         for (PlayList playlist: playlists.values()) {
@@ -226,7 +235,10 @@ public class PlaylistCommand extends AbstractTextCommand {
         BotUtils.sendPageableMessage(rsp, rspChannel, PAGEABLE_MESSAGE_TYPE.PLAYLISTS, pageableMessageCache);
     }
 
-    private Map<Long, PlayList> getPlaylists(long serverId) {
-        return this.serviceAggregator.get(DBService.class).getAllPlaylistForServer(serverId).orElse(new HashMap<>());
+    private Map<String, PlayList> getPlaylists(long serverId) {
+        DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
+                .read(serverId, DiscordServer.class)
+                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + serverId));
+        return Map.copyOf(discordServer.getPlayLists());
     }
 }

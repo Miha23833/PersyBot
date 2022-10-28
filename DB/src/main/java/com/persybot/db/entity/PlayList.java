@@ -1,52 +1,41 @@
 package com.persybot.db.entity;
 
-import com.persybot.db.DbData;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-public class PlayList implements DbData {
+import java.util.Objects;
 
-    public PlayList(Long serverId, String name, String url) {
-        this.serverId = serverId;
-        this.name = name;
-        this.url = url;
-    }
+@Entity
+public class PlayList implements DBEntity {
 
-    public PlayList(Long id, Long serverId, String name, String url) {
-        this.id = id;
-        this.serverId = serverId;
-        this.name = name;
-        this.url = url;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long playListId;
 
-    private Long serverId;
-    private Long id;
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String url;
 
-    @Override
-    public Long getIdentifier() {
-        return this.id;
+    public PlayList(Long playListId, String name, String url) {
+        this.playListId = playListId;
+        this.name = name;
+        this.url = url;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public PlayList() {}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getServerId() {
-        return serverId;
-    }
-
-    public void setServerId(Long serverId) {
-        this.serverId = serverId;
+    public Long getPlayListId() {
+        return playListId;
     }
 
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -54,8 +43,12 @@ public class PlayList implements DbData {
     public String getUrl() {
         return url;
     }
-
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public long getId() {
+        return Objects.requireNonNull(playListId);
     }
 }

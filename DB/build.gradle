@@ -15,6 +15,9 @@ repositories {
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 
+    implementation 'org.hibernate:hibernate-core:6.1.4.Final'
+
+
     implementation 'com.zaxxer:HikariCP:5.0.0'
     implementation 'org.postgresql:postgresql:42.2.24.jre7'
     implementation 'org.jetbrains:annotations:19.0.0'

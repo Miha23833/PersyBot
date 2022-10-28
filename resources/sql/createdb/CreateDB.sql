@@ -1,2 +1,0 @@
-DROP DATABASE persybot;
-CREATE DATABASE persybot WITH ENCODING = 'UTF-8';

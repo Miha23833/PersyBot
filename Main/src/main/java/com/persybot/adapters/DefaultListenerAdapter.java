@@ -29,7 +29,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
-        String prefix = channelService.getChannel(event.getGuild().getIdLong()).getServerSettings().getPrefix();
+        String prefix = channelService.getChannel(event.getGuild().getIdLong()).getDiscordServer().getSettings().getPrefix();
         if (event.getMessage().getContentRaw().startsWith(prefix) && !event.getMessage().getContentRaw().equals(prefix)) {
             TextCommandContext context = new TextCommandContextImpl(event, prefix);
             try {

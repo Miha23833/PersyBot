@@ -1,44 +1,79 @@
 package com.persybot.db.entity;
 
-import com.persybot.db.DbData;
-import com.persybot.db.sql.container.DiscordServerSqlContainer;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKey;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-public class DiscordServer implements DbData {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-    private long serverId;
-    private int languageId;
+@Entity
+public class DiscordServer implements DBEntity {
+    @Id
+    private Long guildId;
 
-    public DiscordServer(long serverId, int languageId) {
-        this.serverId = serverId;
+    @Column(nullable = false)
+    private Integer languageId;
+
+    @OneToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "server_settings_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private DiscordServerSettings settings;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "play_list_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @MapKey(name = "name")
+    private Map<String, PlayList> playLists = new HashMap<>();
+
+    public DiscordServer(long guildId, int languageId, DiscordServerSettings settings, Map<String, PlayList> playLists) {
+        this.guildId = guildId;
         this.languageId = languageId;
+        this.settings = settings;
+        this.playLists = playLists;
     }
 
-    public DiscordServer() {
-
+    public DiscordServer(long guildId, int languageId, DiscordServerSettings settings) {
+        this.guildId = guildId;
+        this.languageId = languageId;
+        this.settings = settings;
     }
 
-    public long getServerId() {
-        return serverId;
-    }
+    public DiscordServer() {}
 
-    public void setServerId(long serverId) {
-        this.serverId = serverId;
+    public long getGuildId() {
+        return guildId;
+    }
+    public void setGuildId(long guildId) {
+        this.guildId = guildId;
     }
 
     public long getLanguageId() {
         return languageId;
     }
-
     public void setLanguageId(int languageId) {
         this.languageId = languageId;
     }
 
-    @Override
-    public Long getIdentifier() {
-        return this.getServerId();
+    public DiscordServerSettings getSettings() {
+        return settings;
     }
 
-    public static Class<DiscordServerSqlContainer> getSqlContainerClass() {
-        return DiscordServerSqlContainer.class;
+    public Map<String, PlayList> getPlayLists() {
+        return playLists;
+    }
+
+    @Override
+    public long getId() {
+        return Objects.requireNonNull(guildId);
     }
 }

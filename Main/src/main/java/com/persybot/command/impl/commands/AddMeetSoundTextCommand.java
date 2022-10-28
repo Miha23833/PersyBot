@@ -2,7 +2,7 @@ package com.persybot.command.impl.commands;
 
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
-import com.persybot.db.entity.ServerAudioSettings;
+import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.InfoMessage;
@@ -59,15 +59,10 @@ public class AddMeetSoundTextCommand extends AbstractTextCommand {
     protected boolean runCommand(TextCommandContext context) {
         long serverId = context.getGuildId();
 
-        ServerAudioSettings audioSettings = dbService.getServerAudioSettings(serverId).orElse(null);
+        DiscordServer discordServer = dbService.read(serverId, DiscordServer.class).orElseThrow(() -> new RuntimeException("Could not find discord server record with id " + serverId));
 
-        if (audioSettings == null) {
-            audioSettings = new ServerAudioSettings(serverId, context.getArgs().get(0), null);
-            dbService.saveServerAudioSettings(audioSettings);
-        } else {
-            audioSettings.setMeetAudioLink(context.getArgs().get(0));
-            dbService.updateServerAudioSettings(audioSettings);
-        }
+        discordServer.getSettings().setMeetAudioLink(context.getArgs().get(0));
+        dbService.update(discordServer);
         return true;
     }
 

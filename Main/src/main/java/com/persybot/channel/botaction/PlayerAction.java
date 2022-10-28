@@ -7,7 +7,7 @@ public interface PlayerAction {
     void skipSong();
     void skipSong(int countOfSkips);
     void stopMusic();
-    void setVolume(Integer volume);
+    void setVolume(byte volume);
     void pauseSong();
     void resumePlayer();
     void repeat();

@@ -16,7 +16,6 @@ import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
 import com.persybot.command.impl.commands.AddMeetSoundTextCommand;
 import com.persybot.command.impl.commands.ChangePrefixCommand;
-import com.persybot.command.impl.commands.EqualizerTextCommand;
 import com.persybot.command.impl.commands.JoinToVoiceChannelCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.MixPlayingTracksCommand;
@@ -35,7 +34,7 @@ import com.persybot.config.impl.ConfigFileReader;
 import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
 import com.persybot.db.service.DBService;
-import com.persybot.db.service.DBServiceImpl;
+import com.persybot.db.service.HibernateDBService;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
@@ -45,24 +44,30 @@ import com.persybot.staticdata.StaticData;
 import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Properties;
 
 public class Bot {
     private Bot(Properties dbProperties, Properties botProperties) {
         try {
-            populateServicesBeforeLaunch(dbProperties, botProperties);
+            populateServicesBeforeLaunch(dbProperties);
             DefaultShardManagerBuilder.createDefault(botProperties.getProperty("BOT_TOKEN"))
                     .addEventListeners(
                             new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties), defaultButtonCommandAggregator()),
                             new ServiceUpdaterAdapter(botProperties),
                             new SelfMessagesListener(),
                             new JDAStateListenerAdapter(botProperties))
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS,
+                            GatewayIntent.GUILD_BANS,
+                            GatewayIntent.GUILD_WEBHOOKS,
+                            GatewayIntent.GUILD_INVITES,
+                            GatewayIntent.GUILD_VOICE_STATES,
+                            GatewayIntent.GUILD_MESSAGES,
+                            GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                            GatewayIntent.GUILD_MESSAGE_TYPING,
+                            GatewayIntent.DIRECT_MESSAGES,
+                            GatewayIntent.DIRECT_MESSAGE_REACTIONS,
+                            GatewayIntent.DIRECT_MESSAGE_TYPING)
                     .build();
         } catch (Throwable e) {
             PersyBotLogger.BOT_LOGGER.fatal(e.getStackTrace(), e);
@@ -84,7 +89,8 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.ADDMEET, new AddMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.REMOVEMEET, new RemoveMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.QUEUE, new ShowQueueCommand())
-                .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand());
+//                .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand())
+                ;
     }
 
     private ButtonCommandContainerImpl defaultButtonCommandAggregator() {
@@ -97,18 +103,17 @@ public class Bot {
                 .addCommand(BUTTON_ID.NEXT_PAGE, new NextPageCommand());
     }
 
-    private void populateServicesBeforeLaunch(Properties dbProperties, Properties botProperties) throws SQLException, IOException, SAXException, ParserConfigurationException {
+    private void populateServicesBeforeLaunch(Properties dbProperties) {
         ServiceAggregator.getInstance()
-                .add(DBService.class, new DBServiceImpl(dbProperties))
+                .add(DBService.class, new HibernateDBService(dbProperties))
                 .add(CacheService.class, createCacheService())
                 .add(StaticData.class, new StaticDataImpl())
                 .add(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
     private static Properties getDbProperties() {
-        ConfigFileReader fileConfig = new ConfigFileReader("resources/dbConfig.cfg");
-
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
+                .requireProperty("HIBERNATE_CONFIG_PATH")
                 .requireProperty("DB_URL")
                 .requireProperty("CHARACTER_ENCODING")
                 .requireProperty("DB_USERNAME")
@@ -118,7 +123,6 @@ public class Bot {
 
         MasterConfig dbConfig = new MasterConfigImpl();
         return dbConfig
-                .addConfigSource(fileConfig)
                 .addConfigSource(envConfig)
                 .getProperties();
     }
