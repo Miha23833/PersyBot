@@ -4,7 +4,8 @@ import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
-import com.persybot.db.entity.ServerAudioSettings;
+import com.persybot.db.entity.DiscordServer;
+import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
@@ -17,7 +18,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.persybot.utils.URLUtil.isPlayableLink;
 import static com.persybot.utils.URLUtil.isUrl;
@@ -65,8 +65,11 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
     @Override
     protected boolean runCommand(TextCommandContext context) {
         Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
+        DiscordServer discordServer = dbService
+                .read(context.getGuildId(), DiscordServer.class)
+                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + context.getGuildId()));
 
-        Optional<ServerAudioSettings> audioSettings = dbService.getServerAudioSettings(context.getGuildId());
+        DiscordServerSettings audioSettings = discordServer.getSettings();
 
         VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();
         String link = String.join(" ", context.getArgs());
@@ -77,11 +80,9 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
                     .voiceChannelAction().joinChannel(voiceChannel);
             BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel());
 
-            audioSettings.ifPresent(as -> {
-                if (as.getMeetAudioLink() != null && !channel.getAudioPlayer().isPlaying()) {
-                    channel.playerAction().playSong(as.getMeetAudioLink(), context.getEvent().getChannel());
-                }
-            });
+            if (audioSettings.getMeetAudioLink() != null && !channel.getAudioPlayer().isPlaying()) {
+                channel.playerAction().playSong(audioSettings.getMeetAudioLink(), context.getEvent().getChannel());
+            }
         }
 
         channel.playerAction().playSong(link, context.getEvent().getChannel());

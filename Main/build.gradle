@@ -25,7 +25,7 @@ dependencies {
         // JDA discord API
         implementation("net.dv8tion:JDA:4.4.0_350")
 
-        // Lavaplayer dependencies
+        // LavaPlayer dependencies
         implementation 'com.github.sedmelluq:lavaplayer:PR650-SNAPSHOT'
         implementation 'se.michaelthelin.spotify:spotify-web-api-java:7.0.0'
 
@@ -45,25 +45,19 @@ dependencies {
 }
 
 shadowJar {
-    // TODO: figure out how to remove configs from root dir in jar
-    from('src/main') {
-        include 'resources/**/*.xml', 'resources/**/*.cfg'
-    }
-
+    setBuildDir rootDir.path + '/build/shadowJar'
     manifest {
         attributes 'Main-Class': 'com.persybot.Bot'
     }
+    archiveName 'PersyBot.jar'
+
 
     doLast {
-        copyRecourcesToBuild
-    }
-}
-
-task copyRecourcesToBuild {
-    copy {
-        from rootDir.path
-        into rootDir.path + '/Main/build/libs'
-        include 'resources/**'
+        copy {
+            from rootDir.path
+            into buildDir.path + '/libs'
+            include 'resources/**'
+        }
     }
 }
 

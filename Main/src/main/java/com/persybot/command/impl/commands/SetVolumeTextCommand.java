@@ -29,12 +29,12 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
             return validationResult;
         }
         try {
-            Integer.parseInt(args.get(0));
+            Byte.parseByte(args.get(0));
         } catch (NumberFormatException e) {
             validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Volume must number-like");
             return validationResult;
         }
-        int volume = Integer.parseInt(args.get(0));
+        byte volume = Byte.parseByte(args.get(0));
         if (volume < 0 || volume > 100) {
             validationResult.setInvalid(TEXT_COMMAND_REJECT_REASON.WRONG_VALUE, "Volume must be between 0 and 100");
             return validationResult;
@@ -59,12 +59,12 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
         long channelId = context.getEvent().getGuild().getIdLong();
         Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(channelId);
 
-        int volume = Integer.parseInt(context.getArgs().get(0));
+        byte volume = Byte.parseByte(context.getArgs().get(0));
 
-        DiscordServerSettings serverSettings = channel.getServerSettings();
+        DiscordServerSettings serverSettings = channel.getDiscordServer().getSettings();
         serverSettings.setVolume(volume);
 
-        ServiceAggregator.getInstance().get(DBService.class).updateDiscordServerSettings(serverSettings);
+        ServiceAggregator.getInstance().get(DBService.class).update(channel.getDiscordServer());
 
         if (channel.hasInitiatedAudioPlayer()){
             channel.playerAction().setVolume(volume);

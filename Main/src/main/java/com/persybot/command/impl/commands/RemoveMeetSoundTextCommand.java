@@ -2,7 +2,7 @@ package com.persybot.command.impl.commands;
 
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
-import com.persybot.db.entity.ServerAudioSettings;
+import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.template.impl.DefaultTextMessage;
@@ -11,6 +11,7 @@ import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
+import java.util.Optional;
 
 public class RemoveMeetSoundTextCommand extends AbstractTextCommand {
     private final DBService dbService;
@@ -26,11 +27,15 @@ public class RemoveMeetSoundTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        ServerAudioSettings audioSettings = new ServerAudioSettings(context.getGuildId());
+        DiscordServer discordServer = dbService
+                .read(context.getGuildId(), DiscordServer.class)
+                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + context.getGuildId()));
 
-        boolean dbReqSucceeded = dbService.updateServerAudioSettings(audioSettings);
+        discordServer.getSettings().setMeetAudioLink(null);
 
-        if (!dbReqSucceeded) {
+        Optional<DiscordServer> queryResult = dbService.update(discordServer);
+
+        if (queryResult.isEmpty()) {
             context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Failed to remove meet track").template()).queue();
             return false;
         }

@@ -16,7 +16,6 @@ import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
 import com.persybot.command.impl.commands.AddMeetSoundTextCommand;
 import com.persybot.command.impl.commands.ChangePrefixCommand;
-import com.persybot.command.impl.commands.EqualizerTextCommand;
 import com.persybot.command.impl.commands.JoinToVoiceChannelCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.MixPlayingTracksCommand;
@@ -30,12 +29,13 @@ import com.persybot.command.impl.commands.SkipSongTextCommand;
 import com.persybot.command.impl.commands.StopPlayingTextCommand;
 import com.persybot.command.service.impl.ButtonCommandContainerImpl;
 import com.persybot.command.service.impl.TextCommandServiceImpl;
-import com.persybot.config.MasterConfig;
 import com.persybot.config.impl.ConfigFileReader;
 import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
+import com.persybot.config.pojo.BotConfig;
+import com.persybot.config.pojo.DBConfig;
 import com.persybot.db.service.DBService;
-import com.persybot.db.service.DBServiceImpl;
+import com.persybot.db.service.HibernateDBService;
 import com.persybot.enums.BUTTON_ID;
 import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
@@ -45,31 +45,35 @@ import com.persybot.staticdata.StaticData;
 import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Properties;
 
 public class Bot {
-    private Bot(Properties dbProperties, Properties botProperties) {
+    private Bot(DBConfig dbConfig, BotConfig botConfig) {
         try {
-            populateServicesBeforeLaunch(dbProperties, botProperties);
-            DefaultShardManagerBuilder.createDefault(botProperties.getProperty("BOT_TOKEN"))
+            populateServicesBeforeLaunch(dbConfig);
+            DefaultShardManagerBuilder.createDefault(botConfig.discordToken)
                     .addEventListeners(
-                            new DefaultListenerAdapter(defaultTextCommandAggregator(botProperties), defaultButtonCommandAggregator()),
-                            new ServiceUpdaterAdapter(botProperties),
+                            new DefaultListenerAdapter(defaultTextCommandAggregator(botConfig), defaultButtonCommandAggregator()),
+                            new ServiceUpdaterAdapter(botConfig),
                             new SelfMessagesListener(),
-                            new JDAStateListenerAdapter(botProperties))
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                            new JDAStateListenerAdapter(botConfig))
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS,
+                            GatewayIntent.GUILD_BANS,
+                            GatewayIntent.GUILD_WEBHOOKS,
+                            GatewayIntent.GUILD_INVITES,
+                            GatewayIntent.GUILD_VOICE_STATES,
+                            GatewayIntent.GUILD_MESSAGES,
+                            GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                            GatewayIntent.GUILD_MESSAGE_TYPING,
+                            GatewayIntent.DIRECT_MESSAGES,
+                            GatewayIntent.DIRECT_MESSAGE_REACTIONS,
+                            GatewayIntent.DIRECT_MESSAGE_TYPING)
                     .build();
         } catch (Throwable e) {
             PersyBotLogger.BOT_LOGGER.fatal(e.getStackTrace(), e);
         }
     }
 
-    private TextCommandServiceImpl defaultTextCommandAggregator(Properties properties) {
+    private TextCommandServiceImpl defaultTextCommandAggregator(BotConfig botConfig) {
         return new TextCommandServiceImpl()
                 .addCommand(TEXT_COMMAND.JOIN, new JoinToVoiceChannelCommand())
                 .addCommand(TEXT_COMMAND.PLAY, new PlayMusicTextCommand())
@@ -77,14 +81,15 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.VOLUME, new SetVolumeTextCommand())
                 .addCommand(TEXT_COMMAND.LEAVE, new LeaveChannelTextCommand())
                 .addCommand(TEXT_COMMAND.STOP, new StopPlayingTextCommand())
-                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(Integer.parseInt(properties.getProperty("BOT_PREFIX_MAXLEN"))))
+                .addCommand(TEXT_COMMAND.PREFIX, new ChangePrefixCommand(botConfig))
                 .addCommand(TEXT_COMMAND.REPEAT, new RepeatSongTextCommand())
                 .addCommand(TEXT_COMMAND.MIX, new MixPlayingTracksCommand())
                 .addCommand(TEXT_COMMAND.PLAYLIST, new PlaylistCommand(10))
                 .addCommand(TEXT_COMMAND.ADDMEET, new AddMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.REMOVEMEET, new RemoveMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.QUEUE, new ShowQueueCommand())
-                .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand());
+//                .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand())
+                ;
     }
 
     private ButtonCommandContainerImpl defaultButtonCommandAggregator() {
@@ -97,48 +102,37 @@ public class Bot {
                 .addCommand(BUTTON_ID.NEXT_PAGE, new NextPageCommand());
     }
 
-    private void populateServicesBeforeLaunch(Properties dbProperties, Properties botProperties) throws SQLException, IOException, SAXException, ParserConfigurationException {
+    private void populateServicesBeforeLaunch(DBConfig dbConfig) {
         ServiceAggregator.getInstance()
-                .add(DBService.class, new DBServiceImpl(dbProperties))
+                .add(DBService.class, new HibernateDBService(dbConfig))
                 .add(CacheService.class, createCacheService())
                 .add(StaticData.class, new StaticDataImpl())
                 .add(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
-    private static Properties getDbProperties() {
-        ConfigFileReader fileConfig = new ConfigFileReader("resources/dbConfig.cfg");
-
+    private static DBConfig getDbConfig() {
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("DB_URL")
-                .requireProperty("CHARACTER_ENCODING")
-                .requireProperty("DB_USERNAME")
-                .requireProperty("DB_PASSWORD")
-                .requireProperty("SQL_XML_PATH")
-                .requireProperty("SQL_FILE_DIR");
+                .requireProperty("HIBERNATE_CONFIG_PATH")
+                .requireProperty("HIBERNATE_CONN_URL")
+                .requireProperty("HIBERNATE_CONN_USERNAME")
+                .requireProperty("HIBERNATE_CONN_PWD");
 
-        MasterConfig dbConfig = new MasterConfigImpl();
-        return dbConfig
-                .addConfigSource(fileConfig)
+        return new DBConfig(new MasterConfigImpl()
                 .addConfigSource(envConfig)
-                .getProperties();
+                .getProperties());
     }
 
-    private static Properties getBotProperties() {
+    private static BotConfig getBotConfig() {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE")
-                .requireProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME")
-                .requireProperty("BOT_TOKEN")
-                .requireProperty("BOT_SELF_MESSAGES_LIMIT")
-                .requireProperty("BOT_PREFIX_DEFAULT")
-                .requireProperty("BOT_PREFIX_MAXLEN");
+                .requireProperty("BOT_TOKEN");
 
-        MasterConfig botConfig = new MasterConfigImpl();
-        return botConfig
+        return new BotConfig(new MasterConfigImpl()
                 .addConfigSource(fileConfig)
                 .addConfigSource(envConfig)
-                .getProperties();
+                .getProperties()
+        );
     }
 
     private static CacheService createCacheService() {
@@ -148,6 +142,6 @@ public class Bot {
     }
 
     public static void main(String[] args) {
-        new Bot(getDbProperties(), getBotProperties());
+        new Bot(getDbConfig(), getBotConfig());
     }
 }

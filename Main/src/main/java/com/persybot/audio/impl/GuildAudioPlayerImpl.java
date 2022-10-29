@@ -32,6 +32,7 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     private final SynchronizedTrackScheduler trackScheduler;
 
+    // TODO: move to config
     private final int MAX_RETRIES = 3;
     private int currentRetry = 0;
 

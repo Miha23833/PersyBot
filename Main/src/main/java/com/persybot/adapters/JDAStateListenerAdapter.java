@@ -1,5 +1,6 @@
 package com.persybot.adapters;
 
+import com.persybot.config.pojo.BotConfig;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.service.SelfFloodController;
 import com.persybot.message.service.impl.SelfFloodControllerImpl;
@@ -12,12 +13,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Properties;
 
 public class JDAStateListenerAdapter extends ListenerAdapter {
-    private final Properties botProperties;
+    private final BotConfig botConfig;
 
-    public JDAStateListenerAdapter(Properties botProperties) {this.botProperties = botProperties;}
+    public JDAStateListenerAdapter(BotConfig botConfig) {this.botConfig = botConfig;}
 
 
     @Override
@@ -25,24 +25,24 @@ public class JDAStateListenerAdapter extends ListenerAdapter {
         PersyBotLogger.BOT_LOGGER.info("Bot status was changed from " + event.getOldStatus() + " to " + event.getNewStatus());
 
         if (event.getNewStatus().equals(JDA.Status.INITIALIZED) ) {
-            populateServices(botProperties, event.getEntity());
+            populateServices(event.getEntity());
 
-            runVoiceActivityChecker(this.botProperties);
+            runVoiceActivityChecker();
         }
     }
 
-    private void runVoiceActivityChecker(Properties botProperties) {
-        long checkPause = Long.parseLong(botProperties.getProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE"));
+    private void runVoiceActivityChecker() {
+        long checkPause = botConfig.activityCheckPauseMillis;
         Map<Long, Long> activeChannels = ServiceAggregator.getInstance().get(StaticData.class).getGuildsWithActiveVoiceChannel();
 
-        long maxInactivityTime = Long.parseLong(botProperties.getProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME"));
+        long maxInactivityTime = botConfig.maxInactivityTimeMillis;
 
         VoiceInactivityChecker activityChecker = new VoiceInactivityChecker(activeChannels, checkPause, maxInactivityTime);
 
         activityChecker.run();
     }
 
-    private void populateServices(Properties botProperties, JDA jda) {
+    private void populateServices(JDA jda) {
         ServiceAggregator.getInstance().add(SelfFloodController.class, new SelfFloodControllerImpl(jda));
     }
 }

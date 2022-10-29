@@ -4,6 +4,7 @@ import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
+import com.persybot.config.pojo.BotConfig;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
@@ -18,9 +19,9 @@ import java.util.List;
 public class ChangePrefixCommand extends AbstractTextCommand {
     private final int maxPrefixLen;
 
-    public ChangePrefixCommand(int maxPrefixLen) {
+    public ChangePrefixCommand(BotConfig botConfig) {
         super(1);
-        this.maxPrefixLen = maxPrefixLen;
+        this.maxPrefixLen = botConfig.maxPrefixLen;
     }
 
     @Override
@@ -54,10 +55,10 @@ public class ChangePrefixCommand extends AbstractTextCommand {
 
         Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getEvent().getGuild().getIdLong());
 
-        DiscordServerSettings serverSettings = channel.getServerSettings();
+        DiscordServerSettings serverSettings = channel.getDiscordServer().getSettings();
         serverSettings.setPrefix(prefix);
 
-        ServiceAggregator.getInstance().get(DBService.class).updateDiscordServerSettings(serverSettings);
+        ServiceAggregator.getInstance().get(DBService.class).update(channel.getDiscordServer());
 
         BotUtils.sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template(), context.getEvent().getChannel());
         return true;

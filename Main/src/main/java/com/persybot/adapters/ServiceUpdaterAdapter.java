@@ -2,6 +2,7 @@ package com.persybot.adapters;
 
 import com.persybot.channel.impl.ChannelImpl;
 import com.persybot.channel.service.ChannelService;
+import com.persybot.config.pojo.BotConfig;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import java.util.Properties;
 
 public class ServiceUpdaterAdapter extends ListenerAdapter {
     private final ChannelService channelService;
@@ -31,13 +31,13 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     private final String defaultPrefix;
 
-    public ServiceUpdaterAdapter(Properties botConfig) {
+    public ServiceUpdaterAdapter(BotConfig botConfig) {
         ServiceAggregator serviceAggregator = ServiceAggregator.getInstance();
         channelService = serviceAggregator.get(ChannelService.class);
         dbService = serviceAggregator.get(DBService.class);
         staticData = serviceAggregator.get(StaticData.class);
 
-        this.defaultPrefix = botConfig.getProperty("BOT_PREFIX_DEFAULT");
+        this.defaultPrefix = botConfig.defaultPrefix;
     }
 
     @Override
@@ -73,46 +73,27 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         loadServerToDbIfAbsent(event);
     }
 
-    private DiscordServer getDefaultDiscordServer(Long serverId) {
-        return new DiscordServer(serverId, 1);
-    }
-
-    private DiscordServerSettings getDefaultDiscordServerSettings(long serverId) {
-        return new DiscordServerSettings(serverId, 100, defaultPrefix);
-    }
-
     private void loadServerToDbIfAbsent(@NotNull GenericGuildEvent event) {
         initializeDiscordServer(event.getGuild());
-        ServiceAggregator.getInstance().get(DBService.class)
-                .getAllEqPresets().orElseThrow( () -> new RuntimeException("Cannot get presets."))
-                .forEach(this.staticData::addPreset);
+        // TODO: fix read all
+//        ServiceAggregator.getInstance().get(DBService.class).readAll(EqualizerPreset.class)
+//                .orElseThrow( () -> new RuntimeException("Cannot get presets."))
+//                .forEach(this.staticData::addPreset);
     }
 
     private void initializeDiscordServer(Guild guild) {
         long serverId = guild.getIdLong();
 
-        Optional<DiscordServer> discordServer = this.dbService.getDiscordServer(serverId);
-        Optional<DiscordServerSettings> serverSettings = this.dbService.getDiscordServerSettings(serverId);
+        Optional<DiscordServer> discordServerOpt = this.dbService.read(serverId, DiscordServer.class);
 
-        if (discordServer.isPresent()) {
-            if (serverSettings.isEmpty()) {
-                this.dbService.saveDiscordServerSettings(getDefaultDiscordServerSettings(serverId));
-
-                serverSettings = this.dbService.getDiscordServerSettings(serverId);
-            }
-        } else {
-            DiscordServer newDiscordServerRecord = getDefaultDiscordServer(serverId);
-            dbService.saveDiscordServer(newDiscordServerRecord);
-            DiscordServerSettings newServerSettings = getDefaultDiscordServerSettings(serverId);
-            dbService.saveDiscordServerSettings(newServerSettings);
-
-            serverSettings = this.dbService.getDiscordServerSettings(serverId);
+        if (discordServerOpt.isEmpty()) {
+            discordServerOpt = ServiceAggregator.getInstance().get(DBService.class).create(getDefaultDiscordServer(serverId));
         }
+        DiscordServer discordServer = discordServerOpt.orElseThrow(() -> new RuntimeException("Cannot insert discord server record."));
+        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), discordServer, guild));
+    }
 
-        if (serverSettings.isEmpty()) {
-            throw new RuntimeException("Cannot save/get discord server settings with id = " + serverId);
-        }
-
-        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), serverSettings.get(), guild));
+    private DiscordServer getDefaultDiscordServer(Long serverId) {
+        return new DiscordServer(serverId, 0, new DiscordServerSettings((byte) 100, defaultPrefix));
     }
 }
