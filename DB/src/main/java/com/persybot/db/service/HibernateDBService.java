@@ -28,6 +28,9 @@ public class HibernateDBService implements DBService {
     public HibernateDBService(DBConfig dbProperties) {
         SessionFactory sessionFactory = new MetadataSources(new StandardServiceRegistryBuilder()
                 .loadProperties(new File(dbProperties.hibernateConfigPath))
+                .applySetting("hibernate.connection.url", dbProperties.connString)
+                .applySetting("hibernate.connection.username", dbProperties.username)
+                .applySetting("hibernate.connection.password", dbProperties.password)
                 .build())
                 .addAnnotatedClass(DiscordServer.class)
                 .addAnnotatedClass(DiscordServerSettings.class)

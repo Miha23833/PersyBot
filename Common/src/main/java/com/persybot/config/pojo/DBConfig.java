@@ -10,8 +10,8 @@ public class DBConfig {
 
     public DBConfig(Properties properties) {
         this.hibernateConfigPath = properties.getProperty("HIBERNATE_CONFIG_PATH");
-        this.connString = properties.getProperty("DB_URL");
-        this.username = properties.getProperty("DB_USERNAME");
-        this.password = properties.getProperty("DB_PASSWORD");
+        this.connString = properties.getProperty("HIBERNATE_CONN_URL");
+        this.username = properties.getProperty("HIBERNATE_CONN_USERNAME");
+        this.password = properties.getProperty("HIBERNATE_CONN_PWD");
     }
 }

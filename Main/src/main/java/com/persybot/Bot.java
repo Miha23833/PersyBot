@@ -113,9 +113,9 @@ public class Bot {
     private static DBConfig getDbConfig() {
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
                 .requireProperty("HIBERNATE_CONFIG_PATH")
-                .requireProperty("DB_URL")
-                .requireProperty("DB_USERNAME")
-                .requireProperty("DB_PASSWORD");
+                .requireProperty("HIBERNATE_CONN_URL")
+                .requireProperty("HIBERNATE_CONN_USERNAME")
+                .requireProperty("HIBERNATE_CONN_PWD");
 
         return new DBConfig(new MasterConfigImpl()
                 .addConfigSource(envConfig)
@@ -126,12 +126,7 @@ public class Bot {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE")
-                .requireProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME")
-                .requireProperty("BOT_TOKEN")
-                .requireProperty("BOT_SELF_MESSAGES_LIMIT")
-                .requireProperty("BOT_PREFIX_DEFAULT")
-                .requireProperty("BOT_PREFIX_MAXLEN");
+                .requireProperty("BOT_TOKEN");
 
         return new BotConfig(new MasterConfigImpl()
                 .addConfigSource(fileConfig)

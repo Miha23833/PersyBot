@@ -4,8 +4,7 @@
 /Common/build/classes/java/main/
 /Main/build/
 /Main/build/classes/java/main/
-
-
+/build/
 
 # Compiled class file
 *.class
