@@ -2,6 +2,7 @@ package com.persybot.adapters;
 
 import com.persybot.channel.impl.ChannelImpl;
 import com.persybot.channel.service.ChannelService;
+import com.persybot.config.pojo.BotConfig;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import java.util.Properties;
 
 public class ServiceUpdaterAdapter extends ListenerAdapter {
     private final ChannelService channelService;
@@ -31,13 +31,13 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     private final String defaultPrefix;
 
-    public ServiceUpdaterAdapter(Properties botConfig) {
+    public ServiceUpdaterAdapter(BotConfig botConfig) {
         ServiceAggregator serviceAggregator = ServiceAggregator.getInstance();
         channelService = serviceAggregator.get(ChannelService.class);
         dbService = serviceAggregator.get(DBService.class);
         staticData = serviceAggregator.get(StaticData.class);
 
-        this.defaultPrefix = botConfig.getProperty("BOT_PREFIX_DEFAULT");
+        this.defaultPrefix = botConfig.defaultPrefix;
     }
 
     @Override

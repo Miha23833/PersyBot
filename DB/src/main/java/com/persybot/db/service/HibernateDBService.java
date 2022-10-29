@@ -1,5 +1,6 @@
 package com.persybot.db.service;
 
+import com.persybot.config.pojo.DBConfig;
 import com.persybot.db.entity.DBEntity;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
@@ -17,16 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class HibernateDBService implements DBService {
 
     private final Map<Class<? extends DBEntity>, DAO<? extends DBEntity>> dataAccessObjects = new HashMap<>();
 
-    public HibernateDBService(Properties dbProperties) {
+    public HibernateDBService(DBConfig dbProperties) {
         SessionFactory sessionFactory = new MetadataSources(new StandardServiceRegistryBuilder()
-                .loadProperties(new File(dbProperties.getProperty("HIBERNATE_CONFIG_PATH")))
+                .loadProperties(new File(dbProperties.hibernateConfigPath))
                 .build())
                 .addAnnotatedClass(DiscordServer.class)
                 .addAnnotatedClass(DiscordServerSettings.class)
@@ -64,6 +65,6 @@ public class HibernateDBService implements DBService {
 
     @Override
     public <T extends DBEntity> Optional<List<T>> readAll(Class<T> dataClass) {
-        return Optional.ofNullable(dataAccessObjects.get(dataClass).readAll().stream().map(dataClass::cast).collect(Collectors.toList()));
+        return Optional.of(dataAccessObjects.get(dataClass).readAll().stream().map(dataClass::cast).collect(Collectors.toList()));
     }
 }
