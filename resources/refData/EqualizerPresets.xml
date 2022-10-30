@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Root>
+    <EqualizerPreset>
+        <Name>Pop</Name>
+        <Bands>1,2,3,4,5,4,1,2,2,2,4,4,4,4,4</Bands>
+    </EqualizerPreset>
+    <EqualizerPreset>
+        <Name>Rock</Name>
+        <Bands>1,2,3,4,5,4,1,2,2,2,4,4,4,4,4</Bands>
+    </EqualizerPreset>
+    <EqualizerPreset>
+        <Name>Rofl bass boost</Name>
+        <Bands>1,2,3,4,5,4,1,2,2,2,4,4,4,4,4</Bands>
+    </EqualizerPreset>
+    <EqualizerPreset>
+        <Name>Bass boost</Name>
+        <Bands>1,2,3,4,5,4,1,2,2,2,4,4,4,4,4</Bands>
+    </EqualizerPreset>
+    <EqualizerPreset>
+        <Name>Light bass boost</Name>
+        <Bands>1,2,3,4,5,4,1,2,2,2,4,4,4,4,4</Bands>
+    </EqualizerPreset>
+    <EqualizerPreset>
+        <Name>Soft</Name>
+        <Bands>1,2,3,4,5,4,1,2,2,2,4,4,4,4,4</Bands>
+    </EqualizerPreset>
+</Root>
