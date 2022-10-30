@@ -8,7 +8,9 @@ import com.persybot.channel.botaction.VoiceChannelAction;
 import com.persybot.channel.botaction.impl.PlayerActionImpl;
 import com.persybot.channel.botaction.impl.VoiceChannelActionImpl;
 import com.persybot.db.entity.DiscordServer;
+import com.persybot.db.service.DBService;
 import com.persybot.logger.impl.PersyBotLogger;
+import com.persybot.service.impl.ServiceAggregator;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -19,18 +21,19 @@ public class ChannelImpl implements Channel {
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     private GuildAudioPlayer audioPlayer;
-    private final DiscordServer discordServer;
     private final Guild guild;
     private final AudioPlayerManager manager;
 
     private final PlayerAction playerAction = new PlayerActionImpl(this);
     private final VoiceChannelAction voiceChannelAction = new VoiceChannelActionImpl(this);
 
-    public ChannelImpl(AudioPlayerManager playerManager, DiscordServer discordServer, Guild guild) {
-        this.manager = playerManager;
+    private final DBService dbService;
 
-        this.discordServer = discordServer;
+    public ChannelImpl(AudioPlayerManager playerManager, Guild guild) {
+        this.manager = playerManager;
         this.guild = guild;
+
+        dbService = ServiceAggregator.getInstance().get(DBService.class);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class ChannelImpl implements Channel {
 
     @Override
     public DiscordServer getDiscordServer() {
-        return this.discordServer;
+        return this.dbService.readAssured(guild.getIdLong(), DiscordServer.class);
     }
 
     @Override
@@ -91,7 +94,7 @@ public class ChannelImpl implements Channel {
 
     private void initAudioPlayer() {
         this.audioPlayer = new GuildAudioPlayerImpl(this, this.manager);
-        audioPlayer.setVolume(discordServer.getSettings().getVolume());
+        audioPlayer.setVolume(getDiscordServer().getSettings().getVolume());
         getGuild().getAudioManager().setSendingHandler(this.audioPlayer.getSendHandler());
     }
 }

@@ -65,9 +65,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
     @Override
     protected boolean runCommand(TextCommandContext context) {
         Channel channel = ServiceAggregator.getInstance().get(ChannelService.class).getChannel(context.getGuildId());
-        DiscordServer discordServer = dbService
-                .read(context.getGuildId(), DiscordServer.class)
-                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + context.getGuildId()));
+        DiscordServer discordServer = dbService.readAssured(context.getGuildId(), DiscordServer.class);
 
         DiscordServerSettings audioSettings = discordServer.getSettings();
 

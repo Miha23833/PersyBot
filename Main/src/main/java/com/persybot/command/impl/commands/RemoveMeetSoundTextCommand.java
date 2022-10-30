@@ -27,9 +27,7 @@ public class RemoveMeetSoundTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        DiscordServer discordServer = dbService
-                .read(context.getGuildId(), DiscordServer.class)
-                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + context.getGuildId()));
+        DiscordServer discordServer = dbService.readAssured(context.getGuildId(), DiscordServer.class);
 
         discordServer.getSettings().setMeetAudioLink(null);
 

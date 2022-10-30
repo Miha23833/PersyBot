@@ -14,7 +14,6 @@ public class VoiceChannelActionImpl extends AbstractBotAction implements VoiceCh
     @Override
     public void joinChannel(VoiceChannel channelToConnect) {
         this.actingChannel.getGuild().getAudioManager().openAudioConnection(channelToConnect);
-        this.staticData.getGuildsWithActiveVoiceChannel().put(channelToConnect.getGuild().getIdLong(), System.currentTimeMillis());
     }
 
     @Override

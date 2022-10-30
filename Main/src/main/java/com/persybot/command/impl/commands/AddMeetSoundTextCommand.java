@@ -57,9 +57,7 @@ public class AddMeetSoundTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        long serverId = context.getGuildId();
-
-        DiscordServer discordServer = dbService.read(serverId, DiscordServer.class).orElseThrow(() -> new RuntimeException("Could not find discord server record with id " + serverId));
+        DiscordServer discordServer = dbService.readAssured(context.getGuildId(), DiscordServer.class);
 
         discordServer.getSettings().setMeetAudioLink(context.getArgs().get(0));
         dbService.update(discordServer);

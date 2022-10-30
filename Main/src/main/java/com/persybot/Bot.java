@@ -4,6 +4,7 @@ import com.persybot.adapters.DefaultListenerAdapter;
 import com.persybot.adapters.JDAStateListenerAdapter;
 import com.persybot.adapters.SelfMessagesListener;
 import com.persybot.adapters.ServiceUpdaterAdapter;
+import com.persybot.adapters.perfomance.VoiceInactivityChecker;
 import com.persybot.cache.service.CacheService;
 import com.persybot.cache.service.CacheServiceImpl;
 import com.persybot.channel.service.ChannelService;
@@ -55,7 +56,8 @@ public class Bot {
                             new DefaultListenerAdapter(defaultTextCommandAggregator(botConfig), defaultButtonCommandAggregator()),
                             new ServiceUpdaterAdapter(botConfig),
                             new SelfMessagesListener(),
-                            new JDAStateListenerAdapter(botConfig))
+                            new JDAStateListenerAdapter(),
+                            new VoiceInactivityChecker(botConfig))
                     .enableIntents(GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_BANS,
                             GatewayIntent.GUILD_WEBHOOKS,

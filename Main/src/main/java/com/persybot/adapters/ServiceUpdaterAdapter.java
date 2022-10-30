@@ -13,8 +13,6 @@ import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,20 +36,6 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         staticData = serviceAggregator.get(StaticData.class);
 
         this.defaultPrefix = botConfig.defaultPrefix;
-    }
-
-    @Override
-    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-        if (event.getGuild().getSelfMember().getIdLong() == event.getMember().getIdLong()) {
-            staticData.getGuildsWithActiveVoiceChannel().remove(event.getGuild().getIdLong());
-        }
-    }
-
-    @Override
-    public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
-        if (event.getGuild().getSelfMember().getIdLong() == event.getMember().getIdLong()) {
-            staticData.getGuildsWithActiveVoiceChannel().put(event.getGuild().getIdLong(), System.currentTimeMillis());
-        }
     }
 
     @Override
@@ -87,10 +71,9 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         Optional<DiscordServer> discordServerOpt = this.dbService.read(serverId, DiscordServer.class);
 
         if (discordServerOpt.isEmpty()) {
-            discordServerOpt = ServiceAggregator.getInstance().get(DBService.class).create(getDefaultDiscordServer(serverId));
+            ServiceAggregator.getInstance().get(DBService.class).create(getDefaultDiscordServer(serverId));
         }
-        DiscordServer discordServer = discordServerOpt.orElseThrow(() -> new RuntimeException("Cannot insert discord server record."));
-        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), discordServer, guild));
+        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), guild));
     }
 
     private DiscordServer getDefaultDiscordServer(Long serverId) {

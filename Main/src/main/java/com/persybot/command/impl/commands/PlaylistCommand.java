@@ -127,9 +127,7 @@ public class PlaylistCommand extends AbstractTextCommand {
                 if (context.getEvent().getMember() == null) return false;
 
                 if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
-                    DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
-                            .read(context.getGuildId(), DiscordServer.class)
-                            .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + context.getGuildId()));
+                    DiscordServer discordServer = this.serviceAggregator.get(DBService.class).readAssured(context.getGuildId(), DiscordServer.class);
                     DiscordServerSettings audioSettings = discordServer.getSettings();
                     Channel channel = this.serviceAggregator.get(ChannelService.class).getChannel(context.getGuildId());
                     if (audioSettings.getMeetAudioLink() != null && !channel.hasInitiatedAudioPlayer()) {
@@ -172,9 +170,7 @@ public class PlaylistCommand extends AbstractTextCommand {
     }
 
     private void savePlaylist(String playListName, Long guildId, String playlistLink, TextChannel rspChanel) {
-        DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
-                .read(guildId, DiscordServer.class)
-                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + guildId));
+        DiscordServer discordServer = this.serviceAggregator.get(DBService.class).readAssured(guildId, DiscordServer.class);
 
         PlayList playList = discordServer.getPlayLists().get(playListName);
         if (playList == null) {
@@ -190,9 +186,7 @@ public class PlaylistCommand extends AbstractTextCommand {
     }
 
     private void playPlaylist(String playlistName, Long guildId, TextChannel rspChannel, TextCommandContext context) {
-        DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
-                .read(guildId, DiscordServer.class)
-                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + guildId));
+        DiscordServer discordServer = this.serviceAggregator.get(DBService.class).readAssured(guildId, DiscordServer.class);
 
         PlayList playList = discordServer.getPlayLists().get(playlistName);
 
@@ -236,9 +230,7 @@ public class PlaylistCommand extends AbstractTextCommand {
     }
 
     private Map<String, PlayList> getPlaylists(long serverId) {
-        DiscordServer discordServer = this.serviceAggregator.get(DBService.class)
-                .read(serverId, DiscordServer.class)
-                .orElseThrow(() -> new RuntimeException("Could not read discord server with id = " + serverId));
+        DiscordServer discordServer = this.serviceAggregator.get(DBService.class).readAssured(serverId, DiscordServer.class);
         return Map.copyOf(discordServer.getPlayLists());
     }
 }

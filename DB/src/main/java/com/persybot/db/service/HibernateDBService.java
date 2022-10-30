@@ -57,6 +57,11 @@ public class HibernateDBService implements DBService {
     }
 
     @Override
+    public <T extends DBEntity> T readAssured(long id, Class<T> dataClass) {
+        return read(id, dataClass).orElseThrow(() -> new RuntimeException("Could not read " + Optional.of(dataClass.getCanonicalName()).orElse(dataClass.getName()) + " with ID " + id));
+    }
+
+    @Override
     public <T extends DBEntity> Optional<T> update(T entity) {
         return Optional.ofNullable((T) dataAccessObjects.get(entity.getClass()).update(entity));
     }
