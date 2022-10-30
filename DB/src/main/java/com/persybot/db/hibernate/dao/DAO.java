@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class DAO<T extends DBEntity> {
     protected final SessionFactory sessionFactory;
@@ -26,6 +27,20 @@ public abstract class DAO<T extends DBEntity> {
             session.beginTransaction();
             session.persist(entity);
             return aClass.cast(entity);
+        } finally {
+            session.getTransaction().commit();
+            session.close();
+        }
+    }
+
+    public List<T> create(final List<DBEntity> entities) {
+        Objects.requireNonNull(entities);
+
+        Session session = getCurrentSession();
+        try {
+            session.beginTransaction();
+            entities.forEach(session::persist);
+            return entities.stream().map(aClass::cast).collect(Collectors.toList());
         } finally {
             session.getTransaction().commit();
             session.close();

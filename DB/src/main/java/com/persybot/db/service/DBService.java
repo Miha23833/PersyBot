@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface DBService extends Service {
     <T extends DBEntity> Optional<T> create(T entity);
+    <T extends DBEntity> List<T> create(List<T> entity, Class<T> dataClass);
+
     <T extends DBEntity> Optional<T> read(long id, Class<T> dataClass);
     <T extends DBEntity> Optional<T> read(String id, Class<T> dataClass);
     <T extends DBEntity> T readAssured(long id, Class<T> dataClass);

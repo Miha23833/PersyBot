@@ -87,7 +87,7 @@ public class EqualizerTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runCommand(TextCommandContext context) {
-        String presetName = context.getArgs().get(0);
+        String presetName = String.join(" ", context.getArgs());
 
         Optional<EqualizerPreset> preset = dbService.read(presetName, EqualizerPreset.class);
 

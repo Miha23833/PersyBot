@@ -13,6 +13,8 @@ public class BotConfig {
 
     public final String discordToken;
 
+    public final String refDataPath;
+
     public BotConfig(Properties properties) {
         this.selfMessagesLimit = Integer.parseInt(properties.getProperty("BOT_SELF_MESSAGES_LIMIT"));
         this.defaultPrefix = properties.getProperty("BOT_PREFIX_DEFAULT");
@@ -20,5 +22,6 @@ public class BotConfig {
         this.activityCheckPauseMillis =Long.parseLong(properties.getProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE"));
         this.maxInactivityTimeMillis = Long.parseLong(properties.getProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME"));
         this.discordToken = properties.getProperty("BOT_TOKEN");
+        this.refDataPath = properties.getProperty("REF_DATA_PATH");
     }
 }

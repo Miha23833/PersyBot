@@ -36,6 +36,8 @@ import com.persybot.config.impl.EnvironmentVariableReader;
 import com.persybot.config.impl.MasterConfigImpl;
 import com.persybot.config.pojo.BotConfig;
 import com.persybot.config.pojo.DBConfig;
+import com.persybot.db.refdata.loader.RefDataLoaderFactory;
+import com.persybot.db.refdata.loader.impl.EqualizerPresetXmlLoader;
 import com.persybot.db.service.DBService;
 import com.persybot.db.service.HibernateDBService;
 import com.persybot.enums.BUTTON_ID;
@@ -50,6 +52,7 @@ public class Bot {
     private Bot(DBConfig dbConfig, BotConfig botConfig) {
         try {
             populateServicesBeforeLaunch(dbConfig);
+            loadRefData(botConfig);
             DefaultShardManagerBuilder.createDefault(botConfig.discordToken)
                     .addEventListeners(
                             new DefaultListenerAdapter(defaultTextCommandAggregator(botConfig), defaultButtonCommandAggregator()),
@@ -107,6 +110,12 @@ public class Bot {
                 .add(DBService.class, new HibernateDBService(dbConfig))
                 .add(CacheService.class, createCacheService())
                 .add(ChannelService.class, ChannelServiceImpl.getInstance());
+    }
+
+    private void loadRefData(BotConfig botConfig) {
+        new RefDataLoaderFactory()
+                .addLoader(new EqualizerPresetXmlLoader(ServiceAggregator.getInstance().get(DBService.class), botConfig.refDataPath + "EqualizerPresets.xml"))
+                .process();
     }
 
     private static DBConfig getDbConfig() {

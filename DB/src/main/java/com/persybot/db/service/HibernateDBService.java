@@ -47,6 +47,11 @@ public class HibernateDBService implements DBService {
     }
 
     @Override
+    public <T extends DBEntity> List<T> create(List<T> entities, Class<T> dataClass) {
+        return (List<T>) dataAccessObjects.get(dataClass).create((List<DBEntity>) entities);
+    }
+
+    @Override
     public <T extends DBEntity> Optional<T> read(long id, Class<T> dataClass) {
         return Optional.ofNullable((T) dataAccessObjects.get(dataClass).read(id));
     }
