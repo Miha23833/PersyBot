@@ -41,11 +41,6 @@ public class HibernateDBService implements DBService {
         populateDAO(sessionFactory);
     }
 
-    private void populateDAO(SessionFactory sessionFactory) {
-        dataAccessObjects.put(DiscordServer.class, new DiscordServerDAO(sessionFactory));
-        dataAccessObjects.put(EqualizerPreset.class, new EqualizerPresetDAO(sessionFactory));
-    }
-
     @Override
     public <T extends DBEntity> Optional<T> create(T entity) {
         return Optional.ofNullable((T) dataAccessObjects.get(entity.getClass()).create(entity));
@@ -53,6 +48,11 @@ public class HibernateDBService implements DBService {
 
     @Override
     public <T extends DBEntity> Optional<T> read(long id, Class<T> dataClass) {
+        return Optional.ofNullable((T) dataAccessObjects.get(dataClass).read(id));
+    }
+
+    @Override
+    public <T extends DBEntity> Optional<T> read(String id, Class<T> dataClass) {
         return Optional.ofNullable((T) dataAccessObjects.get(dataClass).read(id));
     }
 
@@ -72,7 +72,12 @@ public class HibernateDBService implements DBService {
     }
 
     @Override
-    public <T extends DBEntity> Optional<List<T>> readAll(Class<T> dataClass) {
-        return Optional.of(dataAccessObjects.get(dataClass).readAll().stream().map(dataClass::cast).collect(Collectors.toList()));
+    public <T extends DBEntity> List<T> readAll(Class<T> dataClass) {
+        return dataAccessObjects.get(dataClass).readAll().stream().map(dataClass::cast).collect(Collectors.toList());
+    }
+
+    private void populateDAO(SessionFactory sessionFactory) {
+        dataAccessObjects.put(DiscordServer.class, new DiscordServerDAO(sessionFactory));
+        dataAccessObjects.put(EqualizerPreset.class, new EqualizerPresetDAO(sessionFactory));
     }
 }

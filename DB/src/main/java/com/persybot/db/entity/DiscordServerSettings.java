@@ -11,8 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import org.jetbrains.annotations.Range;
 
-import java.util.Objects;
-
 @Entity
 public class DiscordServerSettings implements DBEntity {
 
@@ -31,7 +29,7 @@ public class DiscordServerSettings implements DBEntity {
     private String meetAudioLink;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "preset_id")
+    @JoinColumn(name = "name")
     private EqualizerPreset preset;
 
     public DiscordServerSettings(byte volume, String prefix, EqualizerPreset preset) {
@@ -76,10 +74,5 @@ public class DiscordServerSettings implements DBEntity {
 
     public EqualizerPreset getPreset() {
         return preset;
-    }
-
-    @Override
-    public long getId() {
-        return Objects.requireNonNull(settingsId);
     }
 }

@@ -14,7 +14,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Entity
 public class DiscordServer implements DBEntity {
@@ -70,10 +69,5 @@ public class DiscordServer implements DBEntity {
 
     public Map<String, PlayList> getPlayLists() {
         return playLists;
-    }
-
-    @Override
-    public long getId() {
-        return Objects.requireNonNull(guildId);
     }
 }

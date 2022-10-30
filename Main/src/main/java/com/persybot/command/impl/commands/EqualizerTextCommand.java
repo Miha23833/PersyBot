@@ -7,18 +7,20 @@ import com.persybot.channel.service.ChannelService;
 import com.persybot.command.AbstractTextCommand;
 import com.persybot.command.TextCommandContext;
 import com.persybot.db.entity.EqualizerPreset;
+import com.persybot.db.service.DBService;
 import com.persybot.enums.TEXT_COMMAND_REJECT_REASON;
 import com.persybot.message.PAGEABLE_MESSAGE_TYPE;
 import com.persybot.message.cache.PageableMessageCache;
 import com.persybot.message.template.impl.InfoMessage;
 import com.persybot.paginator.PageableMessage;
 import com.persybot.service.impl.ServiceAggregator;
-import com.persybot.staticdata.StaticData;
 import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class EqualizerTextCommand extends AbstractTextCommand {
     private static final float[] ROFL_BASS_BOOST = new float[] {
@@ -53,12 +55,14 @@ public class EqualizerTextCommand extends AbstractTextCommand {
     };
 
     private final ChannelService channelService;
+    private final DBService dbService;
     private final PageableMessageCache cache;
 
     public EqualizerTextCommand() {
         super(0);
         this.channelService = ServiceAggregator.getInstance().get(ChannelService.class);
-        cache = ServiceAggregator.getInstance().get(CacheService.class).get(PageableMessageCache.class);
+        this.dbService = ServiceAggregator.getInstance().get(DBService.class);
+        this.cache = ServiceAggregator.getInstance().get(CacheService.class).get(PageableMessageCache.class);
     }
 
 
@@ -85,17 +89,17 @@ public class EqualizerTextCommand extends AbstractTextCommand {
     protected boolean runCommand(TextCommandContext context) {
         String presetName = context.getArgs().get(0);
 
-        EqualizerPreset preset = ServiceAggregator.getInstance().get(StaticData.class).getPreset(presetName);
+        Optional<EqualizerPreset> preset = dbService.read(presetName, EqualizerPreset.class);
 
-        if (preset != null) {
+        if (preset.isPresent()) {
             Channel channel = channelService.getChannel(context.getGuildId());
             if (!channel.hasInitiatedAudioPlayer()) {
                 return false;
             }
-            channel.getAudioPlayer().setEqualizer(preset.getBands());
+            channel.getAudioPlayer().setEqualizer(preset.get().getBands());
             return true;
         } else {
-            List<String> presetNames = ServiceAggregator.getInstance().get(StaticData.class).getEqualizerPresetNames();
+            List<String> presetNames = dbService.readAll(EqualizerPreset.class).stream().map(EqualizerPreset::getName).collect(Collectors.toList());
 
             if (presetNames.size() == 0) {
                 BotUtils.sendMessage("Now I don't have any equalizer preset", context.getEvent().getChannel());

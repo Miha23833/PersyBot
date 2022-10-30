@@ -43,6 +43,17 @@ public abstract class DAO<T extends DBEntity> {
         }
     }
 
+    public T read(String id) {
+        Session session = getCurrentSession();
+        try {
+            session.beginTransaction();
+            return session.get(aClass, id);
+        } finally {
+            session.getTransaction().commit();
+            session.close();
+        }
+    }
+
     public T update(final DBEntity entity) {
         Objects.requireNonNull(entity);
 

@@ -6,8 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.util.Objects;
-
 @Entity
 public class PlayList implements DBEntity {
 
@@ -45,10 +43,5 @@ public class PlayList implements DBEntity {
     }
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    @Override
-    public long getId() {
-        return Objects.requireNonNull(playListId);
     }
 }

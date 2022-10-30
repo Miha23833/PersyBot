@@ -7,7 +7,6 @@ import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.entity.DiscordServerSettings;
 import com.persybot.db.service.DBService;
 import com.persybot.service.impl.ServiceAggregator;
-import com.persybot.staticdata.StaticData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -22,7 +21,6 @@ import java.util.Optional;
 
 public class ServiceUpdaterAdapter extends ListenerAdapter {
     private final ChannelService channelService;
-    private final StaticData staticData;
     private final DBService dbService;
 
     private static final Duration JOIN_TIMEOUT_OFFSET = Duration.ofSeconds(30);
@@ -33,7 +31,6 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         ServiceAggregator serviceAggregator = ServiceAggregator.getInstance();
         channelService = serviceAggregator.get(ChannelService.class);
         dbService = serviceAggregator.get(DBService.class);
-        staticData = serviceAggregator.get(StaticData.class);
 
         this.defaultPrefix = botConfig.defaultPrefix;
     }
@@ -59,10 +56,6 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     private void loadServerToDbIfAbsent(@NotNull GenericGuildEvent event) {
         initializeDiscordServer(event.getGuild());
-        // TODO: fix read all
-//        ServiceAggregator.getInstance().get(DBService.class).readAll(EqualizerPreset.class)
-//                .orElseThrow( () -> new RuntimeException("Cannot get presets."))
-//                .forEach(this.staticData::addPreset);
     }
 
     private void initializeDiscordServer(Guild guild) {

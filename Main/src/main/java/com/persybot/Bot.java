@@ -17,6 +17,7 @@ import com.persybot.command.button.impl.commands.SkipSongButtonCommand;
 import com.persybot.command.button.impl.commands.StopPlayingButtonCommand;
 import com.persybot.command.impl.commands.AddMeetSoundTextCommand;
 import com.persybot.command.impl.commands.ChangePrefixCommand;
+import com.persybot.command.impl.commands.EqualizerTextCommand;
 import com.persybot.command.impl.commands.JoinToVoiceChannelCommand;
 import com.persybot.command.impl.commands.LeaveChannelTextCommand;
 import com.persybot.command.impl.commands.MixPlayingTracksCommand;
@@ -42,8 +43,6 @@ import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.cache.PageableMessageCache;
 import com.persybot.service.impl.ServiceAggregator;
-import com.persybot.staticdata.StaticData;
-import com.persybot.staticdata.StaticDataImpl;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 
@@ -90,8 +89,7 @@ public class Bot {
                 .addCommand(TEXT_COMMAND.ADDMEET, new AddMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.REMOVEMEET, new RemoveMeetSoundTextCommand())
                 .addCommand(TEXT_COMMAND.QUEUE, new ShowQueueCommand())
-//                .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand())
-                ;
+                .addCommand(TEXT_COMMAND.EQUALIZER, new EqualizerTextCommand());
     }
 
     private ButtonCommandContainerImpl defaultButtonCommandAggregator() {
@@ -108,7 +106,6 @@ public class Bot {
         ServiceAggregator.getInstance()
                 .add(DBService.class, new HibernateDBService(dbConfig))
                 .add(CacheService.class, createCacheService())
-                .add(StaticData.class, new StaticDataImpl())
                 .add(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
