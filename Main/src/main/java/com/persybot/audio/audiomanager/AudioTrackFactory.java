@@ -1,12 +1,10 @@
 package com.persybot.audio.audiomanager;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-
-import java.util.List;
+import com.google.api.services.youtube.model.Video;
+import com.persybot.audio.audiomanager.youtube.LazyYoutubeAudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 public interface AudioTrackFactory {
-
-    List<AudioTrack> getAudioTracks(List<SongMetadata> songMetadata);
-
-    AudioTrack getAudioTrack(SongMetadata songMetadata);
+    LazyYoutubeAudioTrack getAudioTrack(AudioTrackInfo songMetadata);
+    LazyYoutubeAudioTrack getAudioTrack(Video songMetadata);
 }

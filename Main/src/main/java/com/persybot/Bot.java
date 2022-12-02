@@ -45,13 +45,18 @@ import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.cache.PageableMessageCache;
 import com.persybot.service.impl.ServiceAggregator;
+import com.persybot.youtube.api.YoutubeApiDataService;
+import com.persybot.youtube.api.YoutubeApiDataServiceImpl;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class Bot {
     private Bot(DBConfig dbConfig, BotConfig botConfig) {
         try {
-            populateServicesBeforeLaunch(dbConfig);
+            populateServicesBeforeLaunch(dbConfig, botConfig);
             loadRefData(botConfig);
             DefaultShardManagerBuilder.createDefault(botConfig.discordToken)
                     .addEventListeners(
@@ -105,10 +110,11 @@ public class Bot {
                 .addCommand(BUTTON_ID.NEXT_PAGE, new NextPageCommand());
     }
 
-    private void populateServicesBeforeLaunch(DBConfig dbConfig) {
+    private void populateServicesBeforeLaunch(DBConfig dbConfig, BotConfig botConfig) throws GeneralSecurityException, IOException {
         ServiceAggregator.getInstance()
                 .add(DBService.class, new HibernateDBService(dbConfig))
                 .add(CacheService.class, createCacheService())
+                .add(YoutubeApiDataService.class, new YoutubeApiDataServiceImpl(botConfig.youtubeApiKey))
                 .add(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
@@ -134,7 +140,8 @@ public class Bot {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("BOT_TOKEN");
+                .requireProperty("bot.token")
+                .requireProperty("youtube.api_key");
 
         return new BotConfig(new MasterConfigImpl()
                 .addConfigSource(fileConfig)

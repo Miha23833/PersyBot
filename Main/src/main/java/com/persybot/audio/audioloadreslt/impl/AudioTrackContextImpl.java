@@ -40,21 +40,8 @@ public class AudioTrackContextImpl implements AudioTrackContext {
 
 
     private String getAudioTrackPresent(AudioTrackInfo info) {
-        StringBuilder builder = new StringBuilder();
-
-        String sourceAddress = "";
-        try {
-            sourceAddress = URLUtil.getSiteDomain(info.uri);
-        } catch (URISyntaxException e) {
-            PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
-        }
-
-        if ((info.author != null && !isYoutubeDomain(sourceAddress)) || !info.title.contains("-")) {
-            builder.append(info.author).append(" - ");
-        }
-        builder.append(info.title);
-
-        builder.append(" (").append(toTimeDuration(info.length)).append(")");
-        return builder.toString();
+        String builder = info.author + " - " + info.title +
+                " (" + toTimeDuration(info.length) + ")";
+        return builder;
     }
 }

@@ -1,14 +1,12 @@
 package com.persybot.audio.audiomanager.youtube;
 
+import com.google.api.services.youtube.model.Video;
 import com.persybot.audio.audiomanager.AudioTrackFactory;
-import com.persybot.audio.audiomanager.SongMetadata;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.Duration;
 
 public class LazyYoutubeAudioTrackFactory implements AudioTrackFactory {
 
@@ -22,14 +20,23 @@ public class LazyYoutubeAudioTrackFactory implements AudioTrackFactory {
     }
 
     @Override
-    public List<AudioTrack> getAudioTracks(List<SongMetadata> songMetadata) {
-        return songMetadata.stream().map(this::getAudioTrack).collect(Collectors.toList());
+    public LazyYoutubeAudioTrack getAudioTrack(Video ytVideo) {
+        String author = ytVideo.getSnippet().getChannelTitle();
+        String title = ytVideo.getSnippet().getTitle();
+        if (title.chars().filter(ch -> ch == '-').count() == 1 && !title.startsWith("-") && !title.endsWith("-")) {
+            author = title.substring(0, title.indexOf('-')).trim();
+            title = title.substring(title.indexOf('-') + 1).trim();
+        } else if (title.chars().filter(ch -> ch == '—').count() == 1 && !title.startsWith("—") && !title.endsWith("—")) {
+            author = title.substring(0, title.indexOf('—')).trim();
+            title = title.substring(title.indexOf('—') + 1).trim();
+        }
+        long durationMillis = Duration.parse(ytVideo.getContentDetails().getDuration()).toMillis();
+        AudioTrackInfo info = new AudioTrackInfo(title, author, durationMillis, ytVideo.getId(), false, ("https://www.youtube.com/watch?v=" + ytVideo.getId()));
+        return new LazyYoutubeAudioTrack(info, ytAudioSourceManager, ytSearchProvider);
     }
 
     @Override
-    public AudioTrack getAudioTrack(SongMetadata songMetadata) {
-        AudioTrackInfo ati = new AudioTrackInfo(songMetadata.getName(), songMetadata.getArtist(),
-                songMetadata.getDuration(), "ytsearch:" + songMetadata.getArtist() + " - " + songMetadata.getName(), false, songMetadata.getUrl());
+    public LazyYoutubeAudioTrack getAudioTrack(AudioTrackInfo ati) {
         return new LazyYoutubeAudioTrack(ati, ytAudioSourceManager, ytSearchProvider);
     }
 }

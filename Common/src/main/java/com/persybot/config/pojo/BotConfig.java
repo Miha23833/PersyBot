@@ -15,13 +15,20 @@ public class BotConfig {
 
     public final String refDataPath;
 
+    public final String youtubeApiKey;
+    public final String spotifyClientId;
+    public final String spotifyClientSecret;
+
     public BotConfig(Properties properties) {
-        this.selfMessagesLimit = Integer.parseInt(properties.getProperty("BOT_SELF_MESSAGES_LIMIT"));
-        this.defaultPrefix = properties.getProperty("BOT_PREFIX_DEFAULT");
-        this.maxPrefixLen = Byte.parseByte(properties.getProperty("BOT_PREFIX_MAXLEN"));
-        this.activityCheckPauseMillis =Long.parseLong(properties.getProperty("BOT_ACTIVITY_CHECKER_CHECK_PAUSE"));
-        this.maxInactivityTimeMillis = Long.parseLong(properties.getProperty("BOT_ACTIVITY_CHECKER_MAX_INACTIVITY_TIME"));
-        this.discordToken = properties.getProperty("BOT_TOKEN");
-        this.refDataPath = properties.getProperty("REF_DATA_PATH");
+        this.selfMessagesLimit = Integer.parseInt(properties.getProperty("bot.self_messages.limit"));
+        this.defaultPrefix = properties.getProperty("bot.prefix.default");
+        this.maxPrefixLen = Byte.parseByte(properties.getProperty("bot.prefix.max_length"));
+        this.activityCheckPauseMillis =Long.parseLong(properties.getProperty("bot.activitychecher.check_pause"));
+        this.maxInactivityTimeMillis = Long.parseLong(properties.getProperty("bot.activitychecher.max_inactivity_time_millis"));
+        this.discordToken = properties.getProperty("bot.token");
+        this.refDataPath = properties.getProperty("refdata_path");
+        this.youtubeApiKey = properties.getProperty("youtube.api_key");
+        this.spotifyClientId = properties.getProperty("spotify.client_id");
+        this.spotifyClientSecret = properties.getProperty("spotify.client_secret");
     }
 }

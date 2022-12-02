@@ -15,11 +15,7 @@ public class PlayerActionImpl extends AbstractBotAction implements PlayerAction 
 
     @Override
     public void playSong(String songLink, TextChannel requestingChannel) {
-        if (!isUrl(songLink)) {
-            songLink = "ytsearch:" + songLink;
-        }
         resumePlayer();
-
         actingChannel.getAudioPlayer().scheduleTrack(songLink, requestingChannel);
     }
 

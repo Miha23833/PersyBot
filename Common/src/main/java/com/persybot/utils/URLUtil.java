@@ -4,6 +4,7 @@ import com.persybot.logger.impl.PersyBotLogger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -37,7 +38,7 @@ public interface URLUtil {
 
     static boolean isUrl(String url) {
         try {
-            new URI(url).toURL();
+            new URL(url);
             return true;
         } catch (Exception e) {
             return false;

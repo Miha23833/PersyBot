@@ -52,7 +52,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
     private final AudioTrackFactory audioTrackFactory;
 
     public SpotifyAudioSourceManager(String clientId, String clientSecret) throws ParseException {
-        this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), new YoutubeAudioSourceManager());
+        this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), new YoutubeAudioSourceManager(true));
 
         spotify = SpotifyApi.builder()
                 .setClientId(clientId)
@@ -97,12 +97,12 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
 
             Matcher match = PLAYLIST_ID_PATTERN.matcher(url.toString());
             if (match.matches()) {
-                return loadPlaylistFromYT(manager, match.group(2));
+                return loadPlaylistFromYT(match.group(2));
             }
 
             match = TRACK_ID_PATTERN.matcher(url.toString());
             if (match.matches()) {
-                return loadTrackFromYT(manager, match.group(2));
+                return loadTrackFromYT(match.group(2));
             }
         } catch (MalformedURLException e) {
             return null;
@@ -132,7 +132,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
         this.tokenUpdater.shutdown();
     }
 
-    private AudioItem loadPlaylistFromYT(AudioPlayerManager manager, String playlistId) throws org.apache.hc.core5.http.ParseException, SpotifyWebApiException, IOException {
+    private AudioItem loadPlaylistFromYT(String playlistId) throws org.apache.hc.core5.http.ParseException, SpotifyWebApiException, IOException {
         Playlist playlist = spotify.getPlaylist(playlistId).build().execute();
 
         if (playlist == null || playlist.getTracks().getTotal() == 0) return null;
@@ -146,24 +146,26 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
         for (List<String> trackIdSubList: Lists.partition(trackIds, 50)) {
             Track[] spotifyTracks = spotify.getSeveralTracks(trackIdSubList.toArray(new String[0])).build().execute();
 
-            result.addAll(Arrays.stream(spotifyTracks).parallel().map(track -> loadFromYT(manager, track)).collect(Collectors.toList()));
+            result.addAll(Arrays.stream(spotifyTracks).parallel().map(this::loadFromYT).toList());
         }
 
         return new BasicAudioPlaylist(playlist.getName(), result, null, false);
     }
 
-    private AudioTrack loadTrackFromYT(AudioPlayerManager manager, String id) throws org.apache.hc.core5.http.ParseException, SpotifyWebApiException, IOException {
+    private AudioTrack loadTrackFromYT(String id) throws org.apache.hc.core5.http.ParseException, SpotifyWebApiException, IOException {
         Track spotifyTrack = spotify.getTrack(id).build().execute();
-        return loadFromYT(manager, spotifyTrack);
+        return loadFromYT(spotifyTrack);
     }
 
     private String collectArtists(ArtistSimplified[] artists) {
         return Arrays.stream(artists).map(ArtistSimplified::getName).collect(Collectors.joining(", "));
     }
 
-    private AudioTrack loadFromYT(AudioPlayerManager manager, Track track) {
+    private AudioTrack loadFromYT(Track track) {
         SongMetadata metadata = getSongMetaData(track);
-        return audioTrackFactory.getAudioTrack(metadata);
+        AudioTrackInfo ati = new AudioTrackInfo(metadata.getName(), metadata.getArtist(),
+                metadata.getDuration(), "ytsearch:" + metadata.getArtist() + " - " + metadata.getName(), false, metadata.getUrl());
+        return audioTrackFactory.getAudioTrack(ati);
     }
 
     private SongMetadata getSongMetaData(Track track) {
