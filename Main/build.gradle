@@ -27,7 +27,12 @@ dependencies {
 
         // LavaPlayer dependencies
         implementation 'com.github.sedmelluq:lavaplayer:PR650-SNAPSHOT'
+
+        // Spotify API
         implementation 'se.michaelthelin.spotify:spotify-web-api-java:7.0.0'
+
+        // YT API
+        implementation 'com.google.apis:google-api-services-youtube:v3-rev20210915-1.32.1'
 
         // Misc
         implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
