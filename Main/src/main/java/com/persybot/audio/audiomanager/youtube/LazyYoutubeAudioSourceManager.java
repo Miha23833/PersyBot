@@ -117,7 +117,7 @@ public class LazyYoutubeAudioSourceManager implements AudioSourceManager {
                     // video is not available
                     .filter(it -> it.getContentDetails().getVideoPublishedAt() != null)
                     .map(it -> it.getContentDetails().getVideoId())
-                    .toList();
+                    .collect(Collectors.toList());
             if (itemsOnCurrentPage.isEmpty()) {
                 break;
             }

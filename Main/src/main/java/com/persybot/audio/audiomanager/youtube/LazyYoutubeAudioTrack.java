@@ -84,7 +84,8 @@ public class LazyYoutubeAudioTrack extends DelegatedAudioTrack {
 
         if (audioItem == AudioReference.NO_TRACK) {
             return null;
-        } else if (audioItem instanceof AudioPlaylist audioPlaylist) {
+        } else if (audioItem instanceof AudioPlaylist) {
+            AudioPlaylist audioPlaylist = (AudioPlaylist) audioItem;
             // The number of matches is limited to reduce the chances of matching against
             // less than optimal results.
             // The best match is the one that has the smallest track duration delta.

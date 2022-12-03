@@ -107,7 +107,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
         for (List<String> trackIdSubList: Lists.partition(trackIds, 50)) {
             Track[] spotifyTracks = spotify.getSeveralTracks(trackIdSubList.toArray(new String[0])).build().execute();
 
-            result.addAll(Arrays.stream(spotifyTracks).parallel().map(this::loadFromYT).toList());
+            result.addAll(Arrays.stream(spotifyTracks).parallel().map(this::loadFromYT).collect(Collectors.toList()));
         }
 
         return new BasicAudioPlaylist(playlist.getName(), result, null, false);

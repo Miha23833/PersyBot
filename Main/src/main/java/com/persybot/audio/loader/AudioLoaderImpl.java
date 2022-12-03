@@ -43,7 +43,17 @@ public class AudioLoaderImpl implements AudioLoader {
         this.scheduler.addPlaylist(context);
     }
 
-    private record ContextWrappingAudioLoadResultHandler(AudioLoaderImpl audioLoader, TextChannel requestingChannel, String search) implements AudioLoadResultHandler {
+    private static class ContextWrappingAudioLoadResultHandler implements AudioLoadResultHandler {
+
+        private final AudioLoaderImpl audioLoader;
+        private final TextChannel requestingChannel;
+        private final String search;
+
+        public ContextWrappingAudioLoadResultHandler (AudioLoaderImpl audioLoader, TextChannel requestingChannel, String search) {
+            this.audioLoader = audioLoader;
+            this.requestingChannel = requestingChannel;
+            this.search = search;
+        }
 
         @Override
         public void trackLoaded(AudioTrack track) {

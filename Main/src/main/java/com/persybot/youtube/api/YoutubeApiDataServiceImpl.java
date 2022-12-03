@@ -24,7 +24,13 @@ public class YoutubeApiDataServiceImpl implements YoutubeApiDataService {
                 .build();
     }
 
-    private record ApiKeyHttpRequestInitializer(String apiKey) implements HttpRequestInitializer, HttpExecuteInterceptor {
+    private static class ApiKeyHttpRequestInitializer implements HttpRequestInitializer, HttpExecuteInterceptor {
+        private final String apiKey;
+
+        private ApiKeyHttpRequestInitializer(String apiKey) {
+            this.apiKey = apiKey;
+        }
+
         @Override
         public void initialize(HttpRequest request) {
             request.setInterceptor(this);
