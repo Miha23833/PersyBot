@@ -19,14 +19,21 @@ import java.util.stream.Collectors;
 public class SynchronizedTrackScheduler implements TrackScheduler, PlayerStateSender {
     private final AudioPlayer player;
     private final List<AudioTrackContext> trackQueue;
+    private final int maxQueueSize;
 
-    public SynchronizedTrackScheduler(AudioPlayer player) {
+    public SynchronizedTrackScheduler(AudioPlayer player, int maxQueueSize) {
         this.player = player;
+        this.maxQueueSize = maxQueueSize;
         trackQueue = new LinkedList<>();
     }
 
     @Override
     public void addTrack(AudioTrackContext track) {
+        if (trackQueue.size() >= maxQueueSize) {
+            track.getRequestingChannel().
+                    sendMessage(new InfoMessage("Cannot add track", "Queue is full (" + maxQueueSize +" max)").template()).queue();
+            return;
+        }
         if (this.player.getPlayingTrack() == null) {
             this.player.playTrack(track.getTrack());
 
@@ -48,13 +55,21 @@ public class SynchronizedTrackScheduler implements TrackScheduler, PlayerStateSe
 
     @Override
     public void addPlaylist(AudioPlaylistContext playlist) {
+        List<AudioTrackContext> tracks = playlist.getTracks();
+        if (trackQueue.size() >= maxQueueSize) {
+            tracks.get(0).getRequestingChannel().
+                    sendMessage(new InfoMessage("Cannot add track", "Queue is full (" + maxQueueSize +" max)").template()).queue();
+            return;
+        } else if (trackQueue.size() + tracks.size() > maxQueueSize) {
+            tracks = tracks.subList(0, maxQueueSize - trackQueue.size());
+        }
         boolean startFirst = this.player.getPlayingTrack() == null;
         if (startFirst) {
-            addTrack(playlist.getTracks().remove(0));
+            addTrack(tracks.remove(0));
         }
-        this.trackQueue.addAll(playlist.getTracks());
-        if (!playlist.getTracks().isEmpty()) {
-            playlist.getTracks().get(0).getRequestingChannel().sendMessage(getQueuedTrackMessage(playlist)).queue();
+        this.trackQueue.addAll(tracks);
+        if (!tracks.isEmpty()) {
+            tracks.get(0).getRequestingChannel().sendMessage(getQueuedTrackMessage(tracks)).queue();
         }
     }
 
@@ -100,20 +115,19 @@ public class SynchronizedTrackScheduler implements TrackScheduler, PlayerStateSe
         return this.trackQueue.stream().map(AudioTrackContext::getTrackPresent).collect(Collectors.toList());
     }
 
-    private Message getQueuedTrackMessage(AudioPlaylistContext playlistContext) {
+    private Message getQueuedTrackMessage(List<AudioTrackContext> tracks) {
         StringBuilder queuedTracksRsp = new StringBuilder();
-        List<AudioTrackContext> audioTrackInfoList = playlistContext.getTracks();
 
-        int trackInfoRspLineLimit = Math.min(audioTrackInfoList.size(), 8);
+        int trackInfoRspLineLimit = Math.min(tracks.size(), 8);
 
         for (int i = 0; i < trackInfoRspLineLimit; i++) {
-            AudioTrackContext trackContext = audioTrackInfoList.get(i);
+            AudioTrackContext trackContext = tracks.get(i);
             queuedTracksRsp.append(trackContext.getTrackPresent()).append("\n");
         }
 
-        if (audioTrackInfoList.size() > trackInfoRspLineLimit) {
+        if (tracks.size() > trackInfoRspLineLimit) {
             queuedTracksRsp.append("And ")
-                    .append(audioTrackInfoList.size() - trackInfoRspLineLimit).append(" more");
+                    .append(tracks.size() - trackInfoRspLineLimit).append(" more");
         }
         return new InfoMessage("Queued tracks:", queuedTracksRsp.toString()).template();
     }

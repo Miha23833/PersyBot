@@ -8,6 +8,9 @@ public class BotConfig {
     public final String defaultPrefix;
     public final byte maxPrefixLen;
 
+    public final int maxPlayerQueueSize;
+    public final int maxLoadRetries;
+
     public final long activityCheckPauseMillis;
     public final long maxInactivityTimeMillis;
 
@@ -25,6 +28,8 @@ public class BotConfig {
         this.selfMessagesLimit = Integer.parseInt(properties.getProperty("bot.self_messages.limit"));
         this.defaultPrefix = properties.getProperty("bot.prefix.default");
         this.maxPrefixLen = Byte.parseByte(properties.getProperty("bot.prefix.max_length"));
+        this.maxPlayerQueueSize = Integer.parseInt(properties.getProperty("bot.player.max_queue_size"));
+        this.maxLoadRetries = Integer.parseInt(properties.getProperty("bot.player.max_load_retries"));
         this.activityCheckPauseMillis =Long.parseLong(properties.getProperty("bot.activitychecher.check_pause"));
         this.maxInactivityTimeMillis = Long.parseLong(properties.getProperty("bot.activitychecher.max_inactivity_time_millis"));
         this.discordToken = properties.getProperty("bot.token");

@@ -43,16 +43,7 @@ public class AudioLoaderImpl implements AudioLoader {
         this.scheduler.addPlaylist(context);
     }
 
-    private static class ContextWrappingAudioLoadResultHandler implements AudioLoadResultHandler {
-        private final AudioLoaderImpl audioLoader;
-        private final TextChannel requestingChannel;
-        private final String search;
-
-        private ContextWrappingAudioLoadResultHandler(AudioLoaderImpl audioLoader, TextChannel requestingChannel, String search) {
-            this.audioLoader = audioLoader;
-            this.requestingChannel = requestingChannel;
-            this.search = search;
-        }
+    private record ContextWrappingAudioLoadResultHandler(AudioLoaderImpl audioLoader, TextChannel requestingChannel, String search) implements AudioLoadResultHandler {
 
         @Override
         public void trackLoaded(AudioTrack track) {
@@ -66,32 +57,31 @@ public class AudioLoaderImpl implements AudioLoader {
             }
             if (playlist.isSearchResult()) {
                 this.audioLoader.onTrackLoaded(new AudioTrackContextImpl(playlist.getTracks().get(0), requestingChannel));
-            }
-            else {
+            } else {
                 this.audioLoader.onPlaylistLoaded(new AudioPlaylistContextImpl(playlist.getTracks(), requestingChannel));
             }
         }
 
-        @Override
-        public void noMatches() {
-            requestingChannel
-                    .sendMessage(new InfoMessage(
-                            "Error",
-                            "Could not find " + (isUrl(this.search) ? toHypertext("audio content", this.search) : this.search)).template())
-                    .queue(QueueSuccessActionTemplates.addToSelfCleaner(MessageType.ERROR));
-        }
-
-        @Override
-        public void loadFailed(FriendlyException exception) {
-            PersyBotLogger.BOT_LOGGER.error(exception);
-
-            if (exception.severity.equals(COMMON) || exception.severity.equals(SUSPICIOUS)) {
+            @Override
+            public void noMatches() {
                 requestingChannel
                         .sendMessage(new InfoMessage(
                                 "Error",
-                                "Failed to load " + (isUrl(this.search) ? toHypertext("audio content", this.search) : this.search)).template())
+                                "Could not find " + (isUrl(this.search) ? toHypertext("audio content", this.search) : this.search)).template())
                         .queue(QueueSuccessActionTemplates.addToSelfCleaner(MessageType.ERROR));
             }
+
+            @Override
+            public void loadFailed(FriendlyException exception) {
+                PersyBotLogger.BOT_LOGGER.error(exception);
+
+                if (exception.severity.equals(COMMON) || exception.severity.equals(SUSPICIOUS)) {
+                    requestingChannel
+                            .sendMessage(new InfoMessage(
+                                    "Error",
+                                    "Failed to load " + (isUrl(this.search) ? toHypertext("audio content", this.search) : this.search)).template())
+                            .queue(QueueSuccessActionTemplates.addToSelfCleaner(MessageType.ERROR));
+                }
+            }
         }
-    }
 }

@@ -25,14 +25,14 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
 
     private static final Duration JOIN_TIMEOUT_OFFSET = Duration.ofSeconds(30);
 
-    private final String defaultPrefix;
+    private final BotConfig botConfig;
 
     public ServiceUpdaterAdapter(BotConfig botConfig) {
         ServiceAggregator serviceAggregator = ServiceAggregator.getInstance();
         channelService = serviceAggregator.get(ChannelService.class);
         dbService = serviceAggregator.get(DBService.class);
 
-        this.defaultPrefix = botConfig.defaultPrefix;
+        this.botConfig = botConfig;
     }
 
     @Override
@@ -66,10 +66,10 @@ public class ServiceUpdaterAdapter extends ListenerAdapter {
         if (discordServerOpt.isEmpty()) {
             ServiceAggregator.getInstance().get(DBService.class).create(getDefaultDiscordServer(serverId));
         }
-        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), guild));
+        channelService.addChannel(serverId, new ChannelImpl(channelService.getAudioPlayerManager(), guild, botConfig));
     }
 
     private DiscordServer getDefaultDiscordServer(Long serverId) {
-        return new DiscordServer(serverId, 0, new DiscordServerSettings((byte) 100, defaultPrefix));
+        return new DiscordServer(serverId, 0, new DiscordServerSettings((byte) 100, botConfig.defaultPrefix));
     }
 }

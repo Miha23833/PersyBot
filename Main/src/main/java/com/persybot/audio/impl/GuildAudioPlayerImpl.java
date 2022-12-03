@@ -32,20 +32,21 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
 
     private final SynchronizedTrackScheduler trackScheduler;
 
-    // TODO: move to config
-    private final int MAX_RETRIES = 3;
+    private final int maxLoadRetries;
     private int currentRetry = 0;
 
-    public GuildAudioPlayerImpl(Channel selfChannel, AudioPlayerManager manager) {
+    public GuildAudioPlayerImpl(Channel selfChannel, AudioPlayerManager manager, int maxLoadRetries, int maxQueueSize) {
         this.selfChannel = selfChannel;
         this.audioPlayer = manager.createPlayer();
 
-        this.trackScheduler = new SynchronizedTrackScheduler(this.audioPlayer);
+        this.trackScheduler = new SynchronizedTrackScheduler(this.audioPlayer, maxQueueSize);
         this.audioLoader = new AudioLoaderImpl(manager, this.trackScheduler);
 
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
 
         this.audioPlayer.addListener(this);
+
+        this.maxLoadRetries = maxLoadRetries;
     }
 
 
@@ -152,7 +153,7 @@ public class GuildAudioPlayerImpl extends AudioEventAdapter implements GuildAudi
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason.mayStartNext) {
-            if (endReason.equals(AudioTrackEndReason.LOAD_FAILED) && currentRetry < MAX_RETRIES) {
+            if (endReason.equals(AudioTrackEndReason.LOAD_FAILED) && currentRetry < maxLoadRetries) {
                 currentRetry++;
                 player.playTrack(track.makeClone());
             }

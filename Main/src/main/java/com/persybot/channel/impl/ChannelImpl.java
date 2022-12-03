@@ -7,6 +7,7 @@ import com.persybot.channel.botaction.PlayerAction;
 import com.persybot.channel.botaction.VoiceChannelAction;
 import com.persybot.channel.botaction.impl.PlayerActionImpl;
 import com.persybot.channel.botaction.impl.VoiceChannelActionImpl;
+import com.persybot.config.pojo.BotConfig;
 import com.persybot.db.entity.DiscordServer;
 import com.persybot.db.service.DBService;
 import com.persybot.logger.impl.PersyBotLogger;
@@ -29,9 +30,12 @@ public class ChannelImpl implements Channel {
 
     private final DBService dbService;
 
-    public ChannelImpl(AudioPlayerManager playerManager, Guild guild) {
+    private final BotConfig botConfig;
+
+    public ChannelImpl(AudioPlayerManager playerManager, Guild guild, BotConfig config) {
         this.manager = playerManager;
         this.guild = guild;
+        this.botConfig = config;
 
         dbService = ServiceAggregator.getInstance().get(DBService.class);
     }
@@ -93,7 +97,7 @@ public class ChannelImpl implements Channel {
     }
 
     private void initAudioPlayer() {
-        this.audioPlayer = new GuildAudioPlayerImpl(this, this.manager);
+        this.audioPlayer = new GuildAudioPlayerImpl(this, this.manager, botConfig.maxLoadRetries, botConfig.maxPlayerQueueSize);
         audioPlayer.setVolume(getDiscordServer().getSettings().getVolume());
         getGuild().getAudioManager().setSendingHandler(this.audioPlayer.getSendHandler());
     }
