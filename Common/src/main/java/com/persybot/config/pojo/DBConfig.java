@@ -9,9 +9,9 @@ public class DBConfig {
     public final String password;
 
     public DBConfig(Properties properties) {
-        this.hibernateConfigPath = properties.getProperty("HIBERNATE_CONFIG_PATH");
-        this.connString = properties.getProperty("HIBERNATE_CONN_URL");
-        this.username = properties.getProperty("HIBERNATE_CONN_USERNAME");
-        this.password = properties.getProperty("HIBERNATE_CONN_PWD");
+        this.hibernateConfigPath = properties.getProperty("hibernate.config_path");
+        this.connString = properties.getProperty("hibernate.connection.url");
+        this.username = properties.getProperty("hibernate.connection.username");
+        this.password = properties.getProperty("hibernate.connection.password");
     }
 }

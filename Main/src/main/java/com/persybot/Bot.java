@@ -129,10 +129,10 @@ public class Bot {
 
     private static DBConfig getDbConfig() {
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("HIBERNATE_CONFIG_PATH")
-                .requireProperty("HIBERNATE_CONN_URL")
-                .requireProperty("HIBERNATE_CONN_USERNAME")
-                .requireProperty("HIBERNATE_CONN_PWD");
+                .requireProperty("hibernate.config_path", "HIBERNATE_CONFIG_PATH")
+                .requireProperty("hibernate.connection.url", "HIBERNATE_CONN_URL")
+                .requireProperty("hibernate.connection.username", "HIBERNATE_CONN_USERNAME")
+                .requireProperty("hibernate.connection.password", "HIBERNATE_CONN_PWD");
 
         return new DBConfig(new MasterConfigImpl()
                 .addConfigSource(envConfig)
@@ -143,10 +143,10 @@ public class Bot {
         ConfigFileReader fileConfig = new ConfigFileReader("resources/botConfig.cfg");
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
-                .requireProperty("bot.token")
-                .requireProperty("spotify.client_id")
-                .requireProperty("spotify.client_secret")
-                .requireProperty("youtube.api_key");
+                .requireProperty("bot.token", "BOT_TOKEN")
+                .requireProperty("spotify.client_id", "SPOTIFY_CLIENT_ID")
+                .requireProperty("spotify.client_secret", "SPOTIFY_CLIENT_SECRET")
+                .requireProperty("youtube.api_key", "YOUTUBE_API_KEY");
 
         return new BotConfig(new MasterConfigImpl()
                 .addConfigSource(fileConfig)
