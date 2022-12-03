@@ -4,6 +4,7 @@ import com.persybot.audio.audiomanager.spotify.SpotifyAudioSourceManager;
 import com.persybot.audio.audiomanager.youtube.LazyYoutubeAudioSourceManager;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
+import com.persybot.config.pojo.BotConfig;
 import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.spotify.api.SpotifyApiDataService;
 import com.persybot.youtube.api.YoutubeApiDataService;
@@ -23,23 +24,21 @@ public class ChannelServiceImpl implements ChannelService {
     private static ChannelServiceImpl INSTANCE;
     private static final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    private ChannelServiceImpl(AudioPlayerManager audioPlayerManager){
+    private ChannelServiceImpl(BotConfig botConfig){
         this.channels = new ConcurrentHashMap<>();
-        this.audioPlayerManager = audioPlayerManager;
+        this.audioPlayerManager = new DefaultAudioPlayerManager();
+        audioPlayerManager.registerSourceManager(new SpotifyAudioSourceManager(ServiceAggregator.getInstance().get(SpotifyApiDataService.class).getApi()));
+        audioPlayerManager.registerSourceManager(new LazyYoutubeAudioSourceManager(ServiceAggregator.getInstance().get(YoutubeApiDataService.class).getApi(), botConfig.youtubePlaylistItemsLimit));
+        audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+        audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
     }
 
-    public static ChannelServiceImpl getInstance() {
+    public static ChannelServiceImpl getInstance(BotConfig botConfig) {
         if (INSTANCE == null) {
             try {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
-                    AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-                    playerManager.registerSourceManager(new SpotifyAudioSourceManager(ServiceAggregator.getInstance().get(SpotifyApiDataService.class).getApi()));
-                    playerManager.registerSourceManager(new LazyYoutubeAudioSourceManager(ServiceAggregator.getInstance().get(YoutubeApiDataService.class).getApi()));
-                    playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
-                    playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
-
-                    INSTANCE = new ChannelServiceImpl(playerManager);
+                    INSTANCE = new ChannelServiceImpl(botConfig);
                 }
             } finally {
                 rwLock.writeLock().unlock();

@@ -16,6 +16,8 @@ public class BotConfig {
     public final String refDataPath;
 
     public final String youtubeApiKey;
+    public final int youtubePlaylistItemsLimit;
+
     public final String spotifyClientId;
     public final String spotifyClientSecret;
 
@@ -28,6 +30,7 @@ public class BotConfig {
         this.discordToken = properties.getProperty("bot.token");
         this.refDataPath = properties.getProperty("refdata_path");
         this.youtubeApiKey = properties.getProperty("youtube.api_key");
+        this.youtubePlaylistItemsLimit = Integer.parseInt(properties.getProperty("youtube.playlistItemsLimit"));
         this.spotifyClientId = properties.getProperty("spotify.client_id");
         this.spotifyClientSecret = properties.getProperty("spotify.client_secret");
     }

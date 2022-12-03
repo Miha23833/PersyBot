@@ -118,7 +118,7 @@ public class Bot {
                 .add(CacheService.class, createCacheService())
                 .add(YoutubeApiDataService.class, new YoutubeApiDataServiceImpl(botConfig.youtubeApiKey))
                 .add(SpotifyApiDataService.class, new SpotifyApiDataServiceImpl(botConfig.spotifyClientId, botConfig.spotifyClientSecret))
-                .add(ChannelService.class, ChannelServiceImpl.getInstance());
+                .add(ChannelService.class, ChannelServiceImpl.getInstance(botConfig));
     }
 
     private void loadRefData(BotConfig botConfig) {

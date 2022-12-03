@@ -2,6 +2,7 @@ package com.persybot.audio.audiomanager.youtube;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
+import com.google.common.collect.Lists;
 import com.persybot.audio.audiomanager.AudioTrackFactory;
 import com.persybot.utils.URLUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -14,6 +15,7 @@ import org.apache.commons.collections4.ListUtils;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -34,13 +36,13 @@ public class LazyYoutubeAudioSourceManager implements AudioSourceManager {
     private final AudioTrackFactory audioTrackFactory;
     private final YoutubeAudioSourceManager ytSourceManager;
 
-    // TODO: move to config
-    private final int playlistItemsLimit = 50;
+    private final int playlistItemsLimit;
 
-    public LazyYoutubeAudioSourceManager(YouTube ytApi) {
+    public LazyYoutubeAudioSourceManager(YouTube ytApi, int playlistItemsLimit) {
         this.ytApi = ytApi;
         this.ytSourceManager = new YoutubeAudioSourceManager();
         this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), ytSourceManager);
+        this.playlistItemsLimit = playlistItemsLimit;
     }
 
     @Override
@@ -97,17 +99,45 @@ public class LazyYoutubeAudioSourceManager implements AudioSourceManager {
                 .execute();
         Playlist playlist = playlistRsp.getItems().get(0);
 
-        List<PlaylistItem> playlistItems = ytApi.playlistItems()
-                .list(YOUTUBE_CONTENT_DETAILS_PART)
-                .setPlaylistId(playlistId)
-                .setMaxResults((long) playlistItemsLimit)
-                .execute().getItems();
+        List<String> allPlaylistItemsIds = new ArrayList<>();
 
-        List<Video> playlistVideos = ytApi.videos()
-                .list(ListUtils.union(YOUTUBE_SNIPPET_PART, YOUTUBE_CONTENT_DETAILS_PART))
-                .setId(playlistItems.stream().map(it -> it.getContentDetails().getVideoId()).collect(Collectors.toList()))
-                .execute().getItems();
+        String pageToken = null;
+        while (allPlaylistItemsIds.size() != playlistItemsLimit) {
+            PlaylistItemListResponse playlistItemListRsp = ytApi.playlistItems()
+                    .list(YOUTUBE_CONTENT_DETAILS_PART)
+                    .setPlaylistId(playlistId)
+                    .setMaxResults(50L)
+                    .setPageToken(pageToken)
+                    .execute();
+            pageToken = playlistItemListRsp.getNextPageToken();
 
+            List<String> itemsOnCurrentPage = playlistItemListRsp
+                    .getItems()
+                    .stream()
+                    // video is not available
+                    .filter(it -> it.getContentDetails().getVideoPublishedAt() != null)
+                    .map(it -> it.getContentDetails().getVideoId())
+                    .toList();
+            if (itemsOnCurrentPage.isEmpty()) {
+                break;
+            }
+            int cutPart = Math.min(itemsOnCurrentPage.size(), playlistItemsLimit - allPlaylistItemsIds.size());
+            allPlaylistItemsIds.addAll(itemsOnCurrentPage.subList(0, cutPart));
+
+            if (pageToken == null) {
+                break;
+            }
+        }
+
+        List<Video> playlistVideos = new ArrayList<>();
+        for (List<String> trackIdSubList: Lists.partition(allPlaylistItemsIds, 50)) {
+            List<Video> pagePlaylistVideos = ytApi.videos()
+                    .list(ListUtils.union(YOUTUBE_SNIPPET_PART, YOUTUBE_CONTENT_DETAILS_PART))
+                    .setId(trackIdSubList)
+                    .setMaxResults(50L)
+                    .execute().getItems();
+            playlistVideos.addAll(pagePlaylistVideos);
+        }
         List<AudioTrack> result = playlistVideos.stream().map(audioTrackFactory::getAudioTrack).collect(Collectors.toList());
 
         return new BasicAudioPlaylist(playlist.getSnippet().getTitle(), result, null, false);
