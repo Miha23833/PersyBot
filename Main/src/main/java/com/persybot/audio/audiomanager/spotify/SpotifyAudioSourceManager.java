@@ -9,14 +9,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
-import com.sedmelluq.discord.lavaplayer.track.AudioItem;
-import com.sedmelluq.discord.lavaplayer.track.AudioReference;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
+import com.sedmelluq.discord.lavaplayer.track.*;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -33,9 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,38 +37,11 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
     private static final Pattern PLAYLIST_ID_PATTERN = Pattern.compile("^(?:http://|https://|)(?:www\\.|)(?:m\\.|)open.spotify\\.com/(playlist)/([a-zA-Z0-9-_]+)/?(?:\\?.*|)$");
 
     private final SpotifyApi spotify;
-    private final ScheduledExecutorService tokenUpdater;
-
     private final AudioTrackFactory audioTrackFactory;
 
-    public SpotifyAudioSourceManager(String clientId, String clientSecret) throws ParseException {
+    public SpotifyAudioSourceManager(SpotifyApi spotifyApi) throws ParseException {
         this.audioTrackFactory = new LazyYoutubeAudioTrackFactory(new YoutubeSearchProvider(), new YoutubeAudioSourceManager(true));
-
-        spotify = SpotifyApi.builder()
-                .setClientId(clientId)
-                .setClientSecret(clientSecret)
-                .build();
-
-        tokenUpdater = Executors.newSingleThreadScheduledExecutor();
-        tokenUpdater.scheduleWithFixedDelay(() -> {
-            try {
-                this.spotify.setAccessToken(getAccessToken(clientId, clientSecret));
-                PersyBotLogger.BOT_LOGGER.info("New spotify api token was set");
-            } catch (Exception e) {
-                PersyBotLogger.BOT_LOGGER.error(e.getMessage(), e);
-                this.shutdown();
-            }
-        }, 0, 3500, TimeUnit.SECONDS);
-    }
-
-    private static String getAccessToken(String clientId, String clientSecret) {
-        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://accounts.spotify.com/api/token")
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .field("grant_type", "client_credentials")
-                .field("client_id", clientId)
-                .field("client_secret", clientSecret).asJson();
-
-        return jsonResponse.getBody().getObject().getString("access_token");
+        this.spotify = spotifyApi;
     }
 
     @Override
@@ -128,9 +91,7 @@ public class SpotifyAudioSourceManager implements AudioSourceManager {
     }
 
     @Override
-    public void shutdown() {
-        this.tokenUpdater.shutdown();
-    }
+    public void shutdown() {}
 
     private AudioItem loadPlaylistFromYT(String playlistId) throws org.apache.hc.core5.http.ParseException, SpotifyWebApiException, IOException {
         Playlist playlist = spotify.getPlaylist(playlistId).build().execute();

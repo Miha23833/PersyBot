@@ -45,6 +45,8 @@ import com.persybot.enums.TEXT_COMMAND;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.cache.PageableMessageCache;
 import com.persybot.service.impl.ServiceAggregator;
+import com.persybot.spotify.api.SpotifyApiDataService;
+import com.persybot.spotify.api.SpotifyApiDataServiceImpl;
 import com.persybot.youtube.api.YoutubeApiDataService;
 import com.persybot.youtube.api.YoutubeApiDataServiceImpl;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -115,6 +117,7 @@ public class Bot {
                 .add(DBService.class, new HibernateDBService(dbConfig))
                 .add(CacheService.class, createCacheService())
                 .add(YoutubeApiDataService.class, new YoutubeApiDataServiceImpl(botConfig.youtubeApiKey))
+                .add(SpotifyApiDataService.class, new SpotifyApiDataServiceImpl(botConfig.spotifyClientId, botConfig.spotifyClientSecret))
                 .add(ChannelService.class, ChannelServiceImpl.getInstance());
     }
 
@@ -141,6 +144,8 @@ public class Bot {
 
         EnvironmentVariableReader envConfig = new EnvironmentVariableReader()
                 .requireProperty("bot.token")
+                .requireProperty("spotify.client_id")
+                .requireProperty("spotify.client_secret")
                 .requireProperty("youtube.api_key");
 
         return new BotConfig(new MasterConfigImpl()

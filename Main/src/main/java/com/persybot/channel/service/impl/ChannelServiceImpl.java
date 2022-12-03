@@ -5,6 +5,7 @@ import com.persybot.audio.audiomanager.youtube.LazyYoutubeAudioSourceManager;
 import com.persybot.channel.Channel;
 import com.persybot.channel.service.ChannelService;
 import com.persybot.service.impl.ServiceAggregator;
+import com.persybot.spotify.api.SpotifyApiDataService;
 import com.persybot.youtube.api.YoutubeApiDataService;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -33,8 +34,7 @@ public class ChannelServiceImpl implements ChannelService {
                 rwLock.writeLock().lock();
                 if (INSTANCE == null) {
                     AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-                    // TODO: get credentials from config
-                    playerManager.registerSourceManager(new SpotifyAudioSourceManager("1876e1505c3a49a78b8de5d88d5b1165", "a4decf05314b420c96a55326c43e7d12"));
+                    playerManager.registerSourceManager(new SpotifyAudioSourceManager(ServiceAggregator.getInstance().get(SpotifyApiDataService.class).getApi()));
                     playerManager.registerSourceManager(new LazyYoutubeAudioSourceManager(ServiceAggregator.getInstance().get(YoutubeApiDataService.class).getApi()));
                     playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
                     playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
