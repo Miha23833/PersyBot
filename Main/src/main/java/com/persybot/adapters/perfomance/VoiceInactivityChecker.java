@@ -5,10 +5,9 @@ import com.persybot.channel.service.ChannelService;
 import com.persybot.config.pojo.BotConfig;
 import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,16 +38,16 @@ public class VoiceInactivityChecker extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-        if (event.getGuild().getSelfMember().getIdLong() == event.getMember().getIdLong()) {
-            guildsLastActivity.remove(event.getGuild().getIdLong());
-        }
-    }
+    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+        if (event.getChannelLeft() != null) {
+            if (event.getGuild().getSelfMember().getIdLong() == event.getMember().getIdLong()) {
+                guildsLastActivity.remove(event.getGuild().getIdLong());
+            }
+        } else if (event.getChannelJoined() != null) {
+            if (event.getGuild().getSelfMember().getIdLong() == event.getMember().getIdLong()) {
+                guildsLastActivity.put(event.getGuild().getIdLong(), System.currentTimeMillis());
+            }
 
-    @Override
-    public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
-        if (event.getGuild().getSelfMember().getIdLong() == event.getMember().getIdLong()) {
-            guildsLastActivity.put(event.getGuild().getIdLong(), System.currentTimeMillis());
         }
     }
 
@@ -69,7 +68,7 @@ public class VoiceInactivityChecker extends ListenerAdapter {
 
         if (channel != null) {
             long currentTime = System.currentTimeMillis();
-            VoiceChannel connectedChannel = channel.getGuild().getAudioManager().getConnectedChannel();
+            AudioChannelUnion connectedChannel = channel.getGuild().getAudioManager().getConnectedChannel();
 
             if (connectedChannel == null) {
                 return;

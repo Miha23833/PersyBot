@@ -23,7 +23,7 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     dependencies {
         // JDA discord API
-        implementation("net.dv8tion:JDA:4.4.0_350")
+        implementation("net.dv8tion:JDA:5.0.0-beta.8")
 
         // LavaPlayer dependencies
         implementation 'com.github.sedmelluq:lavaplayer:PR650-SNAPSHOT'

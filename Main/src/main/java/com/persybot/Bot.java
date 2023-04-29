@@ -68,7 +68,7 @@ public class Bot {
                             new JDAStateListenerAdapter(),
                             new VoiceInactivityChecker(botConfig))
                     .enableIntents(GatewayIntent.GUILD_MEMBERS,
-                            GatewayIntent.GUILD_BANS,
+                            GatewayIntent.GUILD_MODERATION,
                             GatewayIntent.GUILD_WEBHOOKS,
                             GatewayIntent.GUILD_INVITES,
                             GatewayIntent.GUILD_VOICE_STATES,
@@ -77,7 +77,8 @@ public class Bot {
                             GatewayIntent.GUILD_MESSAGE_TYPING,
                             GatewayIntent.DIRECT_MESSAGES,
                             GatewayIntent.DIRECT_MESSAGE_REACTIONS,
-                            GatewayIntent.DIRECT_MESSAGE_TYPING)
+                            GatewayIntent.DIRECT_MESSAGE_TYPING,
+                            GatewayIntent.MESSAGE_CONTENT)
                     .build();
         } catch (Throwable e) {
             PersyBotLogger.BOT_LOGGER.fatal(e.getStackTrace(), e);

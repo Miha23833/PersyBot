@@ -14,8 +14,8 @@ import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
             return false;
         }
 
-        final TextChannel rspChannel = context.getEvent().getChannel();
+        final TextChannel rspChannel = context.getEvent().getChannel().asTextChannel();
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
@@ -49,8 +49,8 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
             return false;
         }
 
-        if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember(),requestingMember.getVoiceState().getChannel())
-                && !BotUtils.canJoin(requestingMember, requestingMember.getVoiceState().getChannel())) {
+        if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember(),requestingMember.getVoiceState().getChannel().asVoiceChannel())
+                && !BotUtils.canJoin(requestingMember, requestingMember.getVoiceState().getChannel().asVoiceChannel())) {
             BotUtils.sendMessage("I cannot connect to your voice channel", rspChannel);
             return false;
         }
@@ -69,21 +69,21 @@ public class PlayMusicTextCommand extends AbstractTextCommand {
 
         DiscordServerSettings audioSettings = discordServer.getSettings();
 
-        VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();
+        VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel().asVoiceChannel();
         String link = String.join(" ", context.getArgs());
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
             ServiceAggregator.getInstance().get(ChannelService.class)
                     .getChannel(context.getGuildId())
                     .voiceChannelAction().joinChannel(voiceChannel);
-            BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel().asTextChannel());
 
             if (audioSettings.getMeetAudioLink() != null && !channel.getAudioPlayer().isPlaying()) {
-                channel.playerAction().playSong(audioSettings.getMeetAudioLink(), context.getEvent().getChannel());
+                channel.playerAction().playSong(audioSettings.getMeetAudioLink(), context.getEvent().getChannel().asTextChannel());
             }
         }
 
-        channel.playerAction().playSong(link, context.getEvent().getChannel());
+        channel.playerAction().playSong(link, context.getEvent().getChannel().asTextChannel());
         return true;
     }
 

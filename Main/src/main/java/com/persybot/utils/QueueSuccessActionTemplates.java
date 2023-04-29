@@ -10,6 +10,6 @@ import java.util.function.Consumer;
 public interface QueueSuccessActionTemplates {
     static Consumer<Message> addToSelfCleaner(MessageType msgType) {
         return message -> ServiceAggregator.getInstance().get(SelfFloodController.class)
-                .addMessage(msgType, message.getTextChannel().getIdLong(), message.getIdLong());
+                .addMessage(msgType, message.getChannel().getIdLong(), message.getIdLong());
     }
 }

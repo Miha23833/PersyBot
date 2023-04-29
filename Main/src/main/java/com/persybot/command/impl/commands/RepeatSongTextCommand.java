@@ -37,7 +37,7 @@ public class RepeatSongTextCommand extends AbstractTextCommand {
 
     @Override
     protected boolean runAfter(TextCommandContext context) {
-        BotUtils.sendMessage(new DefaultTextMessage("Repeating song...").template(), context.getEvent().getChannel());
+        BotUtils.sendMessage(new DefaultTextMessage("Repeating song...").template(), context.getEvent().getChannel().asTextChannel());
         return true;
     }
 

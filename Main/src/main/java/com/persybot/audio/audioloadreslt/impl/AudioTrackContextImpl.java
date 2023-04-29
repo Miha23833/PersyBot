@@ -1,16 +1,11 @@
 package com.persybot.audio.audioloadreslt.impl;
 
 import com.persybot.audio.audioloadreslt.AudioTrackContext;
-import com.persybot.logger.impl.PersyBotLogger;
-import com.persybot.utils.URLUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import net.dv8tion.jda.api.entities.TextChannel;
-
-import java.net.URISyntaxException;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import static com.persybot.utils.DateTimeUtils.toTimeDuration;
-import static com.persybot.utils.URLUtil.isYoutubeDomain;
 
 public class AudioTrackContextImpl implements AudioTrackContext {
     private final AudioTrack track;

@@ -3,9 +3,9 @@ package com.persybot.message.template.impl;
 import com.persybot.message.template.BotColor;
 import com.persybot.message.template.MessageTemplate;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class InfoMessage implements MessageTemplate {
     private final String title;
@@ -17,8 +17,8 @@ public class InfoMessage implements MessageTemplate {
     }
 
     @Override
-    public Message template() {
+    public MessageCreateData template() {
         MessageEmbed embedMessage = new EmbedBuilder().setColor(BotColor.EMBED.color()).setTitle(title).setDescription(content) .build();
-        return new MessageBuilder().setEmbeds(embedMessage).build();
+        return new MessageCreateBuilder().setEmbeds(embedMessage).build();
     }
 }

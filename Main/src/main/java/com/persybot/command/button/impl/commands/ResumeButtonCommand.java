@@ -26,7 +26,7 @@ public class ResumeButtonCommand implements ButtonCommand {
 
         context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player resumed").template())
                 .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class)
-                        .addMessage(MessageType.PLAYER_STATE, x.getTextChannel().getIdLong(), x.getIdLong()));
+                        .addMessage(MessageType.PLAYER_STATE, x.getIdLong(), x.getIdLong()));
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.persybot.message.template.impl.InfoMessage;
 import com.persybot.utils.QueueSuccessActionTemplates;
 import com.persybot.utils.URLUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -115,7 +115,7 @@ public class SynchronizedTrackScheduler implements TrackScheduler, PlayerStateSe
         return this.trackQueue.stream().map(AudioTrackContext::getTrackPresent).collect(Collectors.toList());
     }
 
-    private Message getQueuedTrackMessage(List<AudioTrackContext> tracks) {
+    private MessageCreateData getQueuedTrackMessage(List<AudioTrackContext> tracks) {
         StringBuilder queuedTracksRsp = new StringBuilder();
 
         int trackInfoRspLineLimit = Math.min(tracks.size(), 8);

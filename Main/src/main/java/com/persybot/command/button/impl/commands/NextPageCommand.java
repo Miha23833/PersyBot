@@ -8,6 +8,8 @@ import com.persybot.message.template.impl.PagingMessage;
 import com.persybot.paginator.PageableMessage;
 import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public class NextPageCommand implements ButtonCommand {
     private final PageableMessageCache cache;
@@ -18,7 +20,7 @@ public class NextPageCommand implements ButtonCommand {
 
     @Override
     public void execute(ButtonCommandContext context) {
-        long textChannelId = context.getEvent().getMessage().getTextChannel().getIdLong();
+        long textChannelId = context.getEvent().getMessage().getIdLong();
         Message currentMessage = context.getEvent().getMessage();
         PageableMessage pageableMessage = cache.get(textChannelId, context.getEvent().getMessageIdLong());
 
@@ -26,10 +28,10 @@ public class NextPageCommand implements ButtonCommand {
             return;
         }
 
-        Message nextMessage = new PagingMessage(
+        MessageEditData nextMessage = MessageEditBuilder.fromCreateData(new PagingMessage(
                 pageableMessage.next(),
                 pageableMessage.hasPrev(),
-                pageableMessage.hasNext()).template();
+                pageableMessage.hasNext()).template()).build();
 
         currentMessage.editMessage(nextMessage).queue();
     }

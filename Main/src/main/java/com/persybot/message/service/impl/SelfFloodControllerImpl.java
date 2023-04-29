@@ -6,7 +6,7 @@ import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.message.service.MessageType;
 import com.persybot.message.service.SelfFloodController;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.HashMap;
 import java.util.List;

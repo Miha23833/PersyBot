@@ -28,7 +28,7 @@ public class SkipSongButtonCommand implements ButtonCommand {
         if (!isExecutorAndBotAreInSameVoiceChannel(voiceState, audioManager)) {
             context.getEvent().getChannel().sendMessage(new InfoMessage(null, "You must be in the same channel as me to skip song").template())
                     .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class)
-                            .addMessage(MessageType.BUTTON_ERROR, x.getTextChannel().getIdLong(), x.getIdLong()));
+                            .addMessage(MessageType.BUTTON_ERROR, x.getChannel().asTextChannel().getIdLong(), x.getIdLong()));
             return;
         }
 
@@ -41,7 +41,7 @@ public class SkipSongButtonCommand implements ButtonCommand {
     }
 
     private boolean isExecutorInVoiceChannel(GuildVoiceState memberVoiceState) {
-        return memberVoiceState != null && memberVoiceState.inVoiceChannel() && memberVoiceState.getChannel() != null;
+        return memberVoiceState != null && memberVoiceState.inAudioChannel() && memberVoiceState.getChannel() != null;
     }
 
     private boolean isExecutorAndBotAreInSameVoiceChannel(GuildVoiceState memberVoiceState, AudioManager audioManager) {

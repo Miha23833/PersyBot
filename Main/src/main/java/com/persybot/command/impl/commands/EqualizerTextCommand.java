@@ -102,7 +102,7 @@ public class EqualizerTextCommand extends AbstractTextCommand {
             List<String> presetNames = dbService.readAll(EqualizerPreset.class).stream().map(EqualizerPreset::getName).collect(Collectors.toList());
 
             if (presetNames.size() == 0) {
-                BotUtils.sendMessage("Now I don't have any equalizer preset", context.getEvent().getChannel());
+                BotUtils.sendMessage("Now I don't have any equalizer preset", context.getEvent().getChannel().asTextChannel());
                 return false;
             }
 
@@ -112,7 +112,7 @@ public class EqualizerTextCommand extends AbstractTextCommand {
                     .map(part -> new InfoMessage("Available equalizer presets:", String.join("\n ", part)).template())
                     .forEach(rsp::addMessage);
 
-            BotUtils.sendPageableMessage(rsp, context.getEvent().getChannel(), PAGEABLE_MESSAGE_TYPE.EQUALIZER_LIST, cache);
+            BotUtils.sendPageableMessage(rsp, context.getEvent().getChannel().asTextChannel(), PAGEABLE_MESSAGE_TYPE.EQUALIZER_LIST, cache);
             return false;
         }
     }

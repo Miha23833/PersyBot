@@ -1,17 +1,17 @@
 package com.persybot.paginator;
 
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.collections4.list.CursorableLinkedList;
 
 public class PageableMessage {
-    private final CursorableLinkedList<Message> pages;
-    private final CursorableLinkedList.Cursor<Message> cursor;
+    private final CursorableLinkedList<MessageCreateData> pages;
+    private final CursorableLinkedList.Cursor<MessageCreateData> cursor;
 
     private final Long messageId;
 
-    private Message current;
+    private MessageCreateData current;
 
-    private PageableMessage(Long messageId, CursorableLinkedList<Message> data) {
+    private PageableMessage(Long messageId, CursorableLinkedList<MessageCreateData> data) {
         this.messageId = messageId;
         this.pages = data;
 
@@ -23,7 +23,7 @@ public class PageableMessage {
         return this.cursor.hasNext();
     }
 
-    public Message next() {
+    public MessageCreateData next() {
         this.current = this.cursor.next();
         return this.current;
     }
@@ -32,12 +32,12 @@ public class PageableMessage {
         return this.cursor.hasPrevious();
     }
 
-    public Message prev() {
+    public MessageCreateData prev() {
         current = this.cursor.previous();
         return this.current;
     }
 
-    public Message getCurrent() {
+    public MessageCreateData getCurrent() {
         return this.current;
     }
 
@@ -45,7 +45,7 @@ public class PageableMessage {
         return messageId;
     }
 
-    private CursorableLinkedList<Message> getPages() {
+    private CursorableLinkedList<MessageCreateData> getPages() {
         return this.pages;
     }
 
@@ -54,18 +54,18 @@ public class PageableMessage {
     }
 
     public static class Builder {
-        private final CursorableLinkedList<Message> messages;
+        private final CursorableLinkedList<MessageCreateData> messages;
 
         private Builder() {
             this.messages = new CursorableLinkedList<>();
         }
 
-        public Builder addMessage(Message message) {
-            this.messages.add(message);
+        public Builder addMessage(MessageCreateData MessageCreateData) {
+            this.messages.add(MessageCreateData);
             return this;
         }
 
-        public Message get(int index) {
+        public MessageCreateData get(int index) {
             if (index >= messages.size()) {
                 throw new IndexOutOfBoundsException(String.format("Size is %s, but index was: %s", messages.size(), index));
             }

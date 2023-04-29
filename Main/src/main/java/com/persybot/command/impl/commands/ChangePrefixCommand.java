@@ -43,7 +43,7 @@ public class ChangePrefixCommand extends AbstractTextCommand {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
-            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel().asTextChannel());
             return false;
         }
         return true;
@@ -60,7 +60,7 @@ public class ChangePrefixCommand extends AbstractTextCommand {
 
         ServiceAggregator.getInstance().get(DBService.class).update(channel.getDiscordServer());
 
-        BotUtils.sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template(), context.getEvent().getChannel());
+        BotUtils.sendMessage(new DefaultTextMessage(String.join("","Prefix updated to ", "'", prefix, "'")).template(), context.getEvent().getChannel().asTextChannel());
         return true;
     }
 

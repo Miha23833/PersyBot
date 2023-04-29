@@ -45,7 +45,7 @@ public abstract class AbstractTextCommand implements TextCommand {
     protected abstract ValidationResult<TEXT_COMMAND_REJECT_REASON> validateArgs(List<String> args);
 
     protected final boolean isExecutorInVoiceChannel(GuildVoiceState memberVoiceState) {
-        return memberVoiceState != null && memberVoiceState.inVoiceChannel() && memberVoiceState.getChannel() != null;
+        return memberVoiceState != null && memberVoiceState.inAudioChannel() && memberVoiceState.getChannel() != null;
     }
 
     protected final boolean isExecutorAndBotAreInSameVoiceChannel(GuildVoiceState memberVoiceState, AudioManager audioManager) {

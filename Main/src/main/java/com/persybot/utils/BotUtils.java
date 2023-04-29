@@ -10,17 +10,17 @@ import com.persybot.service.impl.ServiceAggregator;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 public interface BotUtils {
     static boolean isMemberInVoiceChannel(Member member) {
-        return Objects.requireNonNull(member.getVoiceState()).inVoiceChannel();
+        return Objects.requireNonNull(member.getVoiceState()).inAudioChannel();
     }
 
     static boolean isMemberInSameVoiceChannelAsBot(Member member, Member selfMember) {
@@ -49,14 +49,14 @@ public interface BotUtils {
     }
 
     static boolean canWrite(Member selfMember, TextChannel targetChannel) {
-        return selfMember.hasPermission(Permission.MESSAGE_WRITE) && targetChannel.canTalk();
+        return selfMember.hasPermission(Permission.MESSAGE_SEND) && targetChannel.canTalk();
     }
 
     static void sendMessage(@NotNull String text, @NotNull TextChannel channel) {
         channel.sendMessage(text).queue();
     }
 
-    static void sendMessage(@NotNull Message message, @NotNull TextChannel channel) {
+    static void sendMessage(@NotNull MessageCreateData message, @NotNull TextChannel channel) {
         channel.sendMessage(message).queue();
     }
 
@@ -77,7 +77,7 @@ public interface BotUtils {
             sendMessage(new PagingMessage(message.get(0), false, false).template(), channel);
         } else {
             channel.sendMessage(new PagingMessage(message.get(0), false, true).template())
-                    .queue(success -> cache.add(success.getTextChannel().getIdLong(), PAGEABLE_MESSAGE_TYPE.PLAYLISTS, message.build(success.getIdLong())));
+                    .queue(success -> cache.add(success.getChannel().getIdLong(), PAGEABLE_MESSAGE_TYPE.PLAYLISTS, message.build(success.getIdLong())));
         }
     }
 

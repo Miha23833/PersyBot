@@ -2,10 +2,10 @@ package com.persybot.adapters;
 
 import com.persybot.enums.BUTTON_ID;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.internal.requests.restaction.MessageCreateActionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class SelfMessagesListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getJDA().getSelfUser().getIdLong() != event.getAuthor().getIdLong()) {
             return;
         }
@@ -49,7 +49,7 @@ public class SelfMessagesListener extends ListenerAdapter {
         }
     }
 
-    private void removeSelfPreviousMessagesButtons(GuildMessageReceivedEvent event, Predicate<Message> buttonFilter) {
+    private void removeSelfPreviousMessagesButtons(MessageReceivedEvent event, Predicate<Message> buttonFilter) {
         long guildId = event.getGuild().getIdLong();
         long textChannelId = event.getChannel().getIdLong();
 
@@ -72,7 +72,7 @@ public class SelfMessagesListener extends ListenerAdapter {
     }
 
     private void removeButtons(Message message) {
-        new MessageActionImpl(message.getJDA(), message.getId(), message.getChannel()).setActionRows().queue();
+        new MessageCreateActionImpl(message.getChannel()).setActionRow().queue();
     }
 
     private boolean containsExactlyPlayerButtons(Message message) {
@@ -84,7 +84,7 @@ public class SelfMessagesListener extends ListenerAdapter {
     }
 
     private boolean containsExactlyButtons(Message message, Set<String> buttonIds) {
-        return message.getButtons().stream().map(Component::getId).filter(Objects::nonNull).allMatch(buttonIds::contains);
+        return message.getButtons().stream().map(Button::getId).filter(Objects::nonNull).allMatch(buttonIds::contains);
     }
 
     private void addToMessages(Map<Long, Map<Long, Queue<Message>>> pool, long guildId, long textChannelId, Message message) {

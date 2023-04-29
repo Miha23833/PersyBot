@@ -25,7 +25,7 @@ public class PauseButtonCommand implements ButtonCommand {
 
         context.getEvent().getChannel().sendMessage(new DefaultTextMessage("Player paused").template())
                 .queue(x -> ServiceAggregator.getInstance().get(SelfFloodController.class)
-                        .addMessage(MessageType.PLAYER_STATE, x.getTextChannel().getIdLong(), x.getIdLong()));
+                        .addMessage(MessageType.PLAYER_STATE, x.getIdLong(), x.getIdLong()));
     }
 
     @Override

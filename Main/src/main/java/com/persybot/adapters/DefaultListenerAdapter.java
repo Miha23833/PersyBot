@@ -11,8 +11,8 @@ import com.persybot.enums.BUTTON_ID;
 import com.persybot.logger.impl.PersyBotLogger;
 import com.persybot.service.impl.ServiceAggregator;
 import com.persybot.utils.EnumUtils;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +28,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         String prefix = channelService.getChannel(event.getGuild().getIdLong()).getDiscordServer().getSettings().getPrefix();
         if (event.getMessage().getContentRaw().startsWith(prefix) && !event.getMessage().getContentRaw().equals(prefix)) {
             TextCommandContext context = new TextCommandContextImpl(event, prefix);
@@ -43,7 +43,7 @@ public class DefaultListenerAdapter extends ListenerAdapter {
     }
 
     @Override
-    public void onButtonClick(@NotNull ButtonClickEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getButton() == null) {
             return;
         }

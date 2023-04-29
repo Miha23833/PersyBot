@@ -2,14 +2,14 @@ package com.persybot.command.button.impl;
 
 import com.persybot.command.ButtonCommandContext;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.util.Objects;
 
 public class ButtonCommandContextImpl implements ButtonCommandContext {
-    private final ButtonClickEvent event;
+    private final ButtonInteractionEvent event;
 
-    public ButtonCommandContextImpl(ButtonClickEvent event) {
+    public ButtonCommandContextImpl(ButtonInteractionEvent event) {
         this.event = event;
     }
 
@@ -19,7 +19,7 @@ public class ButtonCommandContextImpl implements ButtonCommandContext {
     }
 
     @Override
-    public ButtonClickEvent getEvent() {
+    public ButtonInteractionEvent getEvent() {
         return event;
     }
 

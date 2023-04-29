@@ -1,6 +1,6 @@
 package com.persybot.channel.botaction;
 
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public interface PlayerAction {
     void playSong(String songLink, TextChannel requestingChannel);

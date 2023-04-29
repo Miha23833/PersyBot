@@ -21,8 +21,8 @@ import com.persybot.utils.BotUtils;
 import com.persybot.validation.ValidationResult;
 import com.persybot.validation.impl.TextCommandValidationResult;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +54,7 @@ public class PlaylistCommand extends AbstractTextCommand {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
-            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel().asTextChannel());
             return false;
         }
 
@@ -68,7 +68,7 @@ public class PlaylistCommand extends AbstractTextCommand {
             return true;
         }
 
-        final TextChannel rspChannel = context.getEvent().getChannel();
+        final TextChannel rspChannel = context.getEvent().getChannel().asTextChannel();
 
         if (context.getArgs().size() == 1) {
             if (!BotUtils.isMemberInVoiceChannel(requestingMember)) {
@@ -76,8 +76,8 @@ public class PlaylistCommand extends AbstractTextCommand {
                 return false;
             }
 
-            if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember(), requestingMember.getVoiceState().getChannel())
-                    && !BotUtils.canJoin(requestingMember, requestingMember.getVoiceState().getChannel())) {
+            if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember(), requestingMember.getVoiceState().getChannel().asVoiceChannel())
+                    && !BotUtils.canJoin(requestingMember, requestingMember.getVoiceState().getChannel().asVoiceChannel())) {
                 BotUtils.sendMessage("I cannot connect to your voice channel", rspChannel);
                 return false;
             }
@@ -116,9 +116,9 @@ public class PlaylistCommand extends AbstractTextCommand {
             if (context.getArgs().get(0).equals(SHOW_PLAYLIST_LIST_KEYWORD)) {
                 Map<String, PlayList> playlists = getPlaylists(context.getGuildId());
                 if (playlists.isEmpty()) {
-                    BotUtils.sendMessage("There is no playlists", context.getEvent().getChannel());
+                    BotUtils.sendMessage("There is no playlists", context.getEvent().getChannel().asTextChannel());
                 }
-                sendListOfPlaylists(context.getGuildId(), context.getEvent().getChannel());
+                sendListOfPlaylists(context.getGuildId(), context.getEvent().getChannel().asTextChannel());
                 return true;
             }
             else {
@@ -131,16 +131,16 @@ public class PlaylistCommand extends AbstractTextCommand {
                     DiscordServerSettings audioSettings = discordServer.getSettings();
                     Channel channel = this.serviceAggregator.get(ChannelService.class).getChannel(context.getGuildId());
                     if (audioSettings.getMeetAudioLink() != null && !channel.hasInitiatedAudioPlayer()) {
-                        channel.playerAction().playSong(audioSettings.getMeetAudioLink(), context.getEvent().getChannel());
+                        channel.playerAction().playSong(audioSettings.getMeetAudioLink(), context.getEvent().getChannel().asTextChannel());
                     }
                 }
-                playPlaylist(playListName, context.getGuildId(), context.getEvent().getChannel(), context);
+                playPlaylist(playListName, context.getGuildId(), context.getEvent().getChannel().asTextChannel(), context);
             }
         }
         else if (context.getArgs().size() > 1) {
             String playListName = context.getArgs().get(0);
             String playlistLink = context.getArgs().get(1);
-            savePlaylist(playListName, context.getGuildId(), playlistLink, context.getEvent().getChannel());
+            savePlaylist(playListName, context.getGuildId(), playlistLink, context.getEvent().getChannel().asTextChannel());
         }
         return true;
     }
@@ -195,13 +195,13 @@ public class PlaylistCommand extends AbstractTextCommand {
             return;
         }
 
-        VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel();
+        VoiceChannel voiceChannel = context.getEvent().getMember().getVoiceState().getChannel().asVoiceChannel();
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
             this.serviceAggregator.get(ChannelService.class)
                     .getChannel(context.getGuildId())
                     .voiceChannelAction().joinChannel(voiceChannel);
-            BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage("Connected to " + voiceChannel.getName()).template(), context.getEvent().getChannel().asTextChannel());
         }
 
         this.serviceAggregator.get(ChannelService.class).getChannel(guildId).playerAction().playSong(playList.getUrl(), rspChannel);

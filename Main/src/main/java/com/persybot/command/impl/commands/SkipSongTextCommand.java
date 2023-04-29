@@ -38,7 +38,7 @@ public class SkipSongTextCommand extends AbstractTextCommand {
         if (context.getEvent().getMember() == null) return false;
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getEvent().getMember(), context.getGuild().getSelfMember())) {
-            BotUtils.sendMessage(new DefaultTextMessage("You must be in the same channel as me to skip song").template(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage("You must be in the same channel as me to skip song").template(), context.getEvent().getChannel().asTextChannel());
             return false;
         }
         return true;
@@ -70,6 +70,6 @@ public class SkipSongTextCommand extends AbstractTextCommand {
     }
 
     private void sendIncorrectCountOfSkipsMessage(TextCommandContext context) {
-        BotUtils.sendMessage(new DefaultTextMessage("Incorrect count of skipping songs").template(),  context.getEvent().getChannel());
+        BotUtils.sendMessage(new DefaultTextMessage("Incorrect count of skipping songs").template(),  context.getEvent().getChannel().asTextChannel());
     }
 }

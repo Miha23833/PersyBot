@@ -47,7 +47,7 @@ public class ShowQueueCommand implements TextCommand {
                 .map(part -> new InfoMessage("Now playing tracks:", String.join("\n ", part)).template())
                 .forEach(rsp::addMessage);
 
-        BotUtils.sendPageableMessage(rsp, context.getEvent().getChannel(), PAGEABLE_MESSAGE_TYPE.PLAYER_QUEUE, cache);
+        BotUtils.sendPageableMessage(rsp, context.getEvent().getChannel().asTextChannel(), PAGEABLE_MESSAGE_TYPE.PLAYER_QUEUE, cache);
 
     }
 

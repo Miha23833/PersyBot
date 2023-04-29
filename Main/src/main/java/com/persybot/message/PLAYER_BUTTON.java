@@ -1,9 +1,9 @@
 package com.persybot.message;
 
 import com.persybot.enums.BUTTON_ID;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 public enum PLAYER_BUTTON {
     PAUSE(ButtonStyle.SUCCESS, BUTTON_ID.PLAYER_PAUSE.getId(), Emoji.fromUnicode("U+23F8")),

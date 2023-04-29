@@ -27,12 +27,12 @@ public class LeaveChannelTextCommand extends AbstractTextCommand {
         if (context.getEvent().getMember() == null) return false;
 
         if (!BotUtils.isMemberInVoiceChannel(context.getGuild().getSelfMember())) {
-            BotUtils.sendMessage("I am not connected to a voice channel", context.getEvent().getChannel());
+            BotUtils.sendMessage("I am not connected to a voice channel", context.getEvent().getChannel().asTextChannel());
             return false;
         }
 
         if (!BotUtils.isMemberInSameVoiceChannelAsBot(context.getGuild().getSelfMember(), context.getEvent().getMember())){
-            BotUtils.sendMessage("You must be in the same channel as me", context.getEvent().getChannel());
+            BotUtils.sendMessage("You must be in the same channel as me", context.getEvent().getChannel().asTextChannel());
             return false;
         }
         return true;
@@ -49,7 +49,7 @@ public class LeaveChannelTextCommand extends AbstractTextCommand {
     @Override
     protected boolean runAfter(TextCommandContext context) {
 
-        BotUtils.sendMessage(new DefaultTextMessage("Left voice channel").template(), context.getEvent().getChannel());
+        BotUtils.sendMessage(new DefaultTextMessage("Left voice channel").template(), context.getEvent().getChannel().asTextChannel());
         return true;
     }
 

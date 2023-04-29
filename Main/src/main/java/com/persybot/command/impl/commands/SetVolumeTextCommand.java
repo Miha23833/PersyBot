@@ -48,7 +48,7 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
         ValidationResult<TEXT_COMMAND_REJECT_REASON> validationResult = validateArgs(context.getArgs());
 
         if (!validationResult.isValid()) {
-            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel());
+            BotUtils.sendMessage(new DefaultTextMessage(validationResult.rejectText()).template(), context.getEvent().getChannel().asTextChannel());
             return false;
         }
         return true;
@@ -72,7 +72,7 @@ public class SetVolumeTextCommand extends AbstractTextCommand {
 
         BotUtils.sendMessage(
                 new DefaultTextMessage(String.join("","Volume updated to ", "'", BotUtils.bold(String.valueOf(volume)), "'")).template(),
-                context.getEvent().getChannel());
+                context.getEvent().getChannel().asTextChannel());
 
         return true;
     }
